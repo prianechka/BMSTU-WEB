@@ -1,160 +1,122 @@
 package studentRepo
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5"
+	"database/sql"
 	"src/db/sql"
 	"src/objects"
 )
 
 type PgStudentRepo struct {
-	ConnectParams objects.PgConnection
+	Conn *sql.DB
 }
 
 func (pg *PgStudentRepo) AddStudent(newStudent objects.StudentDTO, accID int) error {
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLAddStudent{}.GetString(newStudent, accID)
-		_, err = conn.Query(context.Background(), sqlString)
-	}
+	sqlString := pgsql.PostgreSQLAddStudent{}.GetString()
+	_, err := pg.Conn.Query(sqlString, newStudent.GetName(), newStudent.GetSurname(), newStudent.GetStudentGroup(),
+		newStudent.GetStudentNumber(), accID)
 	return err
 }
 
 func (pg *PgStudentRepo) GetAllStudents() ([]objects.Student, error) {
-	var resultStudents = make([]objects.Student, objects.Empty)
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer func() {
-		conn.Close(context.Background())
-	}()
-	if err == nil {
-		sqlString := pgsql.PostgreSQLGetAllStudents{}.GetString()
-		rows, execError := conn.Query(context.Background(), sqlString)
-		if execError == nil {
-			for rows.Next() {
-				values, readRowError := rows.Values()
-				if readRowError == nil {
-					studentID := int(values[0].(int32))
-					accID := int(values[1].(int32))
-					studentName := values[2].(string)
-					studentSurname := values[3].(string)
-					studentGroup := values[4].(string)
-					studentNumber := values[5].(string)
-					roomID := int(values[6].(int32))
-
-					tmpThings := objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
-						studentGroup, studentNumber, roomID)
-					resultStudents = append(resultStudents, tmpThings)
-				} else {
-					err = readRowError
-				}
+	var (
+		resultStudents                                           = make([]objects.Student, objects.Empty)
+		studentID, accID, roomID                                 int
+		studentName, studentSurname, studentGroup, studentNumber string
+		err                                                      error
+	)
+	sqlString := pgsql.PostgreSQLGetAllStudents{}.GetString()
+	rows, execError := pg.Conn.Query(sqlString)
+	if execError == nil {
+		for rows.Next() {
+			scanErr := rows.Scan(&studentID, &accID, &studentName, &studentSurname, &studentGroup, &studentNumber, &roomID)
+			if scanErr == nil {
+				tmpStudent := objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
+					studentGroup, studentNumber, roomID)
+				resultStudents = append(resultStudents, tmpStudent)
+			} else {
+				err = scanErr
 			}
-		} else {
-			err = execError
 		}
+	} else {
+		err = execError
 	}
 	return resultStudents, err
 }
 
 func (pg *PgStudentRepo) GetStudentID(studentNumber string) (int, error) {
 	var result int
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLGetStudentID{}.GetString(studentNumber)
-		row := conn.QueryRow(context.Background(), sqlString)
-		err = row.Scan(&result)
-	}
+	sqlString := pgsql.PostgreSQLGetStudentID{}.GetString()
+	row := pg.Conn.QueryRow(sqlString, studentNumber)
+	err := row.Scan(&result)
 	return result, err
 }
 
 func (pg *PgStudentRepo) GetStudent(id int) (objects.Student, error) {
-	var student = objects.NewEmptyStudent()
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLGetStudent{}.GetString(id)
-		rows, execError := conn.Query(context.Background(), sqlString)
-		if execError == nil {
-			for rows.Next() {
-				values, readRowError := rows.Values()
-				if readRowError == nil {
-					studentID := int(values[0].(int32))
-					accID := int(values[1].(int32))
-					studentName := values[2].(string)
-					studentSurname := values[3].(string)
-					studentGroup := values[4].(string)
-					studentNumber := values[5].(string)
-					roomID := int(values[6].(int32))
-
-					student = objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
-						studentGroup, studentNumber, roomID)
-				} else {
-					err = readRowError
-				}
+	var (
+		student                                                  = objects.NewEmptyStudent()
+		studentID, accID, roomID                                 int
+		studentName, studentSurname, studentGroup, studentNumber string
+		err                                                      error
+	)
+	sqlString := pgsql.PostgreSQLGetStudent{}.GetString()
+	rows, execError := pg.Conn.Query(sqlString, id)
+	if execError == nil {
+		for rows.Next() {
+			scanErr := rows.Scan(&studentID, &accID, &studentName, &studentSurname, &studentGroup, &studentNumber, &roomID)
+			if scanErr == nil {
+				student = objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
+					studentGroup, studentNumber, roomID)
+			} else {
+				err = scanErr
 			}
-		} else {
-			err = execError
 		}
+	} else {
+		err = execError
 	}
 	return student, err
 }
 
 func (pg *PgStudentRepo) TransferStudent(studentID, roomID int, direct objects.TransferDirection) error {
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLTransferStudent{}.GetString(studentID, roomID, direct)
-		_, err = conn.Query(context.Background(), sqlString)
-	}
+	sqlString := pgsql.PostgreSQLTransferStudent{}.GetString()
+	_, err := pg.Conn.Query(sqlString, studentID, roomID, int(direct))
 	return err
 }
 
 func (pg *PgStudentRepo) ChangeStudent(studentID int, studentInfo objects.StudentDTO) error {
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLChangeStudent{}.GetString(studentID, studentInfo)
-		_, err = conn.Query(context.Background(), sqlString)
-	}
+	sqlString := pgsql.PostgreSQLChangeStudent{}.GetString()
+	_, err := pg.Conn.Query(sqlString, studentInfo.GetName(), studentInfo.GetSurname(),
+		studentInfo.GetStudentGroup(), studentInfo.GetStudentNumber(), studentID)
 	return err
 }
 
 func (pg *PgStudentRepo) TransferThing(studentID, thingID int, direct objects.TransferDirection) error {
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLTransferThing{}.GetString(studentID, thingID, direct)
-		_, err = conn.Query(context.Background(), sqlString)
-	}
+	sqlString := pgsql.PostgreSQLTransferThing{}.GetString()
+	_, err := pg.Conn.Query(sqlString, studentID, thingID, int(direct))
 	return err
 }
 
 func (pg *PgStudentRepo) GetStudentThings(id int) ([]objects.Thing, error) {
-	var resultThings = make([]objects.Thing, objects.Empty)
-	conn, err := pgx.Connect(context.Background(), pg.ConnectParams.GetURL())
-	defer conn.Close(context.Background())
-	if err == nil {
-		sqlString := pgsql.PostgreSQLGetStudentsThings{}.GetString(id)
-		rows, execError := conn.Query(context.Background(), sqlString)
-		if execError == nil {
-			for rows.Next() {
-				values, readRowError := rows.Values()
-				if readRowError == nil {
-					thingID := int(values[0].(int32))
-					markNumber := int(values[1].(int32))
-					thingType := values[2].(string)
-					ownerID := int(values[3].(int32))
-					roomID := int(values[4].(int32))
-					tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
-					resultThings = append(resultThings, tmpThings)
-				} else {
-					err = readRowError
-				}
+	var (
+		resultThings                         = make([]objects.Thing, objects.Empty)
+		thingID, markNumber, ownerID, roomID int
+		thingType                            string
+		err                                  error
+	)
+	sqlString := pgsql.PostgreSQLGetStudentsThings{}.GetString()
+	rows, execError := pg.Conn.Query(sqlString, id)
+	if execError == nil {
+		for rows.Next() {
+			readRowErr := rows.Scan(&thingID, &markNumber, &thingType, &ownerID, &roomID)
+			if err == nil {
+				tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
+				resultThings = append(resultThings, tmpThings)
+			} else {
+				err = readRowErr
+				break
 			}
-		} else {
-			err = execError
 		}
+	} else {
+		err = execError
 	}
 	return resultThings, err
 }

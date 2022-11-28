@@ -2,7 +2,6 @@ package pgsql
 
 import (
 	"fmt"
-	"src/objects"
 )
 
 type PostgreSQLChangeStudent struct{}
@@ -28,78 +27,72 @@ type PostgreSQLGetUserId struct{}
 type PostgreSQLGetUser struct{}
 type PostgreSQLAddUser struct{}
 
-func (pg PostgreSQLChangeStudent) GetString(studentID int, studentInfo objects.StudentDTO) string {
-	return fmt.Sprintf("UPDATE PPO.Student SET StudentName = '%s', StudentSurname = '%s', "+
-		"', StudentGroup = '%s', StudentNumber = '%s' WHERE StudentID = %d;", studentInfo.GetName(),
-		studentInfo.GetSurname(), studentInfo.GetStudentGroup(), studentInfo.GetStudentNumber(),
-		studentID)
+func (pg PostgreSQLChangeStudent) GetString() string {
+	return "UPDATE PPO.Student SET StudentName = '?', StudentSurname = '?', " +
+		"', StudentGroup = '?', StudentNumber = '?' WHERE StudentID = ?;"
 }
 
-func (pg PostgreSQLGetStudent) GetString(id int) string {
-	return fmt.Sprintf("SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, "+
-		"S.studentgroup, S.studentnumber, PPO.FindStudentRoom(S.studentid) "+
-		"FROM PPO.Student as S WHERE S.studentid = %d;", id)
+func (pg PostgreSQLGetStudent) GetString() string {
+	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
+		"S.studentgroup, S.studentnumber, PPO.FindStudentRoom(S.studentid) " +
+		"FROM PPO.Student as S WHERE S.studentid = ?;"
 }
-func (pg PostgreSQLGetStudentID) GetString(studentNumber string) string {
-	return fmt.Sprintf("SELECT S.studentid FROM PPO.Student as S WHERE StudentNumber = '%s';",
-		studentNumber)
+func (pg PostgreSQLGetStudentID) GetString() string {
+	return "SELECT S.studentid FROM PPO.Student as S WHERE StudentNumber = '?';"
 }
 
-func (pg PostgreSQLGetStudentsThings) GetString(id int) string {
-	return fmt.Sprintf("SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), "+
-		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = %d;", id)
+func (pg PostgreSQLGetStudentsThings) GetString() string {
+	return "SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), " +
+		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = ?;"
 }
 func (pg PostgreSQLGetAllStudents) GetString() string {
-	return fmt.Sprintf("SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
+	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
 		"S.studentgroup, S.studentnumber, " +
 		"PPO.FindStudentRoom(S.studentid) " +
-		"FROM PPO.Student as S;")
+		"FROM PPO.Student as S;"
 }
 
-func (pg PostgreSQLAddStudent) GetString(newStudent objects.StudentDTO, accID int) string {
-	return fmt.Sprintf("INSERT INTO PPO.Student(studentname, studentsurname, studentgroup, "+
-		"studentnumber, settledate, webaccid) VALUES ('%s', '%s', '%s', '%s', current_date, %d);",
-		newStudent.GetName(), newStudent.GetSurname(), newStudent.GetStudentGroup(),
-		newStudent.GetStudentNumber(), accID)
+func (pg PostgreSQLAddStudent) GetString() string {
+	return "INSERT INTO PPO.Student(studentname, studentsurname, studentgroup, " +
+		"studentnumber, settledate, webaccid) VALUES ('?', '?', '?', '?', current_date, ?);"
 }
-func (pg PostgreSQLTransferStudent) GetString(studentID, roomID int, direct objects.TransferDirection) string {
-	return fmt.Sprintf("INSERT INTO PPO.StudentRoomHistory (studentid, roomid, direction, transferdate) "+
-		"VALUES (%d, %d, %d, current_date);", studentID, roomID, direct)
+func (pg PostgreSQLTransferStudent) GetString() string {
+	return "INSERT INTO PPO.StudentRoomHistory (studentid, roomid, direction, transferdate) " +
+		"VALUES (?, ?, ?, current_date);"
 }
-func (pg PostgreSQLTransferThing) GetString(studentID, thingID int, direct objects.TransferDirection) string {
-	return fmt.Sprintf("INSERT INTO PPO.StudentThingHistory (studentid, thingid, direction, transferdate)"+
-		"VALUES (%d, %d, %d, current_date);", studentID, thingID, direct)
+func (pg PostgreSQLTransferThing) GetString() string {
+	return "INSERT INTO PPO.StudentThingHistory (studentid, thingid, direction, transferdate)" +
+		"VALUES (?, ?, ?, current_date);"
 }
 
-func (pg PostgreSQLAddRoom) GetString(room objects.RoomDTO) string {
-	return fmt.Sprintf("INSERT INTO PPO.Rooms(roomtype, roomnumber) VALUES ('%s', %d)",
-		room.GetRoomType(), room.GetRoomNumber())
+func (pg PostgreSQLAddRoom) GetString() string {
+	return "INSERT INTO PPO.Rooms(roomtype, roomnumber) VALUES ('?', ?)"
 }
 
 func (pg PostgreSQLGetRooms) GetString() string {
-	return fmt.Sprintf("SELECT * FROM PPO.rooms;")
+	return "SELECT * FROM PPO.rooms;"
 }
 
-func (pg PostgreSQLGetRoom) GetString(id int) string {
-	return fmt.Sprintf("SELECT * FROM PPO.rooms WHERE RoomID = %d;", id)
+func (pg PostgreSQLGetRoom) GetString() string {
+	return "SELECT * FROM PPO.rooms WHERE RoomID = ?;"
 }
 
-func (pg PostgreSQLGetRoomThings) GetString(id int) string {
-	return fmt.Sprintf("SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), "+
-		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindRoom(T.ThingID) = %d", id)
+func (pg PostgreSQLGetRoomThings) GetString() string {
+	return "SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), " +
+		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindRoom(T.ThingID) = ?"
 }
-func (pg PostgreSQLDeleteRoom) GetString(id int) string {
-	return fmt.Sprintf("DELETE FROM PPO.rooms WHERE RoomID = %d;", id)
-}
-
-func (pg PostgreSQLTransferThingRoom) GetString(id, srcRoomID, dstRoomID int) string {
-	return fmt.Sprintf("INSERT INTO PPO.ThingRoomHistory (srcroomid, dstroomid, thingid, transferdate) VALUES "+
-		"(%d, %d, %d, current_date);", srcRoomID, dstRoomID, id)
+func (pg PostgreSQLDeleteRoom) GetString() string {
+	return "DELETE FROM PPO.rooms WHERE RoomID = ?;"
 }
 
-func (pg PostgreSQLAddThing) GetString(thing objects.ThingDTO) string {
-	return fmt.Sprintf("INSERT INTO PPO.Thing(marknumber, creationdate, thingtype) VALUES  "+
-		"(%d, current_date, %s", thing.GetMarkNumber(), thing.GetThingType())
+func (pg PostgreSQLTransferThingRoom) GetString() string {
+	return "INSERT INTO PPO.ThingRoomHistory (srcroomid, dstroomid, thingid, transferdate) VALUES " +
+		"(?, ?, ?, current_date);"
+}
+
+func (pg PostgreSQLAddThing) GetString() string {
+	return "INSERT INTO PPO.Thing(marknumber, creationdate, thingtype) VALUES  " +
+		"(?, current_date, ?);"
 }
 
 func (pg PostgreSQLGetThings) GetString() string {
@@ -107,30 +100,30 @@ func (pg PostgreSQLGetThings) GetString() string {
 		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T;")
 }
 
-func (pg PostgreSQLGetThing) GetString(id int) string {
-	return fmt.Sprintf("SELECT T.thingid, T.marknumber, T.thingtype, "+
-		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T "+
-		"WHERE T.thingid = %d", id)
+func (pg PostgreSQLGetThing) GetString() string {
+	return "SELECT T.thingid, T.marknumber, T.thingtype, " +
+		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T " +
+		"WHERE T.thingid = ?"
 }
 
-func (pg PostgreSQLGetThingID) GetString(marknumber int) string {
-	return fmt.Sprintf("SELECT T.thingid "+
-		"FROM PPO.Thing as T WHERE T.marknumber = %d;", marknumber)
+func (pg PostgreSQLGetThingID) GetString() string {
+	return "SELECT T.thingid " +
+		"FROM PPO.Thing as T WHERE T.marknumber = ?;"
 }
 
-func (pg PostgreSQLDeleteThing) GetString(id int) string {
-	return fmt.Sprintf("DELETE FROM PPO.Thing WHERE ThingID = %d;", id)
+func (pg PostgreSQLDeleteThing) GetString() string {
+	return "DELETE FROM PPO.Thing WHERE ThingID = ?;"
 }
 
-func (pg PostgreSQLGetUserId) GetString(login string) string {
-	return fmt.Sprintf("SELECT * FROM PPO.Users WHERE UserLogin = '%s';", login)
+func (pg PostgreSQLGetUserId) GetString() string {
+	return "SELECT * FROM PPO.Users WHERE UserLogin = '?';"
 }
 
-func (pg PostgreSQLGetUser) GetString(id int) string {
-	return fmt.Sprintf("SELECT * FROM PPO.Users WHERE ID = %d;", id)
+func (pg PostgreSQLGetUser) GetString() string {
+	return "SELECT * FROM PPO.Users WHERE ID = ?;"
 }
 
-func (pg PostgreSQLAddUser) GetString(login, password string, privelegeLevel objects.Levels) string {
-	return fmt.Sprintf("INSERT INTO PPO.Users(userlogin, userpassword, userrole) VALUES"+
-		"('%s', '%s', %d);", login, password, privelegeLevel)
+func (pg PostgreSQLAddUser) GetString() string {
+	return "INSERT INTO PPO.Users(userlogin, userpassword, userrole) VALUES " +
+		"('?', '?', ?);"
 }
