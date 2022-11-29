@@ -36,7 +36,12 @@ func (pg *PgUserRepo) GetUser(id int) (objects.User, error) {
 			if readRowError != nil {
 				err = readRowError
 				break
+			} else {
+				result = objects.NewUserWithParams(int(userID), login, password, level)
 			}
+		}
+		if result.GetID() == objects.None {
+			err = UserNotFoundErr
 		}
 	} else {
 		err = execError
@@ -46,6 +51,6 @@ func (pg *PgUserRepo) GetUser(id int) (objects.User, error) {
 
 func (pg *PgUserRepo) AddUser(login, password string, privelegeLevel objects.Levels) error {
 	sqlString := pgsql.PostgreSQLAddUser{}.GetString()
-	_, err := pg.Conn.Query(sqlString, login, password, int32(privelegeLevel))
+	_, err := pg.Conn.Exec(sqlString, login, password, int(privelegeLevel))
 	return err
 }

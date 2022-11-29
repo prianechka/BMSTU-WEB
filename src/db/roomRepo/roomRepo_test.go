@@ -130,7 +130,7 @@ func TestPgRoomRepo_GetRoomPositive(t *testing.T) {
 	}
 }
 
-// TestPgRoomRepo_GetRoomNegative проверяет, что если комната нет, то вернётся ошибка.
+// TestPgRoomRepo_GetRoomNegative проверяет, что если комнаты нет, то вернётся ошибка.
 func TestPgRoomRepo_GetRoomNegative(t *testing.T) {
 	// Arrange
 	objectMother := RoomRepoObjectMother{}

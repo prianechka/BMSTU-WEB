@@ -12,7 +12,7 @@ type PgStudentRepo struct {
 
 func (pg *PgStudentRepo) AddStudent(newStudent objects.StudentDTO, accID int) error {
 	sqlString := pgsql.PostgreSQLAddStudent{}.GetString()
-	_, err := pg.Conn.Query(sqlString, newStudent.GetName(), newStudent.GetSurname(), newStudent.GetStudentGroup(),
+	_, err := pg.Conn.Exec(sqlString, newStudent.GetName(), newStudent.GetSurname(), newStudent.GetStudentGroup(),
 		newStudent.GetStudentNumber(), accID)
 	return err
 }
@@ -70,6 +70,9 @@ func (pg *PgStudentRepo) GetStudent(id int) (objects.Student, error) {
 				err = scanErr
 			}
 		}
+		if student.GetID() == objects.None {
+			err = StudentNotFoundErr
+		}
 	} else {
 		err = execError
 	}
@@ -78,20 +81,20 @@ func (pg *PgStudentRepo) GetStudent(id int) (objects.Student, error) {
 
 func (pg *PgStudentRepo) TransferStudent(studentID, roomID int, direct objects.TransferDirection) error {
 	sqlString := pgsql.PostgreSQLTransferStudent{}.GetString()
-	_, err := pg.Conn.Query(sqlString, studentID, roomID, int(direct))
+	_, err := pg.Conn.Exec(sqlString, studentID, roomID, int(direct))
 	return err
 }
 
 func (pg *PgStudentRepo) ChangeStudent(studentID int, studentInfo objects.StudentDTO) error {
 	sqlString := pgsql.PostgreSQLChangeStudent{}.GetString()
-	_, err := pg.Conn.Query(sqlString, studentInfo.GetName(), studentInfo.GetSurname(),
+	_, err := pg.Conn.Exec(sqlString, studentInfo.GetName(), studentInfo.GetSurname(),
 		studentInfo.GetStudentGroup(), studentInfo.GetStudentNumber(), studentID)
 	return err
 }
 
 func (pg *PgStudentRepo) TransferThing(studentID, thingID int, direct objects.TransferDirection) error {
 	sqlString := pgsql.PostgreSQLTransferThing{}.GetString()
-	_, err := pg.Conn.Query(sqlString, studentID, thingID, int(direct))
+	_, err := pg.Conn.Exec(sqlString, studentID, thingID, int(direct))
 	return err
 }
 

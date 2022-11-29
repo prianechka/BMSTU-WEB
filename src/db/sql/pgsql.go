@@ -70,11 +70,11 @@ func (pg PostgreSQLAddRoom) GetString() string {
 }
 
 func (pg PostgreSQLGetRooms) GetString() string {
-	return "SELECT * FROM PPO.rooms;"
+	return "SELECT roomid, roomtype, roomnumber FROM PPO.rooms;"
 }
 
 func (pg PostgreSQLGetRoom) GetString() string {
-	return "SELECT * FROM PPO.rooms WHERE RoomID = ?;"
+	return "SELECT roomid, roomtype, roomnumber FROM PPO.rooms WHERE RoomID = ?;"
 }
 
 func (pg PostgreSQLGetRoomThings) GetString() string {
@@ -116,11 +116,11 @@ func (pg PostgreSQLDeleteThing) GetString() string {
 }
 
 func (pg PostgreSQLGetUserId) GetString() string {
-	return "SELECT * FROM PPO.Users WHERE UserLogin = '?';"
+	return "SELECT id FROM PPO.Users WHERE UserLogin = '?';"
 }
 
 func (pg PostgreSQLGetUser) GetString() string {
-	return "SELECT * FROM PPO.Users WHERE ID = ?;"
+	return "SELECT id, userlogin, userpassword, userrole FROM PPO.Users WHERE ID = ?;"
 }
 
 func (pg PostgreSQLAddUser) GetString() string {
