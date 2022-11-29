@@ -12,7 +12,7 @@ type PgRoomRepo struct {
 
 func (pg *PgRoomRepo) AddRoom(room objects.RoomDTO) error {
 	sqlString := pgsql.PostgreSQLAddRoom{}.GetString()
-	_, err := pg.Conn.Query(sqlString, room.GetRoomType(), room.GetRoomNumber())
+	_, err := pg.Conn.Exec(sqlString, room.GetRoomType(), room.GetRoomNumber())
 	return err
 }
 
@@ -33,6 +33,8 @@ func (pg *PgRoomRepo) GetRooms() ([]objects.Room, error) {
 				resultRooms = append(resultRooms, tmpRoom)
 			}
 		}
+	} else {
+		err = execError
 	}
 	return resultRooms, err
 }
@@ -53,6 +55,11 @@ func (pg *PgRoomRepo) GetRoom(id int) (objects.Room, error) {
 				resultRoom = objects.NewRoomWithParams(id, roomType, roomNumber)
 			}
 		}
+		if resultRoom.GetID() == objects.None {
+			err = RoomNotFoundErr
+		}
+	} else {
+		err = execError
 	}
 	return resultRoom, err
 }
@@ -85,6 +92,6 @@ func (pg *PgRoomRepo) GetRoomThings(id int) ([]objects.Thing, error) {
 
 func (pg *PgRoomRepo) DeleteRoom(id int) error {
 	sqlString := pgsql.PostgreSQLDeleteRoom{}.GetString()
-	_, err := pg.Conn.Query(sqlString, id)
+	_, err := pg.Conn.Exec(sqlString, id)
 	return err
 }
