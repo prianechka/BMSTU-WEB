@@ -12,7 +12,7 @@ type PgThingRepo struct {
 
 func (pg *PgThingRepo) AddThing(thing objects.ThingDTO) error {
 	sqlString := pgsql.PostgreSQLAddThing{}.GetString()
-	_, err := pg.Conn.Query(sqlString, thing.GetMarkNumber(), thing.GetThingType())
+	_, err := pg.Conn.Exec(sqlString, thing.GetMarkNumber(), thing.GetThingType())
 	return err
 }
 
@@ -44,7 +44,7 @@ func (pg *PgThingRepo) GetThings() ([]objects.Thing, error) {
 
 func (pg *PgThingRepo) DeleteThing(id int) error {
 	sqlString := pgsql.PostgreSQLDeleteThing{}.GetString()
-	_, err := pg.Conn.Query(sqlString, id)
+	_, err := pg.Conn.Exec(sqlString, id)
 	return err
 }
 
@@ -75,7 +75,7 @@ func (pg *PgThingRepo) GetThing(id int) (objects.Thing, error) {
 
 func (pg *PgThingRepo) TransferThingRoom(id, srcRoomID, dstRoomID int) error {
 	sqlString := pgsql.PostgreSQLTransferThingRoom{}.GetString()
-	_, err := pg.Conn.Query(sqlString, id, srcRoomID, dstRoomID)
+	_, err := pg.Conn.Exec(sqlString, id, srcRoomID, dstRoomID)
 	return err
 }
 

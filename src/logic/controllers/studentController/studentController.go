@@ -1,6 +1,7 @@
 package studentController
 
 import (
+	"database/sql"
 	"src/db/studentRepo"
 	"src/objects"
 )
@@ -60,10 +61,10 @@ func (sc *StudentController) GetStudent(id int) (objects.Student, error) {
 	var err error
 	var student objects.Student
 	if id < 0 {
-		err = StudentNotFoundErr
+		err = BadParamsErr
 	} else {
 		student, err = sc.repo.GetStudent(id)
-		if student.GetID() != id {
+		if err != nil {
 			err = StudentNotFoundErr
 		}
 	}
@@ -97,6 +98,8 @@ func (sc *StudentController) SettleStudent(studentID, roomID int) error {
 		} else {
 			err = StudentAlreadyLiveErr
 		}
+	} else if err == sql.ErrNoRows {
+		err = StudentNotFoundErr
 	}
 	return err
 }
@@ -104,13 +107,13 @@ func (sc *StudentController) SettleStudent(studentID, roomID int) error {
 func (sc *StudentController) EvicStudent(studentID int) error {
 	student, err := sc.repo.GetStudent(studentID)
 	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else if student.GetRoomID() != objects.NotLiving {
-			err = sc.repo.TransferStudent(studentID, student.GetRoomID(), objects.Get)
+		if student.GetRoomID() != objects.NotLiving {
+			err = sc.repo.TransferStudent(studentID, student.GetRoomID(), objects.Ret)
 		} else {
 			err = StudentNotLivingErr
 		}
+	} else if err == sql.ErrNoRows {
+		err = StudentNotFoundErr
 	}
 	return err
 }
@@ -118,78 +121,42 @@ func (sc *StudentController) EvicStudent(studentID int) error {
 func (sc *StudentController) ChangeStudentGroup(studentID int, newGroup string) error {
 	student, err := sc.repo.GetStudent(studentID)
 	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			studentDTO := objects.NewStudentDTO(student.GetName(), student.GetSurname(),
-				newGroup, student.GetStudentNumber())
-			err = sc.repo.ChangeStudent(studentID, studentDTO)
-		}
-	}
-	return err
-}
-
-func (sc *StudentController) ChangeStudentName(studentID int, newName string) error {
-	student, err := sc.repo.GetStudent(studentID)
-	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			studentDTO := objects.NewStudentDTO(newName, student.GetSurname(),
-				student.GetStudentGroup(), student.GetStudentNumber())
-			err = sc.repo.ChangeStudent(studentID, studentDTO)
-		}
-	}
-	return err
-}
-
-func (sc *StudentController) ChangeStudentSurname(studentID int, newSurname string) error {
-	student, err := sc.repo.GetStudent(studentID)
-	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			studentDTO := objects.NewStudentDTO(student.GetName(), newSurname,
-				student.GetStudentGroup(), student.GetStudentNumber())
-			err = sc.repo.ChangeStudent(studentID, studentDTO)
-		}
+		studentDTO := objects.NewStudentDTO(student.GetName(), student.GetSurname(),
+			newGroup, student.GetStudentNumber())
+		err = sc.repo.ChangeStudent(studentID, studentDTO)
+	} else if err == sql.ErrNoRows {
+		err = StudentNotFoundErr
 	}
 	return err
 }
 
 func (sc *StudentController) GetStudentThings(studentID int) ([]objects.Thing, error) {
 	studentThings := make([]objects.Thing, 0)
-	student, err := sc.repo.GetStudent(studentID)
+	_, err := sc.repo.GetStudent(studentID)
 	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			studentThings, err = sc.repo.GetStudentThings(studentID)
-		}
+		studentThings, err = sc.repo.GetStudentThings(studentID)
+	} else {
+		err = StudentNotFoundErr
 	}
 	return studentThings, err
 }
 
 func (sc *StudentController) TransferThing(studentID, thingID int) error {
-	student, err := sc.repo.GetStudent(studentID)
+	_, err := sc.repo.GetStudent(studentID)
 	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			err = sc.repo.TransferThing(studentID, thingID, objects.Get)
-		}
+		err = sc.repo.TransferThing(studentID, thingID, objects.Get)
+	} else if err == sql.ErrNoRows {
+		err = StudentNotFoundErr
 	}
 	return err
 }
 
 func (sc *StudentController) ReturnThing(studentID, thingID int) error {
-	student, err := sc.repo.GetStudent(studentID)
+	_, err := sc.repo.GetStudent(studentID)
 	if err == nil {
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
-		} else {
-			err = sc.repo.TransferThing(studentID, thingID, objects.Ret)
-		}
+		err = sc.repo.TransferThing(studentID, thingID, objects.Ret)
+	} else if err == sql.ErrNoRows {
+		err = StudentNotFoundErr
 	}
 	return err
 }

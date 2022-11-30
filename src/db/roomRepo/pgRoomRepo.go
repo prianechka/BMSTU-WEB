@@ -55,9 +55,6 @@ func (pg *PgRoomRepo) GetRoom(id int) (objects.Room, error) {
 				resultRoom = objects.NewRoomWithParams(id, roomType, roomNumber)
 			}
 		}
-		if resultRoom.GetID() == objects.None {
-			err = RoomNotFoundErr
-		}
 	} else {
 		err = execError
 	}
@@ -76,7 +73,7 @@ func (pg *PgRoomRepo) GetRoomThings(id int) ([]objects.Thing, error) {
 	if execError == nil {
 		for rows.Next() {
 			readRowErr := rows.Scan(&thingID, &markNumber, &thingType, &ownerID, &roomID)
-			if err == nil {
+			if readRowErr == nil {
 				tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
 				resultThings = append(resultThings, tmpThings)
 			} else {

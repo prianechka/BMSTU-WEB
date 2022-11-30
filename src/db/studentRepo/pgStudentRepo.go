@@ -44,7 +44,7 @@ func (pg *PgStudentRepo) GetAllStudents() ([]objects.Student, error) {
 }
 
 func (pg *PgStudentRepo) GetStudentID(studentNumber string) (int, error) {
-	var result int
+	var result = objects.None
 	sqlString := pgsql.PostgreSQLGetStudentID{}.GetString()
 	row := pg.Conn.QueryRow(sqlString, studentNumber)
 	err := row.Scan(&result)
@@ -69,9 +69,6 @@ func (pg *PgStudentRepo) GetStudent(id int) (objects.Student, error) {
 			} else {
 				err = scanErr
 			}
-		}
-		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
 		}
 	} else {
 		err = execError

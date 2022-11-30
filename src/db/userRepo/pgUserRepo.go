@@ -40,9 +40,6 @@ func (pg *PgUserRepo) GetUser(id int) (objects.User, error) {
 				result = objects.NewUserWithParams(int(userID), login, password, level)
 			}
 		}
-		if result.GetID() == objects.None {
-			err = UserNotFoundErr
-		}
 	} else {
 		err = execError
 	}
