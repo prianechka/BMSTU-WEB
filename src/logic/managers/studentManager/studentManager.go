@@ -72,23 +72,44 @@ func (sm *StudentManager) ViewAllStudents() ([]objects.Student, error) {
 	return sm.studentController.GetAllStudents()
 }
 
-func (sm *StudentManager) ChangeStudentGroup(studentNumber, newGroup string) error {
-	studID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
-	if err == nil {
-		err = sm.studentController.ChangeStudentGroup(studID, newGroup)
+func (sm *StudentManager) ChangeStudentGroup(studentNumber, newGroup string) (err error) {
+	if newGroup == objects.EmptyString {
+		err = studentController.BadParamsErr
+	} else {
+		studID, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
+		if getStudentErr == nil {
+			err = sm.studentController.ChangeStudentGroup(studID, newGroup)
+		} else {
+			err = getStudentErr
+		}
 	}
 	return err
 }
 
 func (sm *StudentManager) SettleStudent(studentNumber string, roomID int) error {
+	if studentNumber == objects.EmptyString {
+		return studentController.BadParamsErr
+	}
+
+	if roomID <= objects.NotLiving {
+		return roomController.RoomNotFoundErr
+	}
+
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
-		err = sm.studentController.SettleStudent(studentID, roomID)
+		_, err = sm.roomController.GetRoom(roomID)
+		if err == nil {
+			err = sm.studentController.SettleStudent(studentID, roomID)
+		}
 	}
 	return err
 }
 
 func (sm *StudentManager) EvicStudent(studentNumber string) error {
+	if studentNumber == objects.EmptyString {
+		return studentController.BadParamsErr
+	}
+
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
 		err = sm.studentController.EvicStudent(studentID)
@@ -97,6 +118,14 @@ func (sm *StudentManager) EvicStudent(studentNumber string) error {
 }
 
 func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int) error {
+	if studentNumber == objects.EmptyString {
+		return studentController.BadParamsErr
+	}
+
+	if markNumber <= objects.None {
+		return thingController.ThingNotFoundErr
+	}
+
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
 		thingID, getThingErr := sm.thingController.GetThingIDByMarkNumber(markNumber)
@@ -105,6 +134,8 @@ func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int)
 			if getOwnerErr == nil {
 				if ownerID == objects.None {
 					err = sm.studentController.TransferThing(studentID, thingID)
+				} else {
+					err = ThingHasOwnerErr
 				}
 			} else {
 				err = getOwnerErr
@@ -117,6 +148,14 @@ func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int)
 }
 
 func (sm *StudentManager) ReturnStudentThing(studentNumber string, markNumber int) error {
+	if studentNumber == objects.EmptyString {
+		return studentController.BadParamsErr
+	}
+
+	if markNumber <= objects.None {
+		return thingController.ThingNotFoundErr
+	}
+
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
 		thingID, getThingErr := sm.thingController.GetThingIDByMarkNumber(markNumber)
@@ -125,6 +164,8 @@ func (sm *StudentManager) ReturnStudentThing(studentNumber string, markNumber in
 			if getOwnerErr == nil {
 				if ownerID == studentID {
 					err = sm.studentController.ReturnThing(studentID, thingID)
+				} else {
+					err = StudentIsNotOwnerErr
 				}
 			} else {
 				err = getOwnerErr

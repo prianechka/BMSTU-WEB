@@ -33,8 +33,8 @@ func TestStudentController_AddStudentPositive(t *testing.T) {
 	mock.ExpectExec("INSERT INTO").WithArgs(Name, Surname, StudentGroup, StudentNumber, InsertID).
 		WillReturnError(nil).WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.AddStudent(Name, Surname, StudentGroup, StudentNumber, InsertID)
@@ -59,8 +59,8 @@ func TestStudentController_AddStudentNegativeAlreadyLive(t *testing.T) {
 	rows := objectMother.CreateRows(realStudents)
 	mock.ExpectQuery("SELECT").WillReturnRows(rows).WillReturnError(nil)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.AddStudent(Name, Surname, StudentGroup, StudentNumber, InsertID)
@@ -80,8 +80,8 @@ func TestStudentController_AddStudentNegativeBadID(t *testing.T) {
 	)
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.AddStudent(Name, Surname, StudentGroup, StudentNumber, -InsertID)
@@ -101,8 +101,8 @@ func TestStudentController_AddStudentNegativeBadStudentGroup(t *testing.T) {
 	)
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.AddStudent(Name, Surname, StudentGroup, StudentNumber, InsertID)
@@ -122,8 +122,8 @@ func TestStudentController_GetAllStudents(t *testing.T) {
 	mock.ExpectQuery("SELECT").
 		WillReturnRows(rows).WillReturnError(nil)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	resultStudents, execErr := controller.GetAllStudents()
@@ -145,8 +145,8 @@ func TestStudentController_GetStudentPositive(t *testing.T) {
 	mock.ExpectQuery("SELECT").WithArgs(id).
 		WillReturnError(nil).WillReturnRows(rows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	student, execErr := controller.GetStudent(id)
@@ -164,8 +164,8 @@ func TestStudentController_GetStudentNegativeNotFound(t *testing.T) {
 	id := 1
 	mock.ExpectQuery("SELECT").WithArgs(id).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	_, execErr := controller.GetStudent(id)
@@ -181,8 +181,8 @@ func TestStudentController_GetStudentNegativeBadID(t *testing.T) {
 	db, mock := objectMother.CreateRepo()
 	id := -1
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	_, execErr := controller.GetStudent(id)
@@ -203,8 +203,8 @@ func TestStudentController_GetStudentIDByNumberPositive(t *testing.T) {
 	rows := objectMother.CreateRows(realStudents)
 	mock.ExpectQuery("SELECT").WithArgs().WillReturnError(nil).WillReturnRows(rows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	studentID, execErr := controller.GetStudentIDByNumber(StudNumber)
@@ -225,8 +225,8 @@ func TestStudentController_GetStudentIDByNumberNegative(t *testing.T) {
 	rows := objectMother.CreateRows(realStudents)
 	mock.ExpectQuery("SELECT").WithArgs().WillReturnError(nil).WillReturnRows(rows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	_, execErr := controller.GetStudentIDByNumber(StudNumber)
@@ -246,8 +246,8 @@ func TestStudentController_GetStudentRoomPositive(t *testing.T) {
 	rows := objectMother.CreateRows(realStudents)
 	mock.ExpectQuery("SELECT").WithArgs().WillReturnError(nil).WillReturnRows(rows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	roomID, execErr := controller.GetStudentRoom(ID)
@@ -267,8 +267,8 @@ func TestStudentController_GetStudentRoomNegative(t *testing.T) {
 	realStudents := objectMother.CreateDefaultStudents(N)
 	rows := objectMother.CreateRows(realStudents)
 	mock.ExpectQuery("SELECT").WithArgs().WillReturnError(nil).WillReturnRows(rows)
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	_, execErr := controller.GetStudentRoom(ID)
@@ -294,8 +294,8 @@ func TestStudentController_GetStudentThingsPositive(t *testing.T) {
 	mock.ExpectQuery("SELECT").WithArgs(ID).WillReturnError(nil).WillReturnRows(studentRows)
 	mock.ExpectQuery("SELECT").WithArgs(ID).WillReturnError(nil).WillReturnRows(thingRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	things, execErr := controller.GetStudentThings(ID)
@@ -313,8 +313,8 @@ func TestStudentController_GetStudentThingsNegative(t *testing.T) {
 	ID := 1
 	mock.ExpectQuery("SELECT").WithArgs(ID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	_, execErr := controller.GetStudentThings(ID)
@@ -340,8 +340,8 @@ func TestStudentController_SettleStudentPositive(t *testing.T) {
 	mock.ExpectExec("INSERT").WithArgs(studentID, roomID, objects.Get).
 		WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.SettleStudent(studentID, roomID)
@@ -360,8 +360,8 @@ func TestStudentController_SettleStudentNegativeStudentNotFound(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.SettleStudent(studentID, roomID)
@@ -384,8 +384,8 @@ func TestStudentController_SettleStudentNegativeStudentLiveNow(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(nil).WillReturnRows(studentRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.SettleStudent(studentID, roomID)
@@ -410,8 +410,8 @@ func TestStudentController_EvicStudentPositive(t *testing.T) {
 	mock.ExpectExec("INSERT").WithArgs(studentID, roomID, objects.Ret).
 		WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.EvicStudent(studentID)
@@ -429,8 +429,8 @@ func TestStudentController_EvicStudentNegativeStudentNotFound(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.EvicStudent(studentID)
@@ -453,8 +453,8 @@ func TestStudentController_EvicStudentStudentDoesNotLive(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(nil).WillReturnRows(studentRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.EvicStudent(studentID)
@@ -481,8 +481,8 @@ func TestStudentController_ChangeStudentGroupPositive(t *testing.T) {
 		newGroup, realStudents[0].GetStudentNumber(), realStudents[0].GetID()).
 		WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.ChangeStudentGroup(studentID, newGroup)
@@ -500,8 +500,8 @@ func TestStudentController_ChangeStudentGroupNegative(t *testing.T) {
 	newGroup := "iu7-86"
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.ChangeStudentGroup(studentID, newGroup)
@@ -526,8 +526,8 @@ func TestStudentController_TransferThingPositive(t *testing.T) {
 	mock.ExpectExec("INSERT").WithArgs(studentID, thingID, objects.Get).
 		WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.TransferThing(studentID, thingID)
@@ -546,8 +546,8 @@ func TestStudentController_TransferThingNegative(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.TransferThing(studentID, thingID)
@@ -572,8 +572,8 @@ func TestStudentController_ReturnThingPositive(t *testing.T) {
 	mock.ExpectExec("INSERT").WithArgs(studentID, thingID, objects.Ret).
 		WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.ReturnThing(studentID, thingID)
@@ -592,8 +592,8 @@ func TestStudentController_ReturnThingNegative(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WithArgs(studentID).WillReturnError(sql.ErrNoRows)
 
-	repo := studentRepo.PgStudentRepo{Conn: db}
-	controller := StudentController{repo: &repo}
+	Repo := studentRepo.PgStudentRepo{Conn: db}
+	controller := StudentController{Repo: &Repo}
 
 	// Act
 	execErr := controller.ReturnThing(studentID, thingID)
