@@ -13,8 +13,8 @@ type AuthManager struct {
 func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels, err error) {
 	isUserExist := am.userController.UserExist(login)
 	if isUserExist {
-		tmpID, err := am.userController.GetUserID(login)
-		if err == nil {
+		tmpID, getUserIDErr := am.userController.GetUserID(login)
+		if getUserIDErr == nil {
 			if tmpID != objects.None {
 				tmpUser, getUserErr := am.userController.GetUser(tmpID)
 				if getUserErr == nil {
@@ -27,7 +27,11 @@ func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels,
 					err = getUserErr
 				}
 			}
+		} else {
+			err = getUserIDErr
 		}
+	} else {
+		err = userController.UserNotFoundErr
 	}
 	return result, err
 }

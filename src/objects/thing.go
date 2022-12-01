@@ -58,6 +58,10 @@ func (t *Thing) SetRoomID(id int) {
 	t.roomID = id
 }
 
+func (t *Thing) SetOwnerID(id int) {
+	t.ownerID = id
+}
+
 func (t *ThingDTO) GetMarkNumber() int {
 	return t.markNumber
 }

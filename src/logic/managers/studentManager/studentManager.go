@@ -16,15 +16,33 @@ type StudentManager struct {
 	thingController   thingController.ThingController
 }
 
-func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumber,
-	login, password string) error {
-	err := sm.userController.AddUser(login, password, objects.StudentRole)
-	if err == nil {
-		accID, getUserErr := sm.userController.GetUserID(login)
-		if getUserErr == nil {
-			err = sm.studentController.AddStudent(name, surname, studentGroup, studentNumber, accID)
+func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumber, login, password string) (err error) {
+	if name == objects.EmptyString || surname == objects.EmptyString || studentGroup == objects.EmptyString ||
+		studentNumber == objects.EmptyString {
+		err = studentController.BadParamsErr
+	} else if login == objects.EmptyString || password == objects.EmptyString {
+		err = userController.BadParamsErr
+	} else {
+		isUserExist := sm.userController.UserExist(login)
+		if !isUserExist {
+			_, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
+			if getStudentErr == studentController.StudentNotFoundErr {
+				addUserErr := sm.userController.AddUser(login, password, objects.StudentRole)
+				if addUserErr == nil {
+					accID, getUserErr := sm.userController.GetUserID(login)
+					if getUserErr == nil {
+						err = sm.studentController.AddStudent(name, surname, studentGroup, studentNumber, accID)
+					} else {
+						err = getUserErr
+					}
+				} else {
+					err = addUserErr
+				}
+			} else {
+				err = studentController.StudentAlreadyInBaseErr
+			}
 		} else {
-			err = getUserErr
+			err = userController.LoginOccupedErr
 		}
 	}
 	return err

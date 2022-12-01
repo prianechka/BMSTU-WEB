@@ -23,7 +23,7 @@ func (m ThingRepoObjectMother) CreateRepo() (*sql.DB, sqlmock.Sqlmock) {
 func (m ThingRepoObjectMother) CreateDefaultThings(amount int) []objects.Thing {
 	resultStudents := make([]objects.Thing, objects.Empty)
 	for i := 1; i <= amount; i++ {
-		resultStudents = append(resultStudents, objects.NewThingWithParams(i, DefaultMarkNumber,
+		resultStudents = append(resultStudents, objects.NewThingWithParams(i, DefaultMarkNumber+i,
 			DefaultThingType, i, i))
 	}
 	return resultStudents
