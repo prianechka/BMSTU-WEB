@@ -5,6 +5,7 @@ import (
 	"src/logic/controllers/studentController"
 	"src/logic/controllers/thingController"
 	"src/logic/managers/models"
+	"src/objects"
 )
 
 type ThingManager struct {
@@ -52,6 +53,10 @@ func (tm *ThingManager) GetFreeThings() ([]models.ThingFullInfo, error) {
 }
 
 func (tm *ThingManager) GetStudentThings(studentNumber string) ([]models.ThingFullInfo, error) {
+	if studentNumber == objects.EmptyString {
+		return nil, studentController.BadParamsErr
+	}
+
 	thingsFullInfo := make([]models.ThingFullInfo, 0)
 	studentID, err := tm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
@@ -76,17 +81,34 @@ func (tm *ThingManager) GetStudentThings(studentNumber string) ([]models.ThingFu
 }
 
 func (tm *ThingManager) AddNewThing(markNumber int, thingType string) error {
-	return tm.thingController.AddThing(markNumber, thingType)
+	if thingType == objects.EmptyString || markNumber <= objects.None {
+		return thingController.ThingNotFoundErr
+	} else {
+		return tm.thingController.AddThing(markNumber, thingType)
+	}
 }
 
 func (tm *ThingManager) TransferThing(markNumber int, roomID int) error {
+	if markNumber <= objects.None {
+		return thingController.ThingNotFoundErr
+	}
+
+	if roomID <= objects.None {
+		return thingController.BadDstRoomErr
+	}
+
 	thingID, err := tm.thingController.GetThingIDByMarkNumber(markNumber)
 	if err == nil {
-		tmpThing, getThingErr := tm.thingController.GetThing(thingID)
-		if getThingErr == nil {
-			err = tm.thingController.TransferThing(thingID, tmpThing.GetRoomID(), roomID)
+		_, getRoomErr := tm.roomController.GetRoom(roomID)
+		if getRoomErr == nil {
+			tmpThing, getThingErr := tm.thingController.GetThing(thingID)
+			if getThingErr == nil {
+				err = tm.thingController.TransferThing(thingID, tmpThing.GetRoomID(), roomID)
+			} else {
+				err = getThingErr
+			}
 		} else {
-			err = getThingErr
+			err = getRoomErr
 		}
 	}
 	return err
