@@ -2,12 +2,14 @@ package thingController
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/db/thingRepo"
 	"src/objects"
 	"src/tests"
 	mot "src/tests/mother"
 	"testing"
+	"time"
 )
 
 const (
@@ -15,7 +17,14 @@ const (
 	RowsAffected = 1
 )
 
-func TestThingController_AddThingPositive(t *testing.T) {
+type TestThingController struct{}
+
+func Test_ThingController(t *testing.T) {
+	testgroup.RunSerially(t, &TestThingController{})
+}
+
+func (*TestThingController) TestThingController_AddThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -42,7 +51,8 @@ func TestThingController_AddThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_AddThingNegative(t *testing.T) {
+func (*TestThingController) TestThingController_AddThingNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -67,7 +77,8 @@ func TestThingController_AddThingNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_DeleteThingPositive(t *testing.T) {
+func (*TestThingController) TestThingController_DeleteThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -93,7 +104,8 @@ func TestThingController_DeleteThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_DeleteThingNegative(t *testing.T) {
+func (*TestThingController) TestThingController_DeleteThingNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -114,7 +126,8 @@ func TestThingController_DeleteThingNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_GetThings(t *testing.T) {
+func (*TestThingController) TestThingController_GetThings(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -136,7 +149,8 @@ func TestThingController_GetThings(t *testing.T) {
 	tests.AssertResult(t, realThings, things)
 }
 
-func TestThingController_GetThingPositive(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -161,7 +175,8 @@ func TestThingController_GetThingPositive(t *testing.T) {
 	tests.AssertResult(t, thing, realThings[0])
 }
 
-func TestThingController_GetThingNegative(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -182,7 +197,8 @@ func TestThingController_GetThingNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_GetThingIDByMarkNumberPositive(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingIDByMarkNumberPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -206,7 +222,8 @@ func TestThingController_GetThingIDByMarkNumberPositive(t *testing.T) {
 	tests.AssertResult(t, thingID, ID)
 }
 
-func TestThingController_GetThingIDByMarkNumberNegative(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingIDByMarkNumberNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -227,7 +244,8 @@ func TestThingController_GetThingIDByMarkNumberNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_GetThingRoomPositive(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingRoomPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -253,7 +271,8 @@ func TestThingController_GetThingRoomPositive(t *testing.T) {
 	tests.AssertResult(t, roomID, realRoomID)
 }
 
-func TestThingController_GetThingRoomNegative(t *testing.T) {
+func (*TestThingController) TestThingController_GetThingRoomNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -274,7 +293,8 @@ func TestThingController_GetThingRoomNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_GetCurrentOwnerPositive(t *testing.T) {
+func (*TestThingController) TestThingController_GetCurrentOwnerPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -300,7 +320,8 @@ func TestThingController_GetCurrentOwnerPositive(t *testing.T) {
 	tests.AssertResult(t, ownerID, realOwnerID)
 }
 
-func TestThingController_GetCurrentOwnerNegative(t *testing.T) {
+func (*TestThingController) TestThingController_GetCurrentOwnerNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -321,7 +342,8 @@ func TestThingController_GetCurrentOwnerNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_GetFreeThings(t *testing.T) {
+func (*TestThingController) TestThingController_GetFreeThings(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -344,7 +366,8 @@ func TestThingController_GetFreeThings(t *testing.T) {
 	tests.AssertResult(t, things, realThings[0:1])
 }
 
-func TestThingController_TransferThingPositive(t *testing.T) {
+func (*TestThingController) TestThingController_TransferThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -372,7 +395,8 @@ func TestThingController_TransferThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_TransferThingNegativeThingNotFound(t *testing.T) {
+func (*TestThingController) TestThingController_TransferThingNegativeThingNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -395,7 +419,8 @@ func TestThingController_TransferThingNegativeThingNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_TransferThingNegativeBadSrcID(t *testing.T) {
+func (*TestThingController) TestThingController_TransferThingNegativeBadSrcID(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -421,7 +446,8 @@ func TestThingController_TransferThingNegativeBadSrcID(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_TransferThingNegativeBadDstID(t *testing.T) {
+func (*TestThingController) TestThingController_TransferThingNegativeBadDstID(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -447,7 +473,8 @@ func TestThingController_TransferThingNegativeBadDstID(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestThingController_TransferThingNegativeEqualSrcDstID(t *testing.T) {
+func (*TestThingController) TestThingController_TransferThingNegativeEqualSrcDstID(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()

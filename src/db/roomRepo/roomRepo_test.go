@@ -2,10 +2,12 @@ package roomRepo
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
 const (
@@ -13,8 +15,16 @@ const (
 	RowsAffected = 1
 )
 
-func TestPgRoomRepo_GetRooms(t *testing.T) {
+type TestPgRoomRepo struct{}
+
+func Test_PgRoomRepo(t *testing.T) {
+	testgroup.RunSerially(t, &TestPgRoomRepo{})
+}
+
+func (*TestPgRoomRepo) TestPgRoomRepo_GetRooms(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	N := 3
 	db, mock := objectMother.CreateRepo()
@@ -31,10 +41,13 @@ func TestPgRoomRepo_GetRooms(t *testing.T) {
 	tests.AssertErrors(t, execErr, nil)
 	tests.AssertMocks(t, mock)
 	tests.AssertResult(t, resultRooms, realRooms)
+
 }
 
-func TestPgRoomRepo_AddRoom(t *testing.T) {
+func (*TestPgRoomRepo) TestPgRoomRepo_AddRoom(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	roomDTO := objectMother.CreateDTORoom()
 	db, mock := objectMother.CreateRepo()
@@ -51,8 +64,10 @@ func TestPgRoomRepo_AddRoom(t *testing.T) {
 }
 
 // TestPgRoomRepo_GetRoomPositive проверяет, что если комната есть, она успешно вернётся.
-func TestPgRoomRepo_GetRoomPositive(t *testing.T) {
+func (*TestPgRoomRepo) TestPgRoomRepo_GetRoomPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	N := 1
@@ -73,8 +88,10 @@ func TestPgRoomRepo_GetRoomPositive(t *testing.T) {
 }
 
 // TestPgRoomRepo_GetRoomNegative проверяет, что если комнаты нет, то вернётся ошибка.
-func TestPgRoomRepo_GetRoomNegative(t *testing.T) {
+func (*TestPgRoomRepo) TestPgRoomRepo_GetRoomNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(InsertID).WillReturnError(sql.ErrNoRows)
@@ -88,8 +105,10 @@ func TestPgRoomRepo_GetRoomNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgRoomRepo_DeleteRoom(t *testing.T) {
+func (*TestPgRoomRepo) TestPgRoomRepo_DeleteRoom(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1
 	db, mock := objectMother.CreateRepo()
@@ -104,8 +123,10 @@ func TestPgRoomRepo_DeleteRoom(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgRoomRepo_GetRoomThings(t *testing.T) {
+func (*TestPgRoomRepo) TestPgRoomRepo_GetRoomThings(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	roomObjectMother := mother.RoomRepoObjectMother{}
 	thingObjectMother := mother.ThingRepoObjectMother{}
 	db, mock := roomObjectMother.CreateRepo()

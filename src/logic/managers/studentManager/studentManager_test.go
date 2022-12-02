@@ -2,6 +2,7 @@ package studentManager
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/db/roomRepo"
 	"src/db/studentRepo"
@@ -15,6 +16,7 @@ import (
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
 const (
@@ -22,8 +24,16 @@ const (
 	RowsAffected = 1
 )
 
-func TestStudentManager_AddNewStudentPositive(t *testing.T) {
+type TestStudentManager struct{}
+
+func Test_StudentManager(t *testing.T) {
+	testgroup.RunSerially(t, &TestStudentManager{})
+}
+
+func (*TestStudentManager) TestStudentManager_AddNewStudentPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		Login         = mother.DefaultLogin + "123"
 		Password      = mother.DefaultPassword
@@ -74,8 +84,10 @@ func TestStudentManager_AddNewStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_AddNewStudentNegativeLoginOccuped(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeLoginOccuped(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		Login         = mother.DefaultLogin
 		Password      = mother.DefaultPassword
@@ -112,8 +124,10 @@ func TestStudentManager_AddNewStudentNegativeLoginOccuped(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_AddNewStudentNegativeBadLoginParam(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeBadLoginParam(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		Login         = objects.EmptyString
 		Password      = mother.DefaultPassword
@@ -147,8 +161,10 @@ func TestStudentManager_AddNewStudentNegativeBadLoginParam(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_AddNewStudentNegativeBadName(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeBadName(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		Login         = mother.DefaultLogin
 		Password      = mother.DefaultPassword
@@ -182,8 +198,10 @@ func TestStudentManager_AddNewStudentNegativeBadName(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ChangeStudentGroupPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ChangeStudentGroupPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		Name          = mother.DefaultStudentName
 		Surname       = mother.DefaultStudentSurname
@@ -226,8 +244,10 @@ func TestStudentManager_ChangeStudentGroupPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ChangeStudentGroupNegativeBadParams(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ChangeStudentGroupNegativeBadParams(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentGroup  = objects.EmptyString
 		StudentNumber = mother.DefaultStudentNumber + "1"
@@ -257,8 +277,10 @@ func TestStudentManager_ChangeStudentGroupNegativeBadParams(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ChangeStudentGroupNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ChangeStudentGroupNegativeStudentNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentGroup  = mother.DefaultGroup + "12"
 		StudentNumber = mother.DefaultStudentNumber + "12"
@@ -293,8 +315,10 @@ func TestStudentManager_ChangeStudentGroupNegativeStudentNotFound(t *testing.T) 
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentID     = 1
 		RoomID        = 1
@@ -342,8 +366,10 @@ func TestStudentManager_SettleStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentNegativeStudentNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		RoomID        = 1
 		StudentNumber = mother.DefaultStudentNumber + "7"
@@ -378,8 +404,10 @@ func TestStudentManager_SettleStudentNegativeStudentNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentNegativeStudentIsLiving(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentNegativeStudentIsLiving(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentID     = 1
 		RoomID        = 1
@@ -424,8 +452,10 @@ func TestStudentManager_SettleStudentNegativeStudentIsLiving(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentNegativeRoomNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentNegativeRoomNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		RoomID        = 1
 		StudentNumber = mother.DefaultStudentNumber + "1"
@@ -461,8 +491,10 @@ func TestStudentManager_SettleStudentNegativeRoomNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentBadRoomIDParam(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentBadRoomIDParam(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		RoomID        = -1
 		StudentNumber = mother.DefaultStudentNumber + "1"
@@ -492,8 +524,10 @@ func TestStudentManager_SettleStudentBadRoomIDParam(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_SettleStudentBadStudNumberErr(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_SettleStudentBadStudNumberErr(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		RoomID        = 1
 		StudentNumber = objects.EmptyString
@@ -523,8 +557,10 @@ func TestStudentManager_SettleStudentBadStudNumberErr(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_EvicStudentPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_EvicStudentPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentID     = 1
 		RoomID        = 1
@@ -565,8 +601,10 @@ func TestStudentManager_EvicStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_EvicStudentNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_EvicStudentNegativeStudentNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentNumber = mother.DefaultStudentNumber + "9"
 	)
@@ -600,8 +638,10 @@ func TestStudentManager_EvicStudentNegativeStudentNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_EvicStudentNegativeStudentNotLiving(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_EvicStudentNegativeStudentNotLiving(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentID     = 1
 		StudentNumber = mother.DefaultStudentNumber + "1"
@@ -640,8 +680,10 @@ func TestStudentManager_EvicStudentNegativeStudentNotLiving(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_EvicStudentBadParam(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_EvicStudentBadParam(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentNumber = objects.EmptyString
 	)
@@ -670,8 +712,10 @@ func TestStudentManager_EvicStudentBadParam(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GetStudentByAccIDPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GetStudentByAccIDPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		AccID         = 1
 		StudentNumber = mother.DefaultStudentNumber + "1"
@@ -707,8 +751,10 @@ func TestStudentManager_GetStudentByAccIDPositive(t *testing.T) {
 	tests.AssertResult(t, realStudentNumber, StudentNumber)
 }
 
-func TestStudentManager_GetStudentByAccIDNegative(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GetStudentByAccIDNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		AccID = 7
 	)
@@ -742,8 +788,10 @@ func TestStudentManager_GetStudentByAccIDNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ViewAllStudents(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ViewAllStudents(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	studentObjectMother := mother.StudentRepoObjectMother{}
 
 	db, mock := studentObjectMother.CreateRepo()
@@ -775,8 +823,10 @@ func TestStudentManager_ViewAllStudents(t *testing.T) {
 	tests.AssertResult(t, realStudents, allStudents)
 }
 
-func TestStudentManager_ViewStudentPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ViewStudentPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentID     = 1
 		RoomID        = 1
@@ -821,8 +871,10 @@ func TestStudentManager_ViewStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ViewStudentNegative(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ViewStudentNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		StudentNumber = mother.DefaultStudentNumber + "7"
 	)
@@ -856,8 +908,10 @@ func TestStudentManager_ViewStudentNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		ThingID       = 1
@@ -910,8 +964,10 @@ func TestStudentManager_GiveStudentThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeStudentNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = mother.DefaultStudentNumber + "7"
@@ -950,8 +1006,10 @@ func TestStudentManager_GiveStudentThingNegativeStudentNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingNegativeThingNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeThingNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = mother.DefaultStudentNumber + "3"
@@ -992,8 +1050,10 @@ func TestStudentManager_GiveStudentThingNegativeThingNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingNegativeThingHasOwner(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeThingHasOwner(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		ThingID       = 1
@@ -1038,8 +1098,10 @@ func TestStudentManager_GiveStudentThingNegativeThingHasOwner(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingNegativeBadStudentNumber(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeBadStudentNumber(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = objects.EmptyString
@@ -1069,8 +1131,10 @@ func TestStudentManager_GiveStudentThingNegativeBadStudentNumber(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_GiveStudentThingNegativeBadMarkNumber(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeBadMarkNumber(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = -2
 		StudentNumber = mother.DefaultStudentNumber
@@ -1100,8 +1164,10 @@ func TestStudentManager_GiveStudentThingNegativeBadMarkNumber(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingPositive(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		ThingID       = 1
@@ -1154,8 +1220,10 @@ func TestStudentManager_ReturnStudentThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeStudentNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = mother.DefaultStudentNumber + "7"
@@ -1194,8 +1262,10 @@ func TestStudentManager_ReturnStudentThingNegativeStudentNotFound(t *testing.T) 
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingNegativeThingNotFound(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeThingNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = mother.DefaultStudentNumber + "3"
@@ -1236,8 +1306,10 @@ func TestStudentManager_ReturnStudentThingNegativeThingNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		ThingID       = 1
@@ -1283,8 +1355,10 @@ func TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner(t *testing.T)
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingNegativeBadMarkNumber(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeBadMarkNumber(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = -2
 		StudentNumber = mother.DefaultStudentNumber
@@ -1314,8 +1388,10 @@ func TestStudentManager_ReturnStudentThingNegativeBadMarkNumber(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentManager_ReturnStudentThingNegativeBadStudentNumber(t *testing.T) {
+func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeBadStudentNumber(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		MarkNumber    = 123
 		StudentNumber = objects.EmptyString

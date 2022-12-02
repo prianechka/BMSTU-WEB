@@ -1,0 +1,1255 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>roomRepo: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">src/db/roomRepo/pgRoomRepo.go (90.0%)</option>
+				
+				<option value="file1">src/db/studentRepo/pgStudentRepo.go (88.7%)</option>
+				
+				<option value="file2">src/db/thingRepo/pgThingRepo.go (87.2%)</option>
+				
+				<option value="file3">src/db/userRepo/pgUserRepo.go (90.0%)</option>
+				
+				<option value="file4">src/logic/controllers/roomController/roomController.go (100.0%)</option>
+				
+				<option value="file5">src/logic/controllers/studentController/studentController.go (97.7%)</option>
+				
+				<option value="file6">src/logic/controllers/thingController/thingController.go (100.0%)</option>
+				
+				<option value="file7">src/logic/controllers/userController/userController.go (100.0%)</option>
+				
+				<option value="file8">src/logic/managers/authManager/authManager.go (86.4%)</option>
+				
+				<option value="file9">src/logic/managers/roomManager/roomManager.go (100.0%)</option>
+				
+				<option value="file10">src/logic/managers/studentManager/studentManager.go (92.7%)</option>
+				
+				<option value="file11">src/logic/managers/thingManager/thingManager.go (86.2%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package roomRepo
+
+import (
+        "database/sql"
+        "src/db/sql"
+        "src/objects"
+)
+
+type PgRoomRepo struct {
+        Conn *sql.DB
+}
+
+func (pg *PgRoomRepo) AddRoom(room objects.RoomDTO) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLAddRoom{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, room.GetRoomType(), room.GetRoomNumber())
+        return err
+}</span>
+
+func (pg *PgRoomRepo) GetRooms() ([]objects.Room, error) <span class="cov8" title="1">{
+        var (
+                resultRooms    = make([]objects.Room, objects.Empty)
+                id, roomNumber int
+                roomType       string
+                err            error
+        )
+        sqlString := pgsql.PostgreSQLGetRooms{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        scanErr := rows.Scan(&amp;id, &amp;roomType, &amp;roomNumber)
+                        if scanErr == nil </span><span class="cov8" title="1">{
+                                tmpRoom := objects.NewRoomWithParams(id, roomType, roomNumber)
+                                resultRooms = append(resultRooms, tmpRoom)
+                        }</span>
+                }
+        } else<span class="cov0" title="0"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultRooms, err</span>
+}
+
+func (pg *PgRoomRepo) GetRoom(id int) (objects.Room, error) <span class="cov8" title="1">{
+        var (
+                resultRoom         = objects.NewEmptyRoom()
+                roomID, roomNumber int
+                roomType           string
+                err                error
+        )
+        sqlString := pgsql.PostgreSQLGetRoom{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        scanErr := rows.Scan(&amp;roomID, &amp;roomType, &amp;roomNumber)
+                        if scanErr == nil </span><span class="cov8" title="1">{
+                                resultRoom = objects.NewRoomWithParams(id, roomType, roomNumber)
+                        }</span>
+                }
+        } else<span class="cov8" title="1"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultRoom, err</span>
+}
+
+func (pg *PgRoomRepo) GetRoomThings(id int) ([]objects.Thing, error) <span class="cov8" title="1">{
+        var (
+                resultThings                         = make([]objects.Thing, objects.Empty)
+                thingID, markNumber, ownerID, roomID int
+                thingType                            string
+                err                                  error
+        )
+        sqlString := pgsql.PostgreSQLGetRoomThings{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        readRowErr := rows.Scan(&amp;thingID, &amp;markNumber, &amp;thingType, &amp;ownerID, &amp;roomID)
+                        if readRowErr == nil </span><span class="cov8" title="1">{
+                                tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
+                                resultThings = append(resultThings, tmpThings)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = readRowErr
+                                break</span>
+                        }
+                }
+        } else<span class="cov0" title="0"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultThings, err</span>
+}
+
+func (pg *PgRoomRepo) DeleteRoom(id int) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLDeleteRoom{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, id)
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package studentRepo
+
+import (
+        "database/sql"
+        "src/db/sql"
+        "src/objects"
+)
+
+type PgStudentRepo struct {
+        Conn *sql.DB
+}
+
+func (pg *PgStudentRepo) AddStudent(newStudent objects.StudentDTO, accID int) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLAddStudent{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, newStudent.GetName(), newStudent.GetSurname(), newStudent.GetStudentGroup(),
+                newStudent.GetStudentNumber(), accID)
+        return err
+}</span>
+
+func (pg *PgStudentRepo) GetAllStudents() ([]objects.Student, error) <span class="cov8" title="1">{
+        var (
+                resultStudents                                           = make([]objects.Student, objects.Empty)
+                studentID, accID, roomID                                 int
+                studentName, studentSurname, studentGroup, studentNumber string
+                err                                                      error
+        )
+        sqlString := pgsql.PostgreSQLGetAllStudents{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        scanErr := rows.Scan(&amp;studentID, &amp;accID, &amp;studentName, &amp;studentSurname, &amp;studentGroup, &amp;studentNumber, &amp;roomID)
+                        if scanErr == nil </span><span class="cov8" title="1">{
+                                tmpStudent := objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
+                                        studentGroup, studentNumber, roomID)
+                                resultStudents = append(resultStudents, tmpStudent)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = scanErr
+                        }</span>
+                }
+        } else<span class="cov0" title="0"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultStudents, err</span>
+}
+
+func (pg *PgStudentRepo) GetStudentID(studentNumber string) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        sqlString := pgsql.PostgreSQLGetStudentID{}.GetString()
+        row := pg.Conn.QueryRow(sqlString, studentNumber)
+        err := row.Scan(&amp;result)
+        return result, err
+}</span>
+
+func (pg *PgStudentRepo) GetStudent(id int) (objects.Student, error) <span class="cov8" title="1">{
+        var (
+                student                                                  = objects.NewEmptyStudent()
+                studentID, accID, roomID                                 int
+                studentName, studentSurname, studentGroup, studentNumber string
+                err                                                      error
+        )
+        sqlString := pgsql.PostgreSQLGetStudent{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        scanErr := rows.Scan(&amp;studentID, &amp;accID, &amp;studentName, &amp;studentSurname, &amp;studentGroup, &amp;studentNumber, &amp;roomID)
+                        if scanErr == nil </span><span class="cov8" title="1">{
+                                student = objects.NewStudentWithParams(studentID, accID, studentName, studentSurname,
+                                        studentGroup, studentNumber, roomID)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = scanErr
+                        }</span>
+                }
+        } else<span class="cov8" title="1"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return student, err</span>
+}
+
+func (pg *PgStudentRepo) TransferStudent(studentID, roomID int, direct objects.TransferDirection) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLTransferStudent{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, studentID, roomID, int(direct))
+        return err
+}</span>
+
+func (pg *PgStudentRepo) ChangeStudent(studentID int, studentInfo objects.StudentDTO) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLChangeStudent{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, studentInfo.GetName(), studentInfo.GetSurname(),
+                studentInfo.GetStudentGroup(), studentInfo.GetStudentNumber(), studentID)
+        return err
+}</span>
+
+func (pg *PgStudentRepo) TransferThing(studentID, thingID int, direct objects.TransferDirection) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLTransferThing{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, studentID, thingID, int(direct))
+        return err
+}</span>
+
+func (pg *PgStudentRepo) GetStudentThings(id int) ([]objects.Thing, error) <span class="cov8" title="1">{
+        var (
+                resultThings                         = make([]objects.Thing, objects.Empty)
+                thingID, markNumber, ownerID, roomID int
+                thingType                            string
+                err                                  error
+        )
+        sqlString := pgsql.PostgreSQLGetStudentsThings{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        readRowErr := rows.Scan(&amp;thingID, &amp;markNumber, &amp;thingType, &amp;ownerID, &amp;roomID)
+                        if err == nil </span><span class="cov8" title="1">{
+                                tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
+                                resultThings = append(resultThings, tmpThings)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = readRowErr
+                                break</span>
+                        }
+                }
+        } else<span class="cov0" title="0"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultThings, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package thingRepo
+
+import (
+        "database/sql"
+        "src/db/sql"
+        "src/objects"
+)
+
+type PgThingRepo struct {
+        Conn *sql.DB
+}
+
+func (pg *PgThingRepo) AddThing(thing objects.ThingDTO) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLAddThing{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, thing.GetMarkNumber(), thing.GetThingType())
+        return err
+}</span>
+
+func (pg *PgThingRepo) GetThings() ([]objects.Thing, error) <span class="cov8" title="1">{
+        var (
+                resultThings                         = make([]objects.Thing, objects.Empty)
+                thingID, markNumber, ownerID, roomID int
+                thingType                            string
+                err                                  error
+        )
+        sqlString := pgsql.PostgreSQLGetThings{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        readRowErr := rows.Scan(&amp;thingID, &amp;markNumber, &amp;thingType, &amp;ownerID, &amp;roomID)
+                        if err == nil </span><span class="cov8" title="1">{
+                                tmpThings := objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
+                                resultThings = append(resultThings, tmpThings)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = readRowErr
+                                break</span>
+                        }
+                }
+        } else<span class="cov0" title="0"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return resultThings, err</span>
+}
+
+func (pg *PgThingRepo) DeleteThing(id int) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLDeleteThing{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, id)
+        return err
+}</span>
+
+func (pg *PgThingRepo) GetThing(id int) (objects.Thing, error) <span class="cov8" title="1">{
+        var (
+                thing                                = objects.NewEmptyThing()
+                thingID, markNumber, ownerID, roomID int
+                thingType                            string
+                err                                  error
+        )
+        sqlString := pgsql.PostgreSQLGetThing{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        readRowErr := rows.Scan(&amp;thingID, &amp;markNumber, &amp;thingType, &amp;ownerID, &amp;roomID)
+                        if err == nil </span><span class="cov8" title="1">{
+                                thing = objects.NewThingWithParams(thingID, markNumber, thingType, ownerID, roomID)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = readRowErr
+                                break</span>
+                        }
+                }
+        } else<span class="cov8" title="1"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return thing, err</span>
+}
+
+func (pg *PgThingRepo) TransferThingRoom(id, srcRoomID, dstRoomID int) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLTransferThingRoom{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, id, srcRoomID, dstRoomID)
+        return err
+}</span>
+
+func (pg *PgThingRepo) GetThingIDByMarkNumber(markNumber int) (int, error) <span class="cov8" title="1">{
+        var result int
+        sqlString := pgsql.PostgreSQLGetThingID{}.GetString()
+        row := pg.Conn.QueryRow(sqlString, markNumber)
+        err := row.Scan(&amp;result)
+        return result, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package userRepo
+
+import (
+        "database/sql"
+        "src/db/sql"
+
+        "src/objects"
+)
+
+type PgUserRepo struct {
+        Conn *sql.DB
+}
+
+func (pg *PgUserRepo) GetUserID(login string) (int, error) <span class="cov8" title="1">{
+        var result int
+        sqlString := pgsql.PostgreSQLGetUserId{}.GetString()
+        row := pg.Conn.QueryRow(sqlString, login)
+        err := row.Scan(&amp;result)
+        return result, err
+}</span>
+
+func (pg *PgUserRepo) GetUser(id int) (objects.User, error) <span class="cov8" title="1">{
+        var (
+                result   = objects.NewEmptyUser()
+                userID   int32
+                login    string
+                password string
+                level    objects.Levels
+                err      error
+        )
+        sqlString := pgsql.PostgreSQLGetUser{}.GetString()
+        rows, execError := pg.Conn.Query(sqlString, id)
+        if execError == nil </span><span class="cov8" title="1">{
+                for rows.Next() </span><span class="cov8" title="1">{
+                        readRowError := rows.Scan(&amp;userID, &amp;login, &amp;password, &amp;level)
+                        if readRowError != nil </span><span class="cov0" title="0">{
+                                err = readRowError
+                                break</span>
+                        } else<span class="cov8" title="1"> {
+                                result = objects.NewUserWithParams(int(userID), login, password, level)
+                        }</span>
+                }
+        } else<span class="cov8" title="1"> {
+                err = execError
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (pg *PgUserRepo) AddUser(login, password string, privelegeLevel objects.Levels) error <span class="cov8" title="1">{
+        sqlString := pgsql.PostgreSQLAddUser{}.GetString()
+        _, err := pg.Conn.Exec(sqlString, login, password, int(privelegeLevel))
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package roomController
+
+import (
+        "src/db/roomRepo"
+        "src/objects"
+)
+
+type RoomController struct {
+        Repo roomRepo.RoomRepo
+}
+
+func (rc *RoomController) AddRoom(roomType string, number int) error <span class="cov8" title="1">{
+        roomDTO := objects.NewRoomDTO(roomType, number)
+        err := rc.Repo.AddRoom(roomDTO)
+        return err
+}</span>
+
+func (rc *RoomController) GetRooms() ([]objects.Room, error) <span class="cov8" title="1">{
+        return rc.Repo.GetRooms()
+}</span>
+
+func (rc *RoomController) GetRoom(id int) (objects.Room, error) <span class="cov8" title="1">{
+        tmpRoom, err := rc.Repo.GetRoom(id)
+        if err != nil || tmpRoom.GetID() == objects.None </span><span class="cov8" title="1">{
+                err = RoomNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return tmpRoom, err</span>
+}
+
+func (rc *RoomController) DeleteRoom(id int) error <span class="cov8" title="1">{
+        tmpRoom, err := rc.Repo.GetRoom(id)
+        if err == nil &amp;&amp; tmpRoom.GetID() &gt; objects.None </span><span class="cov8" title="1">{
+                err = rc.Repo.DeleteRoom(id)
+        }</span> else<span class="cov8" title="1"> {
+                err = RoomNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (rc *RoomController) GetRoomThings(id int) ([]objects.Thing, error) <span class="cov8" title="1">{
+        tmpRoom, err := rc.Repo.GetRoom(id)
+        if err == nil </span><span class="cov8" title="1">{
+                if tmpRoom.GetID() != objects.None </span><span class="cov8" title="1">{
+                        return rc.Repo.GetRoomThings(id)
+                }</span>
+        } else<span class="cov8" title="1"> {
+                err = RoomNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return nil, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package studentController
+
+import (
+        "database/sql"
+        "src/db/studentRepo"
+        "src/objects"
+)
+
+type StudentController struct {
+        Repo studentRepo.StudentRepo
+}
+
+func CreateNewStudentController(Repo studentRepo.StudentRepo) *StudentController <span class="cov0" title="0">{
+        return &amp;StudentController{Repo: Repo}
+}</span>
+
+func (sc *StudentController) AddStudent(name, surname, group, studentNumber string, accID int) error <span class="cov8" title="1">{
+        var err error
+        if accID &lt; 0 </span><span class="cov8" title="1">{
+                err = BadAccIDErr
+        }</span> else<span class="cov8" title="1"> if len(name) &lt; 1 || len(surname) &lt; 1 || len(group) &lt; 1 || len(studentNumber) &lt; 1 </span><span class="cov8" title="1">{
+                err = BadParamsErr
+        }</span> else<span class="cov8" title="1"> {
+                allStudents, getStudentErr := sc.Repo.GetAllStudents()
+                if getStudentErr == nil </span><span class="cov8" title="1">{
+                        for _, tmpStudent := range allStudents </span><span class="cov8" title="1">{
+                                if tmpStudent.GetStudentNumber() == studentNumber </span><span class="cov8" title="1">{
+                                        err = StudentAlreadyInBaseErr
+                                        break</span>
+                                }
+                        }
+                        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                                studentDTO := objects.NewStudentDTO(name, surname, group, studentNumber)
+                                err = sc.Repo.AddStudent(studentDTO, accID)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sc *StudentController) GetAllStudents() ([]objects.Student, error) <span class="cov8" title="1">{
+        return sc.Repo.GetAllStudents()
+}</span>
+
+func (sc *StudentController) GetStudentIDByNumber(studentNumber string) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        allStudents, err := sc.Repo.GetAllStudents()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, tmpStudent := range allStudents </span><span class="cov8" title="1">{
+                        if tmpStudent.GetStudentNumber() == studentNumber </span><span class="cov8" title="1">{
+                                result = tmpStudent.GetID()
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">if result == objects.None </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (sc *StudentController) GetStudent(id int) (objects.Student, error) <span class="cov8" title="1">{
+        var err error
+        var student objects.Student
+        if id &lt; 0 </span><span class="cov8" title="1">{
+                err = BadParamsErr
+        }</span> else<span class="cov8" title="1"> {
+                student, err = sc.Repo.GetStudent(id)
+                if err != nil </span><span class="cov8" title="1">{
+                        err = StudentNotFoundErr
+                }</span>
+        }
+        <span class="cov8" title="1">return student, err</span>
+}
+
+func (sc *StudentController) GetStudentRoom(id int) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        allStudents, err := sc.Repo.GetAllStudents()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, tmpStudent := range allStudents </span><span class="cov8" title="1">{
+                        if tmpStudent.GetID() == id </span><span class="cov8" title="1">{
+                                result = tmpStudent.GetRoomID()
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">if result == objects.None </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (sc *StudentController) SettleStudent(studentID, roomID int) error <span class="cov8" title="1">{
+        student, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                if student.GetID() == objects.None </span><span class="cov0" title="0">{
+                        err = StudentNotFoundErr
+                }</span> else<span class="cov8" title="1"> if student.GetRoomID() == objects.NotLiving </span><span class="cov8" title="1">{
+                        err = sc.Repo.TransferStudent(studentID, roomID, objects.Get)
+                }</span> else<span class="cov8" title="1"> {
+                        err = StudentAlreadyLiveErr
+                }</span>
+        } else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sc *StudentController) EvicStudent(studentID int) error <span class="cov8" title="1">{
+        student, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                if student.GetRoomID() != objects.NotLiving </span><span class="cov8" title="1">{
+                        err = sc.Repo.TransferStudent(studentID, student.GetRoomID(), objects.Ret)
+                }</span> else<span class="cov8" title="1"> {
+                        err = StudentNotLivingErr
+                }</span>
+        } else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sc *StudentController) ChangeStudentGroup(studentID int, newGroup string) error <span class="cov8" title="1">{
+        student, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                studentDTO := objects.NewStudentDTO(student.GetName(), student.GetSurname(),
+                        newGroup, student.GetStudentNumber())
+                err = sc.Repo.ChangeStudent(studentID, studentDTO)
+        }</span> else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sc *StudentController) GetStudentThings(studentID int) ([]objects.Thing, error) <span class="cov8" title="1">{
+        studentThings := make([]objects.Thing, 0)
+        _, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                studentThings, err = sc.Repo.GetStudentThings(studentID)
+        }</span> else<span class="cov8" title="1"> {
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return studentThings, err</span>
+}
+
+func (sc *StudentController) TransferThing(studentID, thingID int) error <span class="cov8" title="1">{
+        _, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                err = sc.Repo.TransferThing(studentID, thingID, objects.Get)
+        }</span> else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sc *StudentController) ReturnThing(studentID, thingID int) error <span class="cov8" title="1">{
+        _, err := sc.Repo.GetStudent(studentID)
+        if err == nil </span><span class="cov8" title="1">{
+                err = sc.Repo.TransferThing(studentID, thingID, objects.Ret)
+        }</span> else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package thingController
+
+import (
+        "database/sql"
+        "src/db/thingRepo"
+        "src/objects"
+)
+
+type ThingController struct {
+        Repo thingRepo.ThingRepo
+}
+
+func (tc *ThingController) AddThing(markNumber int, thingType string) error <span class="cov8" title="1">{
+        things, err := tc.Repo.GetThings()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, thing := range things </span><span class="cov8" title="1">{
+                        if thing.GetMarkNumber() == markNumber </span><span class="cov8" title="1">{
+                                err = ThingAlreadyExistErr
+                                break</span>
+                        }
+                }
+                <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                        thingDTO := objects.NewThingDTO(markNumber, thingType)
+                        err = tc.Repo.AddThing(thingDTO)
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (tc *ThingController) GetThings() ([]objects.Thing, error) <span class="cov8" title="1">{
+        return tc.Repo.GetThings()
+}</span>
+
+func (tc *ThingController) GetFreeThings() ([]objects.Thing, error) <span class="cov8" title="1">{
+        resultFreeThings := make([]objects.Thing, objects.Empty)
+        things, err := tc.Repo.GetThings()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, thing := range things </span><span class="cov8" title="1">{
+                        if thing.GetOwnerID() == objects.None </span><span class="cov8" title="1">{
+                                resultFreeThings = append(resultFreeThings, thing)
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return resultFreeThings, err</span>
+}
+
+func (tc *ThingController) GetThing(id int) (objects.Thing, error) <span class="cov8" title="1">{
+        thing, err := tc.Repo.GetThing(id)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return thing, err</span>
+}
+
+func (tc *ThingController) DeleteThing(id int) error <span class="cov8" title="1">{
+        thing, err := tc.Repo.GetThing(id)
+        if err == nil </span><span class="cov8" title="1">{
+                if thing.GetID() != objects.None </span><span class="cov8" title="1">{
+                        err = tc.Repo.DeleteThing(id)
+                }</span>
+        } else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (tc *ThingController) GetThingRoom(thingID int) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        tmpThing, err := tc.Repo.GetThing(thingID)
+        if err == nil </span><span class="cov8" title="1">{
+                result = tmpThing.GetRoomID()
+        }</span> else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (tc *ThingController) TransferThing(thingID, srcRoomID, dstRoomID int) error <span class="cov8" title="1">{
+        tmpThing, err := tc.Repo.GetThing(thingID)
+        if err == nil </span><span class="cov8" title="1">{
+                if tmpThing.GetRoomID() != srcRoomID </span><span class="cov8" title="1">{
+                        err = BadSrcRoomErr
+                }</span> else<span class="cov8" title="1"> if dstRoomID == objects.None || dstRoomID == srcRoomID </span><span class="cov8" title="1">{
+                        err = BadDstRoomErr
+                }</span> else<span class="cov8" title="1"> {
+                        err = tc.Repo.TransferThingRoom(thingID, srcRoomID, dstRoomID)
+                }</span>
+        } else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (tc *ThingController) GetCurrentOwner(thingID int) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        tmpThing, err := tc.Repo.GetThing(thingID)
+        if err == nil </span><span class="cov8" title="1">{
+                result = tmpThing.GetOwnerID()
+        }</span> else<span class="cov8" title="1"> if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (tc *ThingController) GetThingIDByMarkNumber(markNumber int) (int, error) <span class="cov8" title="1">{
+        id, err := tc.Repo.GetThingIDByMarkNumber(markNumber)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = ThingNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return id, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package userController
+
+import (
+        "database/sql"
+        "src/db/userRepo"
+        "src/objects"
+)
+
+type UserController struct {
+        Repo userRepo.UserRepo
+}
+
+func (uc *UserController) GetUserID(login string) (int, error) <span class="cov8" title="1">{
+        id, err := uc.Repo.GetUserID(login)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = UserNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return id, err</span>
+}
+
+func (uc *UserController) GetUser(id int) (objects.User, error) <span class="cov8" title="1">{
+        user, err := uc.Repo.GetUser(id)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                err = UserNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return user, err</span>
+}
+func (uc *UserController) AddUser(login, password string, privelegeLevel objects.Levels) error <span class="cov8" title="1">{
+        if login == objects.EmptyString || password == objects.EmptyString </span><span class="cov8" title="1">{
+                return BadParamsErr
+        }</span>
+        <span class="cov8" title="1">_, err := uc.Repo.GetUserID(login)
+        if err == sql.ErrNoRows </span><span class="cov8" title="1">{
+                return uc.Repo.AddUser(login, password, privelegeLevel)
+        }</span> else<span class="cov8" title="1"> {
+                return LoginOccupedErr
+        }</span>
+}
+
+func (uc *UserController) UserExist(login string) bool <span class="cov8" title="1">{
+        var result bool
+        id, err := uc.Repo.GetUserID(login)
+        if err == nil &amp;&amp; id &gt; objects.None </span><span class="cov8" title="1">{
+                result = true
+        }</span>
+        <span class="cov8" title="1">return result</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package authManager
+
+import (
+        "src/logic/controllers/userController"
+        "src/objects"
+)
+
+type AuthManager struct {
+        currentLogin   string
+        userController userController.UserController
+}
+
+func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels, err error) <span class="cov8" title="1">{
+        isUserExist := am.userController.UserExist(login)
+        if isUserExist </span><span class="cov8" title="1">{
+                tmpID, getUserIDErr := am.userController.GetUserID(login)
+                if getUserIDErr == nil </span><span class="cov8" title="1">{
+                        if tmpID != objects.None </span><span class="cov8" title="1">{
+                                tmpUser, getUserErr := am.userController.GetUser(tmpID)
+                                if getUserErr == nil </span><span class="cov8" title="1">{
+                                        if tmpUser.GetPassword() == password </span><span class="cov8" title="1">{
+                                                result = tmpUser.GetPrivelegeLevel()
+                                        }</span> else<span class="cov8" title="1"> {
+                                                err = PasswordNotEqualErr
+                                        }</span>
+                                } else<span class="cov0" title="0"> {
+                                        err = getUserErr
+                                }</span>
+                        }
+                } else<span class="cov0" title="0"> {
+                        err = getUserIDErr
+                }</span>
+        } else<span class="cov8" title="1"> {
+                err = userController.UserNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (am *AuthManager) GetUserID(login string) (int, error) <span class="cov8" title="1">{
+        var result = objects.None
+        var err error
+        isUserExist := am.userController.UserExist(login)
+        if isUserExist </span><span class="cov8" title="1">{
+                result, err = am.userController.GetUserID(login)
+        }</span> else<span class="cov8" title="1"> {
+                err = userController.UserNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return result, err</span>
+}
+
+func (am *AuthManager) GetLogin() string <span class="cov0" title="0">{
+        return am.currentLogin
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package roomManager
+
+import (
+        "src/logic/controllers/roomController"
+        "src/objects"
+)
+
+type RoomManager struct {
+        roomController roomController.RoomController
+}
+
+func (rm *RoomManager) GetAllRooms() ([]objects.Room, error) <span class="cov8" title="1">{
+        return rm.roomController.GetRooms()
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package studentManager
+
+import (
+        "src/logic/controllers/roomController"
+        "src/logic/controllers/studentController"
+        "src/logic/controllers/thingController"
+        "src/logic/controllers/userController"
+        "src/logic/managers/models"
+        "src/objects"
+)
+
+type StudentManager struct {
+        roomController    roomController.RoomController
+        studentController studentController.StudentController
+        userController    userController.UserController
+        thingController   thingController.ThingController
+}
+
+func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumber, login, password string) (err error) <span class="cov8" title="1">{
+        if name == objects.EmptyString || surname == objects.EmptyString || studentGroup == objects.EmptyString ||
+                studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                err = studentController.BadParamsErr
+        }</span> else<span class="cov8" title="1"> if login == objects.EmptyString || password == objects.EmptyString </span><span class="cov8" title="1">{
+                err = userController.BadParamsErr
+        }</span> else<span class="cov8" title="1"> {
+                isUserExist := sm.userController.UserExist(login)
+                if !isUserExist </span><span class="cov8" title="1">{
+                        _, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
+                        if getStudentErr == studentController.StudentNotFoundErr </span><span class="cov8" title="1">{
+                                addUserErr := sm.userController.AddUser(login, password, objects.StudentRole)
+                                if addUserErr == nil </span><span class="cov8" title="1">{
+                                        accID, getUserErr := sm.userController.GetUserID(login)
+                                        if getUserErr == nil </span><span class="cov8" title="1">{
+                                                err = sm.studentController.AddStudent(name, surname, studentGroup, studentNumber, accID)
+                                        }</span> else<span class="cov0" title="0"> {
+                                                err = getUserErr
+                                        }</span>
+                                } else<span class="cov0" title="0"> {
+                                        err = addUserErr
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                err = studentController.StudentAlreadyInBaseErr
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        err = userController.LoginOccupedErr
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) ViewStudent(studentNumber string) (models.StudentFullInfo, error) <span class="cov8" title="1">{
+        var studentInfo models.StudentFullInfo
+        studID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                student, getStudentErr := sm.studentController.GetStudent(studID)
+                if getStudentErr == nil </span><span class="cov8" title="1">{
+                        room, getRoomErr := sm.roomController.GetRoom(student.GetRoomID())
+                        if getRoomErr == nil </span><span class="cov8" title="1">{
+                                studentInfo.Student = student
+                                studentInfo.Room = room
+                        }</span> else<span class="cov0" title="0"> {
+                                err = getRoomErr
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        err = getStudentErr
+                }</span>
+        }
+        <span class="cov8" title="1">return studentInfo, err</span>
+}
+
+func (sm *StudentManager) ViewAllStudents() ([]objects.Student, error) <span class="cov8" title="1">{
+        return sm.studentController.GetAllStudents()
+}</span>
+
+func (sm *StudentManager) ChangeStudentGroup(studentNumber, newGroup string) (err error) <span class="cov8" title="1">{
+        if newGroup == objects.EmptyString </span><span class="cov8" title="1">{
+                err = studentController.BadParamsErr
+        }</span> else<span class="cov8" title="1"> {
+                studID, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
+                if getStudentErr == nil </span><span class="cov8" title="1">{
+                        err = sm.studentController.ChangeStudentGroup(studID, newGroup)
+                }</span> else<span class="cov8" title="1"> {
+                        err = getStudentErr
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) SettleStudent(studentNumber string, roomID int) error <span class="cov8" title="1">{
+        if studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                return studentController.BadParamsErr
+        }</span>
+
+        <span class="cov8" title="1">if roomID &lt;= objects.NotLiving </span><span class="cov8" title="1">{
+                return roomController.RoomNotFoundErr
+        }</span>
+
+        <span class="cov8" title="1">studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                _, err = sm.roomController.GetRoom(roomID)
+                if err == nil </span><span class="cov8" title="1">{
+                        err = sm.studentController.SettleStudent(studentID, roomID)
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) EvicStudent(studentNumber string) error <span class="cov8" title="1">{
+        if studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                return studentController.BadParamsErr
+        }</span>
+
+        <span class="cov8" title="1">studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                err = sm.studentController.EvicStudent(studentID)
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int) error <span class="cov8" title="1">{
+        if studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                return studentController.BadParamsErr
+        }</span>
+
+        <span class="cov8" title="1">if markNumber &lt;= objects.None </span><span class="cov8" title="1">{
+                return thingController.ThingNotFoundErr
+        }</span>
+
+        <span class="cov8" title="1">studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                thingID, getThingErr := sm.thingController.GetThingIDByMarkNumber(markNumber)
+                if getThingErr == nil </span><span class="cov8" title="1">{
+                        ownerID, getOwnerErr := sm.thingController.GetCurrentOwner(thingID)
+                        if getOwnerErr == nil </span><span class="cov8" title="1">{
+                                if ownerID == objects.None </span><span class="cov8" title="1">{
+                                        err = sm.studentController.TransferThing(studentID, thingID)
+                                }</span> else<span class="cov8" title="1"> {
+                                        err = ThingHasOwnerErr
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                err = getOwnerErr
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        err = getThingErr
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) ReturnStudentThing(studentNumber string, markNumber int) error <span class="cov8" title="1">{
+        if studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                return studentController.BadParamsErr
+        }</span>
+
+        <span class="cov8" title="1">if markNumber &lt;= objects.None </span><span class="cov8" title="1">{
+                return thingController.ThingNotFoundErr
+        }</span>
+
+        <span class="cov8" title="1">studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                thingID, getThingErr := sm.thingController.GetThingIDByMarkNumber(markNumber)
+                if getThingErr == nil </span><span class="cov8" title="1">{
+                        ownerID, getOwnerErr := sm.thingController.GetCurrentOwner(thingID)
+                        if getOwnerErr == nil </span><span class="cov8" title="1">{
+                                if ownerID == studentID </span><span class="cov8" title="1">{
+                                        err = sm.studentController.ReturnThing(studentID, thingID)
+                                }</span> else<span class="cov8" title="1"> {
+                                        err = StudentIsNotOwnerErr
+                                }</span>
+                        } else<span class="cov0" title="0"> {
+                                err = getOwnerErr
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        err = getThingErr
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func (sm *StudentManager) GetStudentByAccID(accID int) (string, error) <span class="cov8" title="1">{
+        var resultStudentNumber string
+        allStudents, err := sm.studentController.GetAllStudents()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, tmpStudent := range allStudents </span><span class="cov8" title="1">{
+                        if tmpStudent.GetAccID() == accID </span><span class="cov8" title="1">{
+                                resultStudentNumber = tmpStudent.GetStudentNumber()
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">if resultStudentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                err = studentController.StudentNotFoundErr
+        }</span>
+        <span class="cov8" title="1">return resultStudentNumber, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package thingManager
+
+import (
+        "src/logic/controllers/roomController"
+        "src/logic/controllers/studentController"
+        "src/logic/controllers/thingController"
+        "src/logic/managers/models"
+        "src/objects"
+)
+
+type ThingManager struct {
+        thingController   thingController.ThingController
+        roomController    roomController.RoomController
+        studentController studentController.StudentController
+}
+
+func (tm *ThingManager) GetFullThingInfo() ([]models.ThingFullInfo, error) <span class="cov8" title="1">{
+        thingsFullInfo := make([]models.ThingFullInfo, 0)
+        allThings, err := tm.thingController.GetThings()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, tmpThing := range allThings </span><span class="cov8" title="1">{
+                        roomID := tmpThing.GetRoomID()
+                        tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
+                        if getRoomErr == nil </span><span class="cov8" title="1">{
+                                newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
+                                thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = getRoomErr
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">return thingsFullInfo, err</span>
+}
+
+func (tm *ThingManager) GetFreeThings() ([]models.ThingFullInfo, error) <span class="cov8" title="1">{
+        thingsFullInfo := make([]models.ThingFullInfo, 0)
+        allThings, err := tm.thingController.GetFreeThings()
+        if err == nil </span><span class="cov8" title="1">{
+                for _, tmpThing := range allThings </span><span class="cov8" title="1">{
+                        roomID := tmpThing.GetRoomID()
+                        tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
+                        if getRoomErr == nil </span><span class="cov8" title="1">{
+                                newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
+                                thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = getRoomErr
+                                break</span>
+                        }
+                }
+        }
+        <span class="cov8" title="1">return thingsFullInfo, err</span>
+}
+
+func (tm *ThingManager) GetStudentThings(studentNumber string) ([]models.ThingFullInfo, error) <span class="cov8" title="1">{
+        if studentNumber == objects.EmptyString </span><span class="cov8" title="1">{
+                return nil, studentController.BadParamsErr
+        }</span>
+
+        <span class="cov8" title="1">thingsFullInfo := make([]models.ThingFullInfo, 0)
+        studentID, err := tm.studentController.GetStudentIDByNumber(studentNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                allThings, getStudentThingsErr := tm.studentController.GetStudentThings(studentID)
+                if getStudentThingsErr == nil </span><span class="cov8" title="1">{
+                        for _, tmpThing := range allThings </span><span class="cov8" title="1">{
+                                roomID := tmpThing.GetRoomID()
+                                tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
+                                if getRoomErr == nil </span><span class="cov8" title="1">{
+                                        newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
+                                        thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
+                                }</span> else<span class="cov0" title="0"> {
+                                        err = getRoomErr
+                                        break</span>
+                                }
+                        }
+                } else<span class="cov0" title="0"> {
+                        err = getStudentThingsErr
+                }</span>
+        }
+        <span class="cov8" title="1">return thingsFullInfo, err</span>
+}
+
+func (tm *ThingManager) AddNewThing(markNumber int, thingType string) error <span class="cov8" title="1">{
+        if thingType == objects.EmptyString || markNumber &lt;= objects.None </span><span class="cov8" title="1">{
+                return thingController.ThingNotFoundErr
+        }</span> else<span class="cov8" title="1"> {
+                return tm.thingController.AddThing(markNumber, thingType)
+        }</span>
+}
+
+func (tm *ThingManager) TransferThing(markNumber int, roomID int) error <span class="cov8" title="1">{
+        if markNumber &lt;= objects.None </span><span class="cov8" title="1">{
+                return thingController.ThingNotFoundErr
+        }</span>
+
+        <span class="cov8" title="1">if roomID &lt;= objects.None </span><span class="cov8" title="1">{
+                return thingController.BadDstRoomErr
+        }</span>
+
+        <span class="cov8" title="1">thingID, err := tm.thingController.GetThingIDByMarkNumber(markNumber)
+        if err == nil </span><span class="cov8" title="1">{
+                _, getRoomErr := tm.roomController.GetRoom(roomID)
+                if getRoomErr == nil </span><span class="cov8" title="1">{
+                        tmpThing, getThingErr := tm.thingController.GetThing(thingID)
+                        if getThingErr == nil </span><span class="cov8" title="1">{
+                                err = tm.thingController.TransferThing(thingID, tmpThing.GetRoomID(), roomID)
+                        }</span> else<span class="cov0" title="0"> {
+                                err = getThingErr
+                        }</span>
+                } else<span class="cov8" title="1"> {
+                        err = getRoomErr
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

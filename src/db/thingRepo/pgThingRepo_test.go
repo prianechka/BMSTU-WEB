@@ -2,10 +2,12 @@ package thingRepo
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/tests"
 	mot "src/tests/mother"
 	"testing"
+	"time"
 )
 
 var (
@@ -13,8 +15,16 @@ var (
 	RowsAffected int64 = 1
 )
 
-func TestPgThingRepo_AddThing(t *testing.T) {
+type TestPgThingRepo struct{}
+
+func Test_PgThingRepo(t *testing.T) {
+	testgroup.RunSerially(t, &TestPgThingRepo{})
+}
+
+func (*TestPgThingRepo) TestPgThingRepo_AddThing(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	thingDTO := objectMother.CreateThingDTO()
@@ -31,8 +41,10 @@ func TestPgThingRepo_AddThing(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgThingRepo_DeleteThing(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_DeleteThing(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectExec("DELETE").WithArgs(InsertID).
@@ -48,7 +60,7 @@ func TestPgThingRepo_DeleteThing(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgThingRepo_GetThings(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_GetThings(t *testgroup.T) {
 	objectMother := mot.ThingRepoObjectMother{}
 	N := 3
 	db, mock := objectMother.CreateRepo()
@@ -68,8 +80,10 @@ func TestPgThingRepo_GetThings(t *testing.T) {
 	tests.AssertResult(t, realThings, resultThings)
 }
 
-func TestPgThingRepo_TransferThingRoom(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_TransferThingRoom(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		id        = int(InsertID)
 		srcIDRoom = int(InsertID)
@@ -90,8 +104,10 @@ func TestPgThingRepo_TransferThingRoom(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgThingRepo_GetThingPositive(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_GetThingPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	N := 1
@@ -111,8 +127,10 @@ func TestPgThingRepo_GetThingPositive(t *testing.T) {
 	tests.AssertResult(t, thing, realThings[0])
 }
 
-func TestPgThingRepo_GetThingNegative(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_GetThingNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(InsertID).WillReturnError(sql.ErrNoRows)
@@ -126,8 +144,10 @@ func TestPgThingRepo_GetThingNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgThingRepo_GetThingIDByMarkNumberPositive(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_GetThingIDByMarkNumberPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	id := 1
@@ -145,8 +165,10 @@ func TestPgThingRepo_GetThingIDByMarkNumberPositive(t *testing.T) {
 	tests.AssertResult(t, thingID, id)
 }
 
-func TestPgThingRepo_GetThingIDByMarkNumberNegative(t *testing.T) {
+func (*TestPgThingRepo) TestPgThingRepo_GetThingIDByMarkNumberNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mot.DefaultMarkNumber).

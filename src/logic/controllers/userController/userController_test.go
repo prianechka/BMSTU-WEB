@@ -2,12 +2,14 @@ package userController
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/db/userRepo"
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
 var (
@@ -15,8 +17,16 @@ var (
 	RowsAffected int64 = 1
 )
 
-func TestUserController_AddUserPositive(t *testing.T) {
+type TestUserController struct{}
+
+func Test_UserController(t *testing.T) {
+	testgroup.RunSerially(t, &TestUserController{})
+}
+
+func (*TestUserController) TestUserController_AddUserPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultLogin).WillReturnError(sql.ErrNoRows)
@@ -34,8 +44,10 @@ func TestUserController_AddUserPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestUserController_AddUserNegativeAlreadyExist(t *testing.T) {
+func (*TestUserController) TestUserController_AddUserNegativeAlreadyExist(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -53,8 +65,10 @@ func TestUserController_AddUserNegativeAlreadyExist(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestUserController_AddUserNegativeBadParams(t *testing.T) {
+func (*TestUserController) TestUserController_AddUserNegativeBadParams(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 
@@ -69,8 +83,10 @@ func TestUserController_AddUserNegativeBadParams(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestUserController_UserExistTrue(t *testing.T) {
+func (*TestUserController) TestUserController_UserExistTrue(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -89,8 +105,10 @@ func TestUserController_UserExistTrue(t *testing.T) {
 	tests.AssertResult(t, result, true)
 }
 
-func TestUserController_UserExistFalse(t *testing.T) {
+func (*TestUserController) TestUserController_UserExistFalse(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultLogin).WillReturnError(sql.ErrNoRows)
@@ -106,8 +124,10 @@ func TestUserController_UserExistFalse(t *testing.T) {
 	tests.AssertResult(t, result, false)
 }
 
-func TestUserController_GetUserPositive(t *testing.T) {
+func (*TestUserController) TestUserController_GetUserPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	N := 1
@@ -128,8 +148,10 @@ func TestUserController_GetUserPositive(t *testing.T) {
 	tests.AssertResult(t, user, realUsers[0])
 }
 
-func TestUserController_GetUserNegative(t *testing.T) {
+func (*TestUserController) TestUserController_GetUserNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	id := 1
@@ -146,8 +168,10 @@ func TestUserController_GetUserNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestUserController_GetUserIDPositive(t *testing.T) {
+func (*TestUserController) TestUserController_GetUserIDPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -167,8 +191,10 @@ func TestUserController_GetUserIDPositive(t *testing.T) {
 	tests.AssertResult(t, userID, ID)
 }
 
-func TestUserController_GetUserIDNegative(t *testing.T) {
+func (*TestUserController) TestUserController_GetUserIDNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultLogin).

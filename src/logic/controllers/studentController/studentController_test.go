@@ -3,6 +3,7 @@ package studentController
 import (
 	"database/sql"
 	"fmt"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/db/studentRepo"
 	"src/objects"
@@ -16,7 +17,13 @@ const (
 	RowsAffected = 1
 )
 
-func TestStudentController_AddStudentPositive(t *testing.T) {
+type TestStudentController struct{}
+
+func Test_StudentController(t *testing.T) {
+	testgroup.RunSerially(t, &TestStudentController{})
+}
+
+func (*TestStudentController) TestStudentController_AddStudentPositive(t *testgroup.T) {
 	// Arrange
 	var (
 		Name          = mother.DefaultStudentName
@@ -44,7 +51,7 @@ func TestStudentController_AddStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_AddStudentNegativeAlreadyLive(t *testing.T) {
+func (*TestStudentController) TestStudentController_AddStudentNegativeAlreadyLive(t *testgroup.T) {
 	// Arrange
 	var (
 		Name          = mother.DefaultStudentName
@@ -70,7 +77,7 @@ func TestStudentController_AddStudentNegativeAlreadyLive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_AddStudentNegativeBadID(t *testing.T) {
+func (*TestStudentController) TestStudentController_AddStudentNegativeBadID(t *testgroup.T) {
 	// Arrange
 	var (
 		Name          = mother.DefaultStudentName
@@ -91,7 +98,7 @@ func TestStudentController_AddStudentNegativeBadID(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_AddStudentNegativeBadStudentGroup(t *testing.T) {
+func (*TestStudentController) TestStudentController_AddStudentNegativeBadStudentGroup(t *testgroup.T) {
 	// Arrange
 	var (
 		Name          = mother.DefaultStudentName
@@ -112,7 +119,7 @@ func TestStudentController_AddStudentNegativeBadStudentGroup(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_GetAllStudents(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetAllStudents(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	N := 3
@@ -134,7 +141,7 @@ func TestStudentController_GetAllStudents(t *testing.T) {
 	tests.AssertResult(t, resultStudents, realStudents)
 }
 
-func TestStudentController_GetStudentPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentPositive(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -157,7 +164,7 @@ func TestStudentController_GetStudentPositive(t *testing.T) {
 	tests.AssertResult(t, student, realStudents[0])
 }
 
-func TestStudentController_GetStudentNegativeNotFound(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentNegativeNotFound(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -175,7 +182,7 @@ func TestStudentController_GetStudentNegativeNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_GetStudentNegativeBadID(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentNegativeBadID(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -192,7 +199,7 @@ func TestStudentController_GetStudentNegativeBadID(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_GetStudentIDByNumberPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentIDByNumberPositive(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -215,7 +222,7 @@ func TestStudentController_GetStudentIDByNumberPositive(t *testing.T) {
 	tests.AssertResult(t, studentID, ID)
 }
 
-func TestStudentController_GetStudentIDByNumberNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentIDByNumberNegative(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -236,7 +243,7 @@ func TestStudentController_GetStudentIDByNumberNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_GetStudentRoomPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentRoomPositive(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -258,7 +265,7 @@ func TestStudentController_GetStudentRoomPositive(t *testing.T) {
 	tests.AssertResult(t, roomID, ID)
 }
 
-func TestStudentController_GetStudentRoomNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentRoomNegative(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -278,7 +285,7 @@ func TestStudentController_GetStudentRoomNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_GetStudentThingsPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentThingsPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	thingObjectMother := mother.ThingRepoObjectMother{}
@@ -306,7 +313,7 @@ func TestStudentController_GetStudentThingsPositive(t *testing.T) {
 	tests.AssertResult(t, things, realThings)
 }
 
-func TestStudentController_GetStudentThingsNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_GetStudentThingsNegative(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -324,7 +331,7 @@ func TestStudentController_GetStudentThingsNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_SettleStudentPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_SettleStudentPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -351,7 +358,7 @@ func TestStudentController_SettleStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_SettleStudentNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentController) TestStudentController_SettleStudentNegativeStudentNotFound(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -371,7 +378,7 @@ func TestStudentController_SettleStudentNegativeStudentNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_SettleStudentNegativeStudentLiveNow(t *testing.T) {
+func (*TestStudentController) TestStudentController_SettleStudentNegativeStudentLiveNow(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -395,7 +402,7 @@ func TestStudentController_SettleStudentNegativeStudentLiveNow(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_EvicStudentPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_EvicStudentPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -421,7 +428,7 @@ func TestStudentController_EvicStudentPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_EvicStudentNegativeStudentNotFound(t *testing.T) {
+func (*TestStudentController) TestStudentController_EvicStudentNegativeStudentNotFound(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -440,7 +447,7 @@ func TestStudentController_EvicStudentNegativeStudentNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_EvicStudentStudentDoesNotLive(t *testing.T) {
+func (*TestStudentController) TestStudentController_EvicStudentStudentDoesNotLive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -464,7 +471,7 @@ func TestStudentController_EvicStudentStudentDoesNotLive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_ChangeStudentGroupPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_ChangeStudentGroupPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -492,7 +499,7 @@ func TestStudentController_ChangeStudentGroupPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_ChangeStudentGroupNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_ChangeStudentGroupNegative(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -511,7 +518,7 @@ func TestStudentController_ChangeStudentGroupNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_TransferThingPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_TransferThingPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -537,7 +544,7 @@ func TestStudentController_TransferThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_TransferThingNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_TransferThingNegative(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -557,7 +564,7 @@ func TestStudentController_TransferThingNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_ReturnThingPositive(t *testing.T) {
+func (*TestStudentController) TestStudentController_ReturnThingPositive(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
@@ -583,7 +590,7 @@ func TestStudentController_ReturnThingPositive(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestStudentController_ReturnThingNegative(t *testing.T) {
+func (*TestStudentController) TestStudentController_ReturnThingNegative(t *testgroup.T) {
 	// Arrange
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()

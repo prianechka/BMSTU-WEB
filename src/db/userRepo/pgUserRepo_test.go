@@ -2,10 +2,12 @@ package userRepo
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
 var (
@@ -13,8 +15,16 @@ var (
 	RowsAffected int64 = 1
 )
 
-func TestPgUserRepo_AddUser(t *testing.T) {
+type TestPgUserRepo struct{}
+
+func Test_PgUserRepo(t *testing.T) {
+	testgroup.RunSerially(t, &TestPgUserRepo{})
+}
+
+func (*TestPgUserRepo) TestPgUserRepo_AddUser(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	userDTO := objectMother.CreateUser()
@@ -32,8 +42,10 @@ func TestPgUserRepo_AddUser(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgUserRepo_GetUserPositive(t *testing.T) {
+func (*TestPgUserRepo) TestPgUserRepo_GetUserPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	N := 1
@@ -53,8 +65,10 @@ func TestPgUserRepo_GetUserPositive(t *testing.T) {
 	tests.AssertResult(t, user, realUsers[0])
 }
 
-func TestPgUserRepo_GetUserNegative(t *testing.T) {
+func (*TestPgUserRepo) TestPgUserRepo_GetUserNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(InsertID).WillReturnError(sql.ErrNoRows)
@@ -68,8 +82,10 @@ func TestPgUserRepo_GetUserNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgUserRepo_GetUserIDPositive(t *testing.T) {
+func (*TestPgUserRepo) TestPgUserRepo_GetUserIDPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -87,8 +103,10 @@ func TestPgUserRepo_GetUserIDPositive(t *testing.T) {
 	tests.AssertResult(t, userID, ID)
 }
 
-func TestPgUserRepo_GetUserIDNegative(t *testing.T) {
+func (*TestPgUserRepo) TestPgUserRepo_GetUserIDNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultLogin).

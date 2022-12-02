@@ -1,15 +1,25 @@
 package roomManager
 
 import (
+	"github.com/bloomberg/go-testgroup"
 	"src/db/roomRepo"
 	"src/logic/controllers/roomController"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
-func TestRoomManager_GetAllRooms(t *testing.T) {
+type TestRoomManager struct{}
+
+func Test_RoomManager(t *testing.T) {
+	testgroup.RunSerially(t, &TestRoomManager{})
+}
+
+func (*TestRoomManager) TestRoomManager_GetAllRooms(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.RoomRepoObjectMother{}
 	N := 3
 	db, mock := objectMother.CreateRepo()

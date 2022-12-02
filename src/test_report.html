@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>go-test-report</title>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            background-color: #f3f3f3;
+            border-top: 2px #dee6e8 solid;
+            margin: 0;
+        }
+
+        div.pageHeader span.projectTitle {
+            font-family: serif;
+            font-size: 2em;
+            padding-left: 56px;
+            padding-top: 80px;
+            display: block;
+            color: #a5a5a5;
+            text-shadow: 0 -1px 1px white;
+        }
+
+        div.pageHeader div.testStats {
+            position: absolute;
+            top: 7px;
+            right: 52px;
+            font-size: 0.8em;
+            color: #a2a2a2;
+        }
+
+        div.pageHeader div.testStats span.indicator {
+            font-size: 2em;
+            position: relative;
+            top: 5px;
+            text-shadow: 0 1px 0 white;
+        }
+
+        div.pageHeader div.testStats span strong {
+            margin-right: 16px;
+        }
+
+        div.pageHeader div.testStats span.total {
+            border-right: 1px #afafaf dotted;
+            background: #8298af;
+        }
+
+        div.pageHeader div.testStats span.passed {
+            border-right: 1px #afafaf dotted;
+            background: #6fca83;
+        }
+
+        div.pageHeader div.testStats span.skipped {
+            background: #bababa;
+        }
+
+        div.pageHeader div.testStats span.failed {
+            background: #ff7676;
+        }
+
+        div.pageHeader div.testStats span {
+            margin-right: 1px;
+            height: 55px;
+            padding: 20px 8px 18px;
+            color: white;
+        }
+
+        div.pageHeader .testGroupsTitle {
+            margin: 16px 32px 8px 40px;
+            font-size: 0.9em;
+            color: darkgrey;
+            display: inline-block;
+        }
+
+        div.pageHeader .testExecutionDate {
+            display: inline-block;
+            position: absolute;
+            right: 10px;
+            margin: 14px 32px 8px 40px;
+            color: #9e9e9e;
+            font-size: 0.9em;
+        }
+
+        .testReportContainer {
+            padding: 0 32px 32px 32px;
+        }
+
+        .cardContainer {
+            padding: 16px 16px 16px;
+            box-shadow: 0 4px 4px #d4d4d4;
+            background-color: white;
+        }
+
+        #testResults {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .testResultGroup {
+            width: 24px;
+            height: 24px;
+            background-color: #43c143;
+            margin-left: 1px;
+            margin-bottom: 1px;
+            box-sizing: border-box;
+        }
+
+        .testResultGroup.selected {
+            border: 1px white solid;
+            background-color: black !important;
+        }
+
+        .testResultGroup.skipped {
+            border: 2px gray solid;
+        }
+
+        .testResultGroup.failed {
+            background-color: red;
+        }
+
+        .cardContainer.testGroupList,
+        .cardContainer.testDetail {
+            margin-top: 16px;
+            padding: 16px;
+        }
+
+        .cardContainer.testGroupList {
+            color: #9c9c9c;
+            padding: 0;
+        }
+
+        .cardContainer.testGroupList .testGroupRow {
+            cursor: default;
+            border-bottom: 1px #dadada dotted;
+        }
+
+        .cardContainer.testGroupList .testGroupRow span.testStatus {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #139e13;
+            pointer-events: none;
+            display: inline-block;
+            overflow: hidden;
+            float: left;
+            padding-top: 10px;
+            padding-left: 20px;
+            padding-right: 12px;
+        }
+
+        .cardContainer.testGroupList .testGroupRow span.testStatus.skipped {
+            color: gray;
+        }
+
+        .cardContainer.testGroupList .testGroupRow span.testStatus.failed {
+            color: red;
+        }
+
+        .cardContainer.testGroupList .testGroupRow span.testTitle {
+            font-size: 0.9em;
+            padding: 12px 0 10px;
+            display: inline-block;
+            pointer-events: none;
+            color: #525252;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: calc(100% - 110px);
+        }
+
+        .cardContainer.testGroupList .testGroupRow span.testDuration {
+            pointer-events: none;
+        }
+
+        .cardContainer.testGroupList .testGroupRow {
+            position: relative;
+            border-left: 4px #43c143 solid;
+        }
+
+        .cardContainer.testGroupList .testGroupRow.skipped {
+            color: gray;
+            border-left: 4px gray solid;
+        }
+
+        .cardContainer.testGroupList .testGroupRow.failed {
+            color: red;
+            border-left: 4px red solid;
+        }
+
+        .cardContainer.testGroupList .testGroupRow:hover {
+            background-color: #fffaea;
+            transition: 0.250s;
+        }
+
+        .cardContainer .testOutput {
+            padding: 8px 16px 24px 16px;
+        }
+
+        .cardContainer .console {
+            display: block;
+            font-family: monospace;
+            padding: 10px;
+            background-color: #424242;
+            color: #1aff00;
+            border-bottom: 1px #1aff00 dotted;
+            overflow: auto;
+            font-size: 1.1em;
+        }
+
+        .cardContainer .testOutput .testDetail {
+            border-bottom: 1px #d0d0d0 solid;
+            padding: 16px;
+            background-color: #e6e6e6;
+            border-radius: 0 0 4px 4px;
+            color: dimgrey;
+            font-size: 0.8em;
+        }
+
+        .cardContainer .console.skipped{
+            color: #d9d9d9;
+        }
+
+        .cardContainer .console.failed {
+            color: #ffb2b2;
+        }
+
+        .cardContainer .testDuration {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            text-align: right;
+            padding-right: 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+<div class="pageHeader">
+    <span class="projectTitle">go-test-report</span>
+    <div class="testStats">
+        <span class="total"><span class="indicator">&boxbox;</span> Total: <strong>156</strong>Duration: <strong>2.056s</strong>
+        </span><span class="passed"><span class="indicator">&check;</span> Passed: <strong>156</strong>
+        </span><span class="skipped"><span class="indicator">&dash;</span> Skipped: <strong>0</strong>
+        </span><span class="failed"><span class="indicator">&cross;</span> Failed: <strong>0</strong>
+        </span>
+    </div>
+    <span class="testGroupsTitle">Test Groups:</span>
+    <span class="testExecutionDate">December 2, 2022 17:54:03</span>
+</div>
+<div class="testReportContainer">
+    <div class="cardContainer">
+        <div id="testResults">
+            
+                <div class="testResultGroup  " id="0"></div>
+            
+                <div class="testResultGroup  " id="1"></div>
+            
+                <div class="testResultGroup  " id="2"></div>
+            
+                <div class="testResultGroup  " id="3"></div>
+            
+                <div class="testResultGroup  " id="4"></div>
+            
+                <div class="testResultGroup  " id="5"></div>
+            
+                <div class="testResultGroup  " id="6"></div>
+            
+                <div class="testResultGroup  " id="7"></div>
+            
+        </div>
+    </div>
+    <div class="cardContainer testGroupList" id="testGroupList"></div>
+</div>
+<script type="application/javascript">
+    /**
+ * @typedef TestStatus
+ * @property {string} TestName
+ * @property {string} Package
+ * @property {number} ElapsedTime
+ * @property {Array.<string>} Output
+ * @property {boolean} Passed
+ * @property {boolean} Skipped
+ */
+class TestStatus {}
+
+/**
+ * @typedef TestGroupData
+ * @type {object}
+ * @property {string} FailureIndicator
+ * @property {string} SkippedIndicator
+ * @property {Array.<TestStatus>}
+ */
+class TestGroupData {}
+
+/**
+ * @typedef TestResults
+ * @type {Array.<TestGroupData>}
+ */
+class TestResults extends Array {}
+
+/**
+ * @typedef SelectedItems
+ * @property {HTMLElement|EventTarget} testResults
+ * @property {String} selectedTestGroupColor
+ */
+class SelectedItems {}
+
+/**
+ * @typedef GoTestReportElements
+ * @property {TestResults} data
+ * @property {HTMLElement} testResultsElem
+ * @property {HTMLElement} testGroupListElem
+ */
+class GoTestReportElements {}
+
+
+/**
+ * Main entry point for GoTestReport.
+ * @param {GoTestReportElements} elements
+ * @returns {{testResultsClickHandler: testResultsClickHandler}}
+ * @constructor
+ */
+window.GoTestReport = function (elements) {
+  const /**@type {SelectedItems}*/ selectedItems = {
+    testResults: null,
+    selectedTestGroupColor: null
+  }
+
+  function addEventData(event) {
+    if (event.data == null) {
+      event.data = {target: event.target}
+    }
+    return event
+  }
+
+
+  const goTestReport = {
+    /**
+     * Invoked when a user clicks on one of the test group div elements.
+     * @param {HTMLElement} target The element associated with the test group.
+     * @param {boolean} shiftKey If pressed, all of test detail associated to the test group is shown.
+     * @param {TestResults} data
+     * @param {SelectedItems} selectedItems
+     * @param {function(target: Element, data: TestResults)} testGroupListHandler
+     */
+    testResultsClickHandler: function (target,
+                                       shiftKey,
+                                       data,
+                                       selectedItems,
+                                       testGroupListHandler) {
+
+      if (target.classList.contains('testResultGroup') === false) {
+        return
+      }
+      if (selectedItems.testResults != null) {
+        let testResultsElement = /**@type {HTMLElement}*/ selectedItems.testResults
+        testResultsElement.classList.remove("selected")
+        testResultsElement.style.backgroundColor = selectedItems.selectedTestGroupColor
+      }
+      const testGroupId = /**@type {number}*/ target.id
+      if ((target.id === undefined)
+        || (data[testGroupId] === undefined)
+        || (data[testGroupId]['TestResults'] === undefined)) {
+        return
+      }
+      const testResults = /**@type {TestResults}*/ data[testGroupId]['TestResults']
+      let testGroupList = /**@type {string}*/ ''
+      selectedItems.selectedTestGroupColor = getComputedStyle(target).getPropertyValue('background-color')
+      selectedItems.testResults = target
+      target.classList.add("selected")
+      for (let i = 0; i < testResults.length; i++) {
+        const testResult = /**@type {TestGroupData}*/ testResults[i]
+        const testPassed = /**@type {boolean}*/ testResult.Passed
+        const testSkipped = /**@type {boolean}*/ testResult.Skipped
+        const testPassedStatus = /**@type {string}*/ (testPassed) ? '' : (testSkipped ? 'skipped' : 'failed')
+        const testId = /**@type {string}*/ target.attributes['id'].value
+        testGroupList += `<div class="testGroupRow ${testPassedStatus}" data-groupid="${testId}" data-index="${i}">
+        <span class="testStatus ${testPassedStatus}">${(testPassed) ? '&check' : (testSkipped ? '&dash' : '&cross')};</span>
+        <span class="testTitle">${testResult.TestName}</span>
+        <span class="testDuration"><span>${testResult.ElapsedTime}s </span>⏱</span>
+      </div>`
+      }
+      const testGroupListElem = elements.testGroupListElem
+      testGroupListElem.innerHTML = ''
+      testGroupListElem.innerHTML = testGroupList
+
+      if (shiftKey) {
+        testGroupListElem.querySelectorAll('.testGroupRow')
+                         .forEach((elem) => testGroupListHandler(elem, data))
+      } else if (testResults.length === 1) {
+        testGroupListHandler(testGroupListElem.querySelector('.testGroupRow'), data)
+      }
+    },
+
+    /**
+     *
+     * @param {Element} target
+     * @param {TestResults} data
+     */
+    testGroupListHandler: function (target, data) {
+      const attribs = target['attributes']
+      if (attribs.hasOwnProperty('data-groupid')) {
+        const groupId = /**@type {number}*/ attribs['data-groupid'].value
+        const testIndex = /**@type {number}*/ attribs['data-index'].value
+        const testStatus = /**@type {TestStatus}*/ data[groupId]['TestResults'][testIndex]
+        const testOutputDiv = /**@type {HTMLDivElement}*/ target.querySelector('div.testOutput')
+
+        if (testOutputDiv == null) {
+          const testOutputDiv = document.createElement('div')
+          testOutputDiv.classList.add('testOutput')
+          const consolePre = document.createElement('pre')
+          consolePre.classList.add('console')
+          const testDetailDiv = document.createElement('div')
+          testDetailDiv.classList.add('testDetail')
+          const packageNameDiv = document.createElement('div')
+          packageNameDiv.classList.add('package')
+          packageNameDiv.innerHTML = `<strong>Package:</strong> ${testStatus.Package}`
+          const testFileNameDiv = document.createElement('div')
+          testFileNameDiv.classList.add('filename')
+          if (testStatus.TestFileName.trim() === "") {
+            testFileNameDiv.innerHTML = `<strong>Filename:</strong> n/a &nbsp;&nbsp;`
+          } else {
+            testFileNameDiv.innerHTML = `<strong>Filename:</strong> ${testStatus.TestFileName} &nbsp;&nbsp;`
+            testFileNameDiv.innerHTML += `<strong>Line:</strong> ${testStatus.TestFunctionDetail.Line} `
+            testFileNameDiv.innerHTML += `<strong>Col:</strong> ${testStatus.TestFunctionDetail.Col}`
+          }
+          testDetailDiv.insertAdjacentElement('beforeend', packageNameDiv)
+          testDetailDiv.insertAdjacentElement('beforeend', testFileNameDiv)
+          testOutputDiv.insertAdjacentElement('afterbegin', consolePre)
+          testOutputDiv.insertAdjacentElement('beforeend', testDetailDiv)
+          target.insertAdjacentElement('beforeend', testOutputDiv)
+
+          if (testStatus.Passed) {
+            consolePre.classList.remove('skipped')
+            consolePre.classList.remove('failed')
+          } else if (testStatus.Skipped) {
+            consolePre.classList.add('skipped')
+            consolePre.classList.remove('failed')
+          } else {
+            consolePre.classList.remove('skipped')
+            consolePre.classList.add('failed')
+          }
+          consolePre.textContent = testStatus.Output.join('')
+        } else {
+          testOutputDiv.remove()
+        }
+      }
+    }
+  }
+
+  //+------------------------+
+  //|    setup DOM events    |
+  //+------------------------+
+  elements.testResultsElem
+          .addEventListener('click', event =>
+            goTestReport.testResultsClickHandler(/**@type {HTMLElement}*/ addEventData(event).data.target,
+                                                 event.shiftKey,
+                                                 elements.data,
+                                                 selectedItems,
+                                                 goTestReport.testGroupListHandler))
+
+  elements.testGroupListElem
+          .addEventListener('click', event =>
+            goTestReport.testGroupListHandler(/**@type {Element}*/ event.target,
+                                              elements.data))
+
+  return goTestReport
+}
+
+
+    
+
+    const data = [{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_AuthManager","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager\n","--- PASS: Test_AuthManager (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"authManager_test.go","TestFunctionDetail":{"Line":17,"Col":1}},{"TestName":"Test_AuthManager/TestAuthManager_GetUserIDNegative","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager/TestAuthManager_GetUserIDNegative\n","2022/12/02 17:54:01 took 112.91µs\n","--- PASS: Test_AuthManager/TestAuthManager_GetUserIDNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_AuthManager/TestAuthManager_GetUserIDPositive","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager/TestAuthManager_GetUserIDPositive\n","2022/12/02 17:54:01 took 73.13µs\n","--- PASS: Test_AuthManager/TestAuthManager_GetUserIDPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_AuthManager/TestAuthManager_TryToAuthNegativeBadPassword","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager/TestAuthManager_TryToAuthNegativeBadPassword\n","2022/12/02 17:54:01 took 95.291µs\n","--- PASS: Test_AuthManager/TestAuthManager_TryToAuthNegativeBadPassword (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_AuthManager/TestAuthManager_TryToAuthNegativeUserNotFound","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager/TestAuthManager_TryToAuthNegativeUserNotFound\n","2022/12/02 17:54:01 took 39.924µs\n","--- PASS: Test_AuthManager/TestAuthManager_TryToAuthNegativeUserNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_AuthManager/TestAuthManager_TryToAuthPositive","Package":"src/logic/managers/authManager","ElapsedTime":0,"Output":["","=== RUN   Test_AuthManager/TestAuthManager_TryToAuthPositive\n","2022/12/02 17:54:01 took 121.699µs\n","--- PASS: Test_AuthManager/TestAuthManager_TryToAuthPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo\n","--- PASS: Test_PgRoomRepo (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"roomRepo_test.go","TestFunctionDetail":{"Line":20,"Col":1}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_AddRoom","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_AddRoom\n","2022/12/02 17:54:01 took 160.469µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_AddRoom (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_DeleteRoom","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_DeleteRoom\n","2022/12/02 17:54:01 took 43.099µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_DeleteRoom (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_GetRoomNegative","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_GetRoomNegative\n","2022/12/02 17:54:01 took 41.726µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_GetRoomNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_GetRoomPositive","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_GetRoomPositive\n","2022/12/02 17:54:01 took 73.478µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_GetRoomPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_GetRoomThings","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_GetRoomThings\n","2022/12/02 17:54:01 took 66.794µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_GetRoomThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgRoomRepo/TestPgRoomRepo_GetRooms","Package":"src/db/roomRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgRoomRepo/TestPgRoomRepo_GetRooms\n","2022/12/02 17:54:01 took 65.418µs\n","--- PASS: Test_PgRoomRepo/TestPgRoomRepo_GetRooms (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo\n","--- PASS: Test_PgStudentRepo (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"pgStudentRepo_test.go","TestFunctionDetail":{"Line":21,"Col":1}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_AddStudent","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_AddStudent\n","2022/12/02 17:54:01 took 157.864µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_AddStudent (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_ChangeStudent","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_ChangeStudent\n","2022/12/02 17:54:01 took 65.546µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_ChangeStudent (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetAllStudents","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetAllStudents\n","2022/12/02 17:54:01 took 73.035µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetAllStudents (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDNegative","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDNegative\n","2022/12/02 17:54:01 took 57.001µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDPositive","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDPositive\n","2022/12/02 17:54:01 took 34.801µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetStudentIDPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetStudentNegative","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetStudentNegative\n","2022/12/02 17:54:01 took 43.784µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetStudentNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetStudentPositive","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetStudentPositive\n","2022/12/02 17:54:01 took 63.856µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_GetStudentThings","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_GetStudentThings\n","2022/12/02 17:54:01 took 90.886µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_GetStudentThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_TransferStudent","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_TransferStudent\n","2022/12/02 17:54:01 took 50.817µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_TransferStudent (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgStudentRepo/TestPgStudentRepo_TransferThing","Package":"src/db/studentRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgStudentRepo/TestPgStudentRepo_TransferThing\n","2022/12/02 17:54:01 took 46.056µs\n","--- PASS: Test_PgStudentRepo/TestPgStudentRepo_TransferThing (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo\n","--- PASS: Test_PgThingRepo (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"pgThingRepo_test.go","TestFunctionDetail":{"Line":20,"Col":1}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_AddThing","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_AddThing\n","2022/12/02 17:54:01 took 145.246µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_AddThing (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_DeleteThing","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_DeleteThing\n","2022/12/02 17:54:01 took 57.922µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_DeleteThing (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberNegative","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberNegative\n","2022/12/02 17:54:01 took 50.644µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberPositive","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberPositive\n","2022/12/02 17:54:01 took 46.915µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_GetThingIDByMarkNumberPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_GetThingNegative","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_GetThingNegative\n","2022/12/02 17:54:01 took 78.756µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_GetThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_GetThingPositive","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_GetThingPositive\n","2022/12/02 17:54:01 took 57.249µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_GetThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_GetThings","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_GetThings\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_GetThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgThingRepo/TestPgThingRepo_TransferThingRoom","Package":"src/db/thingRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgThingRepo/TestPgThingRepo_TransferThingRoom\n","2022/12/02 17:54:01 took 47.936µs\n","--- PASS: Test_PgThingRepo/TestPgThingRepo_TransferThingRoom (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgUserRepo","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo\n","--- PASS: Test_PgUserRepo (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"pgUserRepo_test.go","TestFunctionDetail":{"Line":20,"Col":1}},{"TestName":"Test_PgUserRepo/TestPgUserRepo_AddUser","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo/TestPgUserRepo_AddUser\n","2022/12/02 17:54:01 took 149.148µs\n","--- PASS: Test_PgUserRepo/TestPgUserRepo_AddUser (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgUserRepo/TestPgUserRepo_GetUserIDNegative","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo/TestPgUserRepo_GetUserIDNegative\n","2022/12/02 17:54:01 took 45.396µs\n","--- PASS: Test_PgUserRepo/TestPgUserRepo_GetUserIDNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgUserRepo/TestPgUserRepo_GetUserIDPositive","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo/TestPgUserRepo_GetUserIDPositive\n","2022/12/02 17:54:01 took 39.34µs\n","--- PASS: Test_PgUserRepo/TestPgUserRepo_GetUserIDPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgUserRepo/TestPgUserRepo_GetUserNegative","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo/TestPgUserRepo_GetUserNegative\n","2022/12/02 17:54:01 took 33.458µs\n","--- PASS: Test_PgUserRepo/TestPgUserRepo_GetUserNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_PgUserRepo/TestPgUserRepo_GetUserPositive","Package":"src/db/userRepo","ElapsedTime":0,"Output":["","=== RUN   Test_PgUserRepo/TestPgUserRepo_GetUserPositive\n","2022/12/02 17:54:01 took 126.758µs\n","--- PASS: Test_PgUserRepo/TestPgUserRepo_GetUserPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController\n","--- PASS: Test_RoomController (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"roomController_test.go","TestFunctionDetail":{"Line":22,"Col":1}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_RoomController/TestRoomController_AddRoom","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_AddRoom\n","--- PASS: Test_RoomController/TestRoomController_AddRoom (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_DeleteRoomNegative","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_DeleteRoomNegative\n","--- PASS: Test_RoomController/TestRoomController_DeleteRoomNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_DeleteRoomPositive","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_DeleteRoomPositive\n","--- PASS: Test_RoomController/TestRoomController_DeleteRoomPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_GetRoomNegative","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_GetRoomNegative\n","--- PASS: Test_RoomController/TestRoomController_GetRoomNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_GetRoomPositive","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_GetRoomPositive\n","--- PASS: Test_RoomController/TestRoomController_GetRoomPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_GetRoomThingsNegative","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_GetRoomThingsNegative\n","--- PASS: Test_RoomController/TestRoomController_GetRoomThingsNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_GetRoomThingsPositive","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_GetRoomThingsPositive\n","--- PASS: Test_RoomController/TestRoomController_GetRoomThingsPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomController/TestRoomController_GetRooms","Package":"src/logic/controllers/roomController","ElapsedTime":0,"Output":["","=== RUN   Test_RoomController/TestRoomController_GetRooms\n","--- PASS: Test_RoomController/TestRoomController_GetRooms (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_RoomManager","Package":"src/logic/managers/roomManager","ElapsedTime":0,"Output":["","=== RUN   Test_RoomManager\n","--- PASS: Test_RoomManager (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"roomManager_test.go","TestFunctionDetail":{"Line":15,"Col":1}},{"TestName":"Test_RoomManager/TestRoomManager_GetAllRooms","Package":"src/logic/managers/roomManager","ElapsedTime":0,"Output":["","=== RUN   Test_RoomManager/TestRoomManager_GetAllRooms\n","2022/12/02 17:54:01 took 191.567µs\n","--- PASS: Test_RoomManager/TestRoomManager_GetAllRooms (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController\n","--- PASS: Test_StudentController (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"studentController_test.go","TestFunctionDetail":{"Line":22,"Col":1}},{"TestName":"Test_StudentController/TestStudentController_AddStudentNegativeAlreadyLive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_AddStudentNegativeAlreadyLive\n","--- PASS: Test_StudentController/TestStudentController_AddStudentNegativeAlreadyLive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_AddStudentNegativeBadID","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_AddStudentNegativeBadID\n","--- PASS: Test_StudentController/TestStudentController_AddStudentNegativeBadID (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_AddStudentNegativeBadStudentGroup","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_AddStudentNegativeBadStudentGroup\n","--- PASS: Test_StudentController/TestStudentController_AddStudentNegativeBadStudentGroup (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_AddStudentPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_AddStudentPositive\n","--- PASS: Test_StudentController/TestStudentController_AddStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_ChangeStudentGroupNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_ChangeStudentGroupNegative\n","--- PASS: Test_StudentController/TestStudentController_ChangeStudentGroupNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_ChangeStudentGroupPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_ChangeStudentGroupPositive\n","--- PASS: Test_StudentController/TestStudentController_ChangeStudentGroupPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_EvicStudentNegativeStudentNotFound","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_EvicStudentNegativeStudentNotFound\n","--- PASS: Test_StudentController/TestStudentController_EvicStudentNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_EvicStudentPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_EvicStudentPositive\n","--- PASS: Test_StudentController/TestStudentController_EvicStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_EvicStudentStudentDoesNotLive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_EvicStudentStudentDoesNotLive\n","--- PASS: Test_StudentController/TestStudentController_EvicStudentStudentDoesNotLive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_StudentController/TestStudentController_GetAllStudents","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetAllStudents\n","--- PASS: Test_StudentController/TestStudentController_GetAllStudents (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentIDByNumberNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentIDByNumberNegative\n","--- PASS: Test_StudentController/TestStudentController_GetStudentIDByNumberNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentIDByNumberPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentIDByNumberPositive\n","--- PASS: Test_StudentController/TestStudentController_GetStudentIDByNumberPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentNegativeBadID","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentNegativeBadID\n","--- PASS: Test_StudentController/TestStudentController_GetStudentNegativeBadID (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentNegativeNotFound","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentNegativeNotFound\n","--- PASS: Test_StudentController/TestStudentController_GetStudentNegativeNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentPositive\n","--- PASS: Test_StudentController/TestStudentController_GetStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentRoomNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentRoomNegative\n","--- PASS: Test_StudentController/TestStudentController_GetStudentRoomNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentRoomPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentRoomPositive\n","--- PASS: Test_StudentController/TestStudentController_GetStudentRoomPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentThingsNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentThingsNegative\n","--- PASS: Test_StudentController/TestStudentController_GetStudentThingsNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_GetStudentThingsPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_GetStudentThingsPositive\n","--- PASS: Test_StudentController/TestStudentController_GetStudentThingsPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_ReturnThingNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_ReturnThingNegative\n","--- PASS: Test_StudentController/TestStudentController_ReturnThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_ReturnThingPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_ReturnThingPositive\n","--- PASS: Test_StudentController/TestStudentController_ReturnThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_SettleStudentNegativeStudentLiveNow","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_SettleStudentNegativeStudentLiveNow\n","--- PASS: Test_StudentController/TestStudentController_SettleStudentNegativeStudentLiveNow (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_SettleStudentNegativeStudentNotFound","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_SettleStudentNegativeStudentNotFound\n","--- PASS: Test_StudentController/TestStudentController_SettleStudentNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_SettleStudentPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_SettleStudentPositive\n","--- PASS: Test_StudentController/TestStudentController_SettleStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_TransferThingNegative","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_TransferThingNegative\n","--- PASS: Test_StudentController/TestStudentController_TransferThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentController/TestStudentController_TransferThingPositive","Package":"src/logic/controllers/studentController","ElapsedTime":0,"Output":["","=== RUN   Test_StudentController/TestStudentController_TransferThingPositive\n","--- PASS: Test_StudentController/TestStudentController_TransferThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager\n","--- PASS: Test_StudentManager (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"studentManager_test.go","TestFunctionDetail":{"Line":29,"Col":1}},{"TestName":"Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadLoginParam","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadLoginParam\n","2022/12/02 17:54:02 took 39.446µs\n","--- PASS: Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadLoginParam (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadName","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadName\n","2022/12/02 17:54:02 took 16.778µs\n","--- PASS: Test_StudentManager/TestStudentManager_AddNewStudentNegativeBadName (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_StudentManager/TestStudentManager_AddNewStudentNegativeLoginOccuped","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_AddNewStudentNegativeLoginOccuped\n","2022/12/02 17:54:02 took 118.168µs\n","--- PASS: Test_StudentManager/TestStudentManager_AddNewStudentNegativeLoginOccuped (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_AddNewStudentPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_AddNewStudentPositive\n","2022/12/02 17:54:02 took 265.141µs\n","--- PASS: Test_StudentManager/TestStudentManager_AddNewStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeBadParams","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeBadParams\n","2022/12/02 17:54:02 took 11.303µs\n","--- PASS: Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeBadParams (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeStudentNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeStudentNotFound\n","2022/12/02 17:54:02 took 62.441µs\n","--- PASS: Test_StudentManager/TestStudentManager_ChangeStudentGroupNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ChangeStudentGroupPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ChangeStudentGroupPositive\n","2022/12/02 17:54:02 took 119.065µs\n","--- PASS: Test_StudentManager/TestStudentManager_ChangeStudentGroupPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_EvicStudentBadParam","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_EvicStudentBadParam\n","2022/12/02 17:54:02 took 10.859µs\n","--- PASS: Test_StudentManager/TestStudentManager_EvicStudentBadParam (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotFound\n","2022/12/02 17:54:02 took 55.205µs\n","--- PASS: Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotLiving","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotLiving\n","2022/12/02 17:54:02 took 83.167µs\n","--- PASS: Test_StudentManager/TestStudentManager_EvicStudentNegativeStudentNotLiving (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_EvicStudentPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_EvicStudentPositive\n","2022/12/02 17:54:02 took 110.259µs\n","--- PASS: Test_StudentManager/TestStudentManager_EvicStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GetStudentByAccIDNegative","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GetStudentByAccIDNegative\n","2022/12/02 17:54:02 took 49.612µs\n","--- PASS: Test_StudentManager/TestStudentManager_GetStudentByAccIDNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GetStudentByAccIDPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GetStudentByAccIDPositive\n","2022/12/02 17:54:02 took 42.54µs\n","--- PASS: Test_StudentManager/TestStudentManager_GetStudentByAccIDPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadMarkNumber","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadMarkNumber\n","2022/12/02 17:54:02 took 13.836µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadMarkNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadStudentNumber","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadStudentNumber\n","2022/12/02 17:54:02 took 17.472µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingNegativeBadStudentNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingNegativeStudentNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingNegativeStudentNotFound\n","2022/12/02 17:54:02 took 59.475µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingHasOwner","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingHasOwner\n","2022/12/02 17:54:02 took 96.546µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingHasOwner (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingNotFound\n","2022/12/02 17:54:02 took 62.469µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingNegativeThingNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_GiveStudentThingPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_GiveStudentThingPositive\n","2022/12/02 17:54:02 took 188.475µs\n","--- PASS: Test_StudentManager/TestStudentManager_GiveStudentThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadMarkNumber","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadMarkNumber\n","2022/12/02 17:54:02 took 11.568µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadMarkNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadStudentNumber","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadStudentNumber\n","2022/12/02 17:54:02 took 7.458µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeBadStudentNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeStudentNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeStudentNotFound\n","2022/12/02 17:54:02 took 42.627µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner\n","2022/12/02 17:54:02 took 93.602µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingHasNotOwner (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingNotFound\n","2022/12/02 17:54:02 took 64.509µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingNegativeThingNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ReturnStudentThingPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ReturnStudentThingPositive\n","2022/12/02 17:54:02 took 154.277µs\n","--- PASS: Test_StudentManager/TestStudentManager_ReturnStudentThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentBadRoomIDParam","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentBadRoomIDParam\n","2022/12/02 17:54:02 took 10.306µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentBadRoomIDParam (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentBadStudNumberErr","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentBadStudNumberErr\n","2022/12/02 17:54:02 took 9.514µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentBadStudNumberErr (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentNegativeRoomNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentNegativeRoomNotFound\n","2022/12/02 17:54:02 took 63.135µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentNegativeRoomNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentIsLiving","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentIsLiving\n","2022/12/02 17:54:02 took 104.856µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentIsLiving (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentNotFound","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentNotFound\n","2022/12/02 17:54:02 took 42.265µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_SettleStudentPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_SettleStudentPositive\n","2022/12/02 17:54:02 took 243.988µs\n","--- PASS: Test_StudentManager/TestStudentManager_SettleStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ViewAllStudents","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ViewAllStudents\n","2022/12/02 17:54:02 took 95.83µs\n","--- PASS: Test_StudentManager/TestStudentManager_ViewAllStudents (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ViewStudentNegative","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ViewStudentNegative\n","2022/12/02 17:54:02 took 45.22µs\n","--- PASS: Test_StudentManager/TestStudentManager_ViewStudentNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_StudentManager/TestStudentManager_ViewStudentPositive","Package":"src/logic/managers/studentManager","ElapsedTime":0,"Output":["","=== RUN   Test_StudentManager/TestStudentManager_ViewStudentPositive\n","2022/12/02 17:54:02 took 107.955µs\n","--- PASS: Test_StudentManager/TestStudentManager_ViewStudentPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController\n","--- PASS: Test_ThingController (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"thingController_test.go","TestFunctionDetail":{"Line":22,"Col":1}},{"TestName":"Test_ThingController/TestThingController_AddThingNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_AddThingNegative\n","2022/12/02 17:54:01 took 184.198µs\n","--- PASS: Test_ThingController/TestThingController_AddThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_AddThingPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_AddThingPositive\n","2022/12/02 17:54:01 took 144.835µs\n","--- PASS: Test_ThingController/TestThingController_AddThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_DeleteThingNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_DeleteThingNegative\n","2022/12/02 17:54:01 took 56.347µs\n","--- PASS: Test_ThingController/TestThingController_DeleteThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_DeleteThingPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_DeleteThingPositive\n","2022/12/02 17:54:01 took 78.416µs\n","--- PASS: Test_ThingController/TestThingController_DeleteThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetCurrentOwnerNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetCurrentOwnerNegative\n","2022/12/02 17:54:01 took 41.739µs\n","--- PASS: Test_ThingController/TestThingController_GetCurrentOwnerNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetCurrentOwnerPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetCurrentOwnerPositive\n","2022/12/02 17:54:01 took 45.313µs\n","--- PASS: Test_ThingController/TestThingController_GetCurrentOwnerPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetFreeThings","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetFreeThings\n","2022/12/02 17:54:01 took 49.761µs\n","--- PASS: Test_ThingController/TestThingController_GetFreeThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_ThingController/TestThingController_GetThingIDByMarkNumberNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingIDByMarkNumberNegative\n","2022/12/02 17:54:01 took 29.642µs\n","--- PASS: Test_ThingController/TestThingController_GetThingIDByMarkNumberNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThingIDByMarkNumberPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingIDByMarkNumberPositive\n","2022/12/02 17:54:01 took 52.384µs\n","--- PASS: Test_ThingController/TestThingController_GetThingIDByMarkNumberPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThingNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingNegative\n","2022/12/02 17:54:01 took 47.663µs\n","--- PASS: Test_ThingController/TestThingController_GetThingNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThingPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingPositive\n","2022/12/02 17:54:01 took 54.003µs\n","--- PASS: Test_ThingController/TestThingController_GetThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThingRoomNegative","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingRoomNegative\n","2022/12/02 17:54:01 took 40.292µs\n","--- PASS: Test_ThingController/TestThingController_GetThingRoomNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThingRoomPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThingRoomPositive\n","2022/12/02 17:54:01 took 48.587µs\n","--- PASS: Test_ThingController/TestThingController_GetThingRoomPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_GetThings","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_GetThings\n","2022/12/02 17:54:01 took 67.662µs\n","--- PASS: Test_ThingController/TestThingController_GetThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_TransferThingNegativeBadDstID","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_TransferThingNegativeBadDstID\n","2022/12/02 17:54:01 took 60.662µs\n","--- PASS: Test_ThingController/TestThingController_TransferThingNegativeBadDstID (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_TransferThingNegativeBadSrcID","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_TransferThingNegativeBadSrcID\n","2022/12/02 17:54:01 took 45.988µs\n","--- PASS: Test_ThingController/TestThingController_TransferThingNegativeBadSrcID (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_TransferThingNegativeEqualSrcDstID","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_TransferThingNegativeEqualSrcDstID\n","2022/12/02 17:54:01 took 46.539µs\n","--- PASS: Test_ThingController/TestThingController_TransferThingNegativeEqualSrcDstID (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_TransferThingNegativeThingNotFound","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_TransferThingNegativeThingNotFound\n","2022/12/02 17:54:01 took 36.863µs\n","--- PASS: Test_ThingController/TestThingController_TransferThingNegativeThingNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingController/TestThingController_TransferThingPositive","Package":"src/logic/controllers/thingController","ElapsedTime":0,"Output":["","=== RUN   Test_ThingController/TestThingController_TransferThingPositive\n","2022/12/02 17:54:01 took 88.68µs\n","--- PASS: Test_ThingController/TestThingController_TransferThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager\n","--- PASS: Test_ThingManager (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"thingManager_test.go","TestFunctionDetail":{"Line":27,"Col":1}},{"TestName":"Test_ThingManager/TestThingManager_AddNewThingNegativeBadParams","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_AddNewThingNegativeBadParams\n","2022/12/02 17:54:02 took 44.118µs\n","--- PASS: Test_ThingManager/TestThingManager_AddNewThingNegativeBadParams (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_AddNewThingNegativeThingExist","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_AddNewThingNegativeThingExist\n","2022/12/02 17:54:02 took 114.802µs\n","--- PASS: Test_ThingManager/TestThingManager_AddNewThingNegativeThingExist (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_AddNewThingPositive","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_AddNewThingPositive\n","2022/12/02 17:54:02 took 109.102µs\n","--- PASS: Test_ThingManager/TestThingManager_AddNewThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_GetFreeThings","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_GetFreeThings\n","2022/12/02 17:54:02 took 75.643µs\n","--- PASS: Test_ThingManager/TestThingManager_GetFreeThings (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_GetFullThingInfo","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_GetFullThingInfo\n","2022/12/02 17:54:02 took 82.739µs\n","--- PASS: Test_ThingManager/TestThingManager_GetFullThingInfo (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_GetStudentThingsNegativeBadStudNumber","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_GetStudentThingsNegativeBadStudNumber\n","2022/12/02 17:54:02 took 22.972µs\n","--- PASS: Test_ThingManager/TestThingManager_GetStudentThingsNegativeBadStudNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_GetStudentThingsNegativeStudentNotFound","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_GetStudentThingsNegativeStudentNotFound\n","2022/12/02 17:54:02 took 50.844µs\n","--- PASS: Test_ThingManager/TestThingManager_GetStudentThingsNegativeStudentNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]},{"FailureIndicator":"","SkippedIndicator":"","TestResults":[{"TestName":"Test_ThingManager/TestThingManager_GetStudentThingsPositive","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_GetStudentThingsPositive\n","2022/12/02 17:54:02 took 139.048µs\n","--- PASS: Test_ThingManager/TestThingManager_GetStudentThingsPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_TransferThingBadMarkNumber","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_TransferThingBadMarkNumber\n","2022/12/02 17:54:02 took 13.396µs\n","--- PASS: Test_ThingManager/TestThingManager_TransferThingBadMarkNumber (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_TransferThingBadRoom","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_TransferThingBadRoom\n","2022/12/02 17:54:02 took 11.611µs\n","--- PASS: Test_ThingManager/TestThingManager_TransferThingBadRoom (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_TransferThingNegativeRoomNotFound","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_TransferThingNegativeRoomNotFound\n","2022/12/02 17:54:02 took 62.989µs\n","--- PASS: Test_ThingManager/TestThingManager_TransferThingNegativeRoomNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_TransferThingNegativeThingNotFound","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_TransferThingNegativeThingNotFound\n","2022/12/02 17:54:02 took 20.009µs\n","--- PASS: Test_ThingManager/TestThingManager_TransferThingNegativeThingNotFound (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_ThingManager/TestThingManager_TransferThingPositive","Package":"src/logic/managers/thingManager","ElapsedTime":0,"Output":["","=== RUN   Test_ThingManager/TestThingManager_TransferThingPositive\n","2022/12/02 17:54:02 took 281.395µs\n","--- PASS: Test_ThingManager/TestThingManager_TransferThingPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController\n","--- PASS: Test_UserController (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"userController_test.go","TestFunctionDetail":{"Line":22,"Col":1}},{"TestName":"Test_UserController/TestUserController_AddUserNegativeAlreadyExist","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_AddUserNegativeAlreadyExist\n","2022/12/02 17:54:01 took 162.28µs\n","--- PASS: Test_UserController/TestUserController_AddUserNegativeAlreadyExist (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_AddUserNegativeBadParams","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_AddUserNegativeBadParams\n","2022/12/02 17:54:01 took 11.093µs\n","--- PASS: Test_UserController/TestUserController_AddUserNegativeBadParams (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_AddUserPositive","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_AddUserPositive\n","2022/12/02 17:54:01 took 86.155µs\n","--- PASS: Test_UserController/TestUserController_AddUserPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_GetUserIDNegative","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_GetUserIDNegative\n","2022/12/02 17:54:01 took 33.623µs\n","--- PASS: Test_UserController/TestUserController_GetUserIDNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_GetUserIDPositive","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_GetUserIDPositive\n","2022/12/02 17:54:01 took 36.362µs\n","--- PASS: Test_UserController/TestUserController_GetUserIDPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_GetUserNegative","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_GetUserNegative\n","2022/12/02 17:54:01 took 36.853µs\n","--- PASS: Test_UserController/TestUserController_GetUserNegative (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_GetUserPositive","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_GetUserPositive\n","2022/12/02 17:54:01 took 73.816µs\n","--- PASS: Test_UserController/TestUserController_GetUserPositive (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_UserExistFalse","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_UserExistFalse\n","2022/12/02 17:54:01 took 29.952µs\n","--- PASS: Test_UserController/TestUserController_UserExistFalse (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}},{"TestName":"Test_UserController/TestUserController_UserExistTrue","Package":"src/logic/controllers/userController","ElapsedTime":0,"Output":["","=== RUN   Test_UserController/TestUserController_UserExistTrue\n","2022/12/02 17:54:01 took 40.219µs\n","--- PASS: Test_UserController/TestUserController_UserExistTrue (0.00s)",""],"Passed":true,"Skipped":false,"TestFileName":"","TestFunctionDetail":{"Line":0,"Col":0}}]}]
+
+    const report = window.GoTestReport({
+                                         data: data,
+                                         testResultsElem: document.getElementById('testResults'),
+                                         testGroupListElem: document.getElementById('testGroupList')
+                                       });
+
+
+</script>
+</body>
+</html>

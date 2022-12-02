@@ -2,16 +2,26 @@ package authManager
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"src/db/userRepo"
 	"src/logic/controllers/userController"
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
-func TestAuthManager_GetUserIDPositive(t *testing.T) {
+type TestAuthManager struct{}
+
+func Test_AuthManager(t *testing.T) {
+	testgroup.RunSerially(t, &TestAuthManager{})
+}
+
+func (*TestAuthManager) TestAuthManager_GetUserIDPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -36,8 +46,10 @@ func TestAuthManager_GetUserIDPositive(t *testing.T) {
 	tests.AssertResult(t, userID, ID)
 }
 
-func TestAuthManager_GetUserIDNegative(t *testing.T) {
+func (*TestAuthManager) TestAuthManager_GetUserIDNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultLogin).WillReturnError(sql.ErrNoRows)
@@ -57,8 +69,10 @@ func TestAuthManager_GetUserIDNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestAuthManager_TryToAuthPositive(t *testing.T) {
+func (*TestAuthManager) TestAuthManager_TryToAuthPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -88,8 +102,10 @@ func TestAuthManager_TryToAuthPositive(t *testing.T) {
 	tests.AssertResult(t, role, objects.Levels(objects.StudentRole))
 }
 
-func TestAuthManager_TryToAuthNegativeUserNotFound(t *testing.T) {
+func (*TestAuthManager) TestAuthManager_TryToAuthNegativeUserNotFound(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 
@@ -110,8 +126,10 @@ func TestAuthManager_TryToAuthNegativeUserNotFound(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestAuthManager_TryToAuthNegativeBadPassword(t *testing.T) {
+func (*TestAuthManager) TestAuthManager_TryToAuthNegativeBadPassword(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.UserRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1

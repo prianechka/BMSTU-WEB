@@ -2,6 +2,7 @@ package roomController
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/db/roomRepo"
 	"src/tests"
@@ -16,7 +17,13 @@ const (
 	DefaultRoomNumber = 1
 )
 
-func TestRoomController_AddRoom(t *testing.T) {
+type TestRoomController struct{}
+
+func Test_RoomController(t *testing.T) {
+	testgroup.RunSerially(t, &TestRoomController{})
+}
+
+func (*TestRoomController) TestRoomController_AddRoom(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
@@ -33,7 +40,7 @@ func TestRoomController_AddRoom(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestRoomController_DeleteRoomPositive(t *testing.T) {
+func (*TestRoomController) TestRoomController_DeleteRoomPositive(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1
@@ -55,7 +62,7 @@ func TestRoomController_DeleteRoomPositive(t *testing.T) {
 }
 
 // TestRoomController_DeleteRoomNegative проверяет, что если комнаты не существует, то удаления не произойдет.
-func TestRoomController_DeleteRoomNegative(t *testing.T) {
+func (*TestRoomController) TestRoomController_DeleteRoomNegative(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1
@@ -71,7 +78,7 @@ func TestRoomController_DeleteRoomNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestRoomController_GetRoomPositive(t *testing.T) {
+func (*TestRoomController) TestRoomController_GetRoomPositive(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1
@@ -91,7 +98,7 @@ func TestRoomController_GetRoomPositive(t *testing.T) {
 	tests.AssertResult(t, room, realRooms[0])
 }
 
-func TestRoomController_GetRoomNegative(t *testing.T) {
+func (*TestRoomController) TestRoomController_GetRoomNegative(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1
@@ -107,7 +114,7 @@ func TestRoomController_GetRoomNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestRoomController_GetRooms(t *testing.T) {
+func (*TestRoomController) TestRoomController_GetRooms(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	N := 3
@@ -127,7 +134,7 @@ func TestRoomController_GetRooms(t *testing.T) {
 	tests.AssertResult(t, resultRooms, realRooms)
 }
 
-func TestRoomController_GetRoomThingsPositive(t *testing.T) {
+func (*TestRoomController) TestRoomController_GetRoomThingsPositive(t *testgroup.T) {
 	// Arrange
 	roomObjectMother := mother.RoomRepoObjectMother{}
 	thingObjectMother := mother.ThingRepoObjectMother{}
@@ -154,7 +161,7 @@ func TestRoomController_GetRoomThingsPositive(t *testing.T) {
 	tests.AssertResult(t, things, realThings)
 }
 
-func TestRoomController_GetRoomThingsNegative(t *testing.T) {
+func (*TestRoomController) TestRoomController_GetRoomThingsNegative(t *testgroup.T) {
 	// Arrange
 	objectMother := mother.RoomRepoObjectMother{}
 	ID := 1

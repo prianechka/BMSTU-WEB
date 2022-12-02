@@ -2,11 +2,13 @@ package studentRepo
 
 import (
 	"database/sql"
+	"github.com/bloomberg/go-testgroup"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
 	"testing"
+	"time"
 )
 
 var (
@@ -14,8 +16,16 @@ var (
 	RowsAffected int64 = 1
 )
 
-func TestPgStudentRepo_AddStudent(t *testing.T) {
+type TestPgStudentRepo struct{}
+
+func Test_PgStudentRepo(t *testing.T) {
+	testgroup.RunSerially(t, &TestPgStudentRepo{})
+}
+
+func (*TestPgStudentRepo) TestPgStudentRepo_AddStudent(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	studentDTO := objectMother.CreateStudentDTO()
@@ -33,8 +43,10 @@ func TestPgStudentRepo_AddStudent(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgStudentRepo_GetAllStudents(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetAllStudents(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	N := 3
 	db, mock := objectMother.CreateRepo()
@@ -54,8 +66,10 @@ func TestPgStudentRepo_GetAllStudents(t *testing.T) {
 	tests.AssertResult(t, resultStudents, realStudents)
 }
 
-func TestPgStudentRepo_ChangeStudent(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_ChangeStudent(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	studentDTO := objectMother.CreateStudentDTO()
@@ -74,8 +88,10 @@ func TestPgStudentRepo_ChangeStudent(t *testing.T) {
 }
 
 // TestPgStudentRepo_GetStudentPositive проверяет, что если студент есть, он успешно вернётся.
-func TestPgStudentRepo_GetStudentPositive(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetStudentPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	N := 1
@@ -96,8 +112,10 @@ func TestPgStudentRepo_GetStudentPositive(t *testing.T) {
 }
 
 // TestPgStudentRepo_GetStudentNegative проверяет, что если студента нет, то вернётся ошибка.
-func TestPgStudentRepo_GetStudentNegative(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetStudentNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(InsertID).WillReturnError(sql.ErrNoRows)
@@ -111,8 +129,10 @@ func TestPgStudentRepo_GetStudentNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgStudentRepo_TransferStudent(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_TransferStudent(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		roomID                              = int(InsertID)
 		studentID                           = int(InsertID)
@@ -133,8 +153,10 @@ func TestPgStudentRepo_TransferStudent(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgStudentRepo_TransferThing(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_TransferThing(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	var (
 		thingID                             = int(InsertID)
 		studentID                           = int(InsertID)
@@ -155,8 +177,10 @@ func TestPgStudentRepo_TransferThing(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgStudentRepo_GetStudentIDPositive(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetStudentIDPositive(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	ID := 1
@@ -174,8 +198,10 @@ func TestPgStudentRepo_GetStudentIDPositive(t *testing.T) {
 	tests.AssertResult(t, studentID, ID)
 }
 
-func TestPgStudentRepo_GetStudentIDNegative(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetStudentIDNegative(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	objectMother := mother.StudentRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
 	mock.ExpectQuery("SELECT").WithArgs(mother.DefaultStudentNumber).
@@ -190,8 +216,10 @@ func TestPgStudentRepo_GetStudentIDNegative(t *testing.T) {
 	tests.AssertMocks(t, mock)
 }
 
-func TestPgStudentRepo_GetStudentThings(t *testing.T) {
+func (*TestPgStudentRepo) TestPgStudentRepo_GetStudentThings(t *testgroup.T) {
+	defer tests.TimeTrack(time.Now())
 	// Arrange
+
 	studentObjectMother := mother.StudentRepoObjectMother{}
 	thingObjectMother := mother.ThingRepoObjectMother{}
 	db, mock := studentObjectMother.CreateRepo()
