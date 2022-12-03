@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"src/delivery/http/models"
+	"src/objects"
 )
 
 func SendShortResponse(w http.ResponseWriter, code int, comment string) {
@@ -15,4 +16,10 @@ func SendShortResponse(w http.ResponseWriter, code int, comment string) {
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+}
+
+func SendResponseWithInternalErr(w http.ResponseWriter) {
+	statusCode := http.StatusInternalServerError
+	handleMessage := objects.InternalServerErrorString
+	SendShortResponse(w, statusCode, handleMessage)
 }
