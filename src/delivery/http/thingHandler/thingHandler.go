@@ -6,12 +6,10 @@ import (
 	"io"
 	"net/http"
 	"src/delivery/http/models"
-	roomErr "src/logic/controllers/roomController"
-	studErr "src/logic/controllers/studentController"
-	thingErr "src/logic/controllers/thingController"
 	"src/logic/managers/thingManager"
 	"src/objects"
 	"src/utils"
+	appErrors "src/utils/error"
 	"strconv"
 )
 
@@ -32,13 +30,13 @@ func (th *ThingHandler) ViewStudentThings(w http.ResponseWriter, r *http.Request
 		bytes, _ := json.Marshal(&allThings)
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(bytes)
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case roomErr.RoomNotFoundErr:
+	case appErrors.RoomNotFoundErr:
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 	default:
@@ -126,16 +124,19 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.TransferThingOK
-	case thingErr.ThingNotFoundErr:
+	case appErrors.BadThingParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.EmptyParamsErrorString
+	case appErrors.ThingNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.ThingNotFound
-	case thingErr.BadDstRoomErr:
+	case appErrors.BadDstRoomErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
-	case thingErr.BadSrcRoomErr:
+	case appErrors.BadSrcRoomErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.ThingAlreadyInRoomErrorString
-	case roomErr.RoomNotFoundErr:
+	case appErrors.RoomNotFoundErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.RoomNotFoundErrorString
 	default:
@@ -186,10 +187,10 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case thingErr.ThingAlreadyExistErr:
+	case appErrors.ThingAlreadyExistErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.UniqueMarkNumberErrorString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
 	default:

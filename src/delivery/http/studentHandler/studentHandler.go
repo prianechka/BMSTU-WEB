@@ -6,13 +6,10 @@ import (
 	"io"
 	"net/http"
 	"src/delivery/http/models"
-	roomErr "src/logic/controllers/roomController"
-	studErr "src/logic/controllers/studentController"
-	thingErr "src/logic/controllers/thingController"
-	userErr "src/logic/controllers/userController"
 	"src/logic/managers/studentManager"
 	"src/objects"
 	"src/utils"
+	appErrors "src/utils/error"
 )
 
 type StudentHandler struct {
@@ -75,10 +72,10 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
 	default:
@@ -124,16 +121,16 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case roomErr.RoomNotFoundErr:
+	case appErrors.RoomNotFoundErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.RoomNotFoundErrorString
-	case studErr.StudentAlreadyLiveErr:
+	case appErrors.StudentAlreadyLiveErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.SettleStudentErrorString
 	default:
@@ -160,16 +157,16 @@ func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case roomErr.RoomNotFoundErr:
+	case appErrors.RoomNotFoundErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.RoomNotFoundErrorString
-	case studErr.StudentNotLivingErr:
+	case appErrors.StudentNotLivingErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.EvicStudentErrorString
 	default:
@@ -205,16 +202,16 @@ func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Reques
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case thingErr.ThingNotFoundErr:
+	case appErrors.ThingNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.ThingNotFound
-	case studentManager.ThingHasOwnerErr:
+	case appErrors.ThingHasOwnerErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.GiveThingErrorString
 	default:
@@ -250,16 +247,16 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case studErr.StudentNotFoundErr:
+	case appErrors.StudentNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.StudentNotFoundErrorString
-	case thingErr.ThingNotFoundErr:
+	case appErrors.ThingNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.ThingNotFound
-	case studentManager.StudentIsNotOwnerErr:
+	case appErrors.StudentIsNotOwnerErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.ReturnThingErrorString
 	default:
@@ -303,13 +300,16 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.StudentChangeOKString
-	case studErr.BadParamsErr:
+	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case studErr.StudentAlreadyInBaseErr:
+	case appErrors.BadUserParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.EmptyParamsErrorString
+	case appErrors.StudentAlreadyInBaseErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.StudentAlreadyExistErrorString
-	case userErr.LoginOccupedErr:
+	case appErrors.LoginOccupedErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.UserAlreadyExistErrorString
 	default:
