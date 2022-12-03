@@ -14,6 +14,7 @@ var (
 	LoginOccupedErr         = errors.New("login is already exist")
 	BadUserParamsErr        = errors.New("bad params")
 	BadThingParamsErr       = errors.New("bad params")
+	BadRoomParamsErr        = errors.New("bad params")
 	ThingAlreadyExistErr    = errors.New("already existed")
 	ThingNotFoundErr        = errors.New("thing not found")
 	BadSrcRoomErr           = errors.New("bad src room")

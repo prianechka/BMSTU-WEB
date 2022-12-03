@@ -6,6 +6,7 @@ import (
 	"src/logic/controllers/thingController"
 	"src/logic/managers/models"
 	"src/objects"
+	appErrors "src/utils/error"
 )
 
 type ThingManager struct {
@@ -54,7 +55,7 @@ func (tm *ThingManager) GetFreeThings() ([]models.ThingFullInfo, error) {
 
 func (tm *ThingManager) GetStudentThings(studentNumber string) ([]models.ThingFullInfo, error) {
 	if studentNumber == objects.EmptyString {
-		return nil, studentController.BadParamsErr
+		return nil, appErrors.BadStudentParamsErr
 	}
 
 	thingsFullInfo := make([]models.ThingFullInfo, 0)
@@ -82,7 +83,7 @@ func (tm *ThingManager) GetStudentThings(studentNumber string) ([]models.ThingFu
 
 func (tm *ThingManager) AddNewThing(markNumber int, thingType string) error {
 	if thingType == objects.EmptyString || markNumber <= objects.None {
-		return thingController.ThingNotFoundErr
+		return appErrors.BadThingParamsErr
 	} else {
 		return tm.thingController.AddThing(markNumber, thingType)
 	}
@@ -90,11 +91,11 @@ func (tm *ThingManager) AddNewThing(markNumber int, thingType string) error {
 
 func (tm *ThingManager) TransferThing(markNumber int, roomID int) error {
 	if markNumber <= objects.None {
-		return thingController.ThingNotFoundErr
+		return appErrors.BadThingParamsErr
 	}
 
 	if roomID <= objects.None {
-		return thingController.BadDstRoomErr
+		return appErrors.BadRoomParamsErr
 	}
 
 	thingID, err := tm.thingController.GetThingIDByMarkNumber(markNumber)

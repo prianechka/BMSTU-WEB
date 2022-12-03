@@ -7,6 +7,7 @@ import (
 	"src/logic/controllers/userController"
 	"src/logic/managers/models"
 	"src/objects"
+	appErrors "src/utils/error"
 )
 
 type StudentManager struct {
@@ -19,14 +20,14 @@ type StudentManager struct {
 func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumber, login, password string) (err error) {
 	if name == objects.EmptyString || surname == objects.EmptyString || studentGroup == objects.EmptyString ||
 		studentNumber == objects.EmptyString {
-		err = studentController.BadParamsErr
+		err = appErrors.BadStudentParamsErr
 	} else if login == objects.EmptyString || password == objects.EmptyString {
-		err = userController.BadParamsErr
+		err = appErrors.BadUserParamsErr
 	} else {
 		isUserExist := sm.userController.UserExist(login)
 		if !isUserExist {
 			_, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
-			if getStudentErr == studentController.StudentNotFoundErr {
+			if getStudentErr == appErrors.StudentNotFoundErr {
 				addUserErr := sm.userController.AddUser(login, password, objects.StudentRole)
 				if addUserErr == nil {
 					accID, getUserErr := sm.userController.GetUserID(login)
@@ -39,10 +40,10 @@ func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumb
 					err = addUserErr
 				}
 			} else {
-				err = studentController.StudentAlreadyInBaseErr
+				err = appErrors.StudentAlreadyInBaseErr
 			}
 		} else {
-			err = userController.LoginOccupedErr
+			err = appErrors.LoginOccupedErr
 		}
 	}
 	return err
@@ -74,7 +75,7 @@ func (sm *StudentManager) ViewAllStudents() ([]objects.Student, error) {
 
 func (sm *StudentManager) ChangeStudentGroup(studentNumber, newGroup string) (err error) {
 	if newGroup == objects.EmptyString {
-		err = studentController.BadParamsErr
+		err = appErrors.BadStudentParamsErr
 	} else {
 		studID, getStudentErr := sm.studentController.GetStudentIDByNumber(studentNumber)
 		if getStudentErr == nil {
@@ -88,11 +89,11 @@ func (sm *StudentManager) ChangeStudentGroup(studentNumber, newGroup string) (er
 
 func (sm *StudentManager) SettleStudent(studentNumber string, roomID int) error {
 	if studentNumber == objects.EmptyString {
-		return studentController.BadParamsErr
+		return appErrors.BadStudentParamsErr
 	}
 
 	if roomID <= objects.NotLiving {
-		return roomController.RoomNotFoundErr
+		return appErrors.RoomNotFoundErr
 	}
 
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
@@ -107,7 +108,7 @@ func (sm *StudentManager) SettleStudent(studentNumber string, roomID int) error 
 
 func (sm *StudentManager) EvicStudent(studentNumber string) error {
 	if studentNumber == objects.EmptyString {
-		return studentController.BadParamsErr
+		return appErrors.BadStudentParamsErr
 	}
 
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
@@ -119,11 +120,11 @@ func (sm *StudentManager) EvicStudent(studentNumber string) error {
 
 func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int) error {
 	if studentNumber == objects.EmptyString {
-		return studentController.BadParamsErr
+		return appErrors.BadStudentParamsErr
 	}
 
 	if markNumber <= objects.None {
-		return thingController.ThingNotFoundErr
+		return appErrors.BadThingParamsErr
 	}
 
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
@@ -135,7 +136,7 @@ func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int)
 				if ownerID == objects.None {
 					err = sm.studentController.TransferThing(studentID, thingID)
 				} else {
-					err = ThingHasOwnerErr
+					err = appErrors.ThingHasOwnerErr
 				}
 			} else {
 				err = getOwnerErr
@@ -149,11 +150,11 @@ func (sm *StudentManager) GiveStudentThing(studentNumber string, markNumber int)
 
 func (sm *StudentManager) ReturnStudentThing(studentNumber string, markNumber int) error {
 	if studentNumber == objects.EmptyString {
-		return studentController.BadParamsErr
+		return appErrors.BadStudentParamsErr
 	}
 
 	if markNumber <= objects.None {
-		return thingController.ThingNotFoundErr
+		return appErrors.BadThingParamsErr
 	}
 
 	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
@@ -165,7 +166,7 @@ func (sm *StudentManager) ReturnStudentThing(studentNumber string, markNumber in
 				if ownerID == studentID {
 					err = sm.studentController.ReturnThing(studentID, thingID)
 				} else {
-					err = StudentIsNotOwnerErr
+					err = appErrors.StudentIsNotOwnerErr
 				}
 			} else {
 				err = getOwnerErr
@@ -189,7 +190,7 @@ func (sm *StudentManager) GetStudentByAccID(accID int) (string, error) {
 		}
 	}
 	if resultStudentNumber == objects.EmptyString {
-		err = studentController.StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return resultStudentNumber, err
 }

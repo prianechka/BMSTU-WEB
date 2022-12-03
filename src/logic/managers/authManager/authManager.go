@@ -3,6 +3,7 @@ package authManager
 import (
 	"src/logic/controllers/userController"
 	"src/objects"
+	appErrors "src/utils/error"
 )
 
 type AuthManager struct {
@@ -21,7 +22,7 @@ func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels,
 					if tmpUser.GetPassword() == password {
 						result = tmpUser.GetPrivelegeLevel()
 					} else {
-						err = PasswordNotEqualErr
+						err = appErrors.PasswordNotEqualErr
 					}
 				} else {
 					err = getUserErr
@@ -31,7 +32,7 @@ func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels,
 			err = getUserIDErr
 		}
 	} else {
-		err = userController.UserNotFoundErr
+		err = appErrors.UserNotFoundErr
 	}
 	return result, err
 }
@@ -43,7 +44,7 @@ func (am *AuthManager) GetUserID(login string) (int, error) {
 	if isUserExist {
 		result, err = am.userController.GetUserID(login)
 	} else {
-		err = userController.UserNotFoundErr
+		err = appErrors.UserNotFoundErr
 	}
 	return result, err
 }
