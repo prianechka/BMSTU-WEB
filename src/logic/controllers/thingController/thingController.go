@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"src/db/thingRepo"
 	"src/objects"
+	appErrors "src/utils/error"
 )
 
 type ThingController struct {
@@ -15,7 +16,7 @@ func (tc *ThingController) AddThing(markNumber int, thingType string) error {
 	if err == nil {
 		for _, thing := range things {
 			if thing.GetMarkNumber() == markNumber {
-				err = ThingAlreadyExistErr
+				err = appErrors.ThingAlreadyExistErr
 				break
 			}
 		}
@@ -47,7 +48,7 @@ func (tc *ThingController) GetFreeThings() ([]objects.Thing, error) {
 func (tc *ThingController) GetThing(id int) (objects.Thing, error) {
 	thing, err := tc.Repo.GetThing(id)
 	if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return thing, err
 }
@@ -59,7 +60,7 @@ func (tc *ThingController) DeleteThing(id int) error {
 			err = tc.Repo.DeleteThing(id)
 		}
 	} else if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return err
 }
@@ -70,7 +71,7 @@ func (tc *ThingController) GetThingRoom(thingID int) (int, error) {
 	if err == nil {
 		result = tmpThing.GetRoomID()
 	} else if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return result, err
 }
@@ -79,14 +80,14 @@ func (tc *ThingController) TransferThing(thingID, srcRoomID, dstRoomID int) erro
 	tmpThing, err := tc.Repo.GetThing(thingID)
 	if err == nil {
 		if tmpThing.GetRoomID() != srcRoomID {
-			err = BadSrcRoomErr
+			err = appErrors.BadSrcRoomErr
 		} else if dstRoomID == objects.None || dstRoomID == srcRoomID {
-			err = BadDstRoomErr
+			err = appErrors.BadDstRoomErr
 		} else {
 			err = tc.Repo.TransferThingRoom(thingID, srcRoomID, dstRoomID)
 		}
 	} else if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return err
 }
@@ -97,7 +98,7 @@ func (tc *ThingController) GetCurrentOwner(thingID int) (int, error) {
 	if err == nil {
 		result = tmpThing.GetOwnerID()
 	} else if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return result, err
 }
@@ -105,7 +106,7 @@ func (tc *ThingController) GetCurrentOwner(thingID int) (int, error) {
 func (tc *ThingController) GetThingIDByMarkNumber(markNumber int) (int, error) {
 	id, err := tc.Repo.GetThingIDByMarkNumber(markNumber)
 	if err == sql.ErrNoRows {
-		err = ThingNotFoundErr
+		err = appErrors.ThingNotFoundErr
 	}
 	return id, err
 }

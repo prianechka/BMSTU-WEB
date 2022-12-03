@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"src/db/studentRepo"
 	"src/objects"
+	appErrors "src/utils/error"
 )
 
 type StudentController struct {
@@ -17,15 +18,15 @@ func CreateNewStudentController(Repo studentRepo.StudentRepo) *StudentController
 func (sc *StudentController) AddStudent(name, surname, group, studentNumber string, accID int) error {
 	var err error
 	if accID < 0 {
-		err = BadAccIDErr
+		err = appErrors.BadAccIDErr
 	} else if len(name) < 1 || len(surname) < 1 || len(group) < 1 || len(studentNumber) < 1 {
-		err = BadParamsErr
+		err = appErrors.BadStudentParamsErr
 	} else {
 		allStudents, getStudentErr := sc.Repo.GetAllStudents()
 		if getStudentErr == nil {
 			for _, tmpStudent := range allStudents {
 				if tmpStudent.GetStudentNumber() == studentNumber {
-					err = StudentAlreadyInBaseErr
+					err = appErrors.StudentAlreadyInBaseErr
 					break
 				}
 			}
@@ -55,7 +56,7 @@ func (sc *StudentController) GetStudentIDByNumber(studentNumber string) (int, er
 		}
 	}
 	if result == objects.None {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 
 	return result, err
@@ -65,11 +66,11 @@ func (sc *StudentController) GetStudent(id int) (objects.Student, error) {
 	var err error
 	var student objects.Student
 	if id < 0 {
-		err = BadParamsErr
+		err = appErrors.BadStudentParamsErr
 	} else {
 		student, err = sc.Repo.GetStudent(id)
 		if err != nil {
-			err = StudentNotFoundErr
+			err = appErrors.StudentNotFoundErr
 		}
 	}
 	return student, err
@@ -87,7 +88,7 @@ func (sc *StudentController) GetStudentRoom(id int) (int, error) {
 		}
 	}
 	if result == objects.None {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return result, err
 }
@@ -96,14 +97,14 @@ func (sc *StudentController) SettleStudent(studentID, roomID int) error {
 	student, err := sc.Repo.GetStudent(studentID)
 	if err == nil {
 		if student.GetID() == objects.None {
-			err = StudentNotFoundErr
+			err = appErrors.StudentNotFoundErr
 		} else if student.GetRoomID() == objects.NotLiving {
 			err = sc.Repo.TransferStudent(studentID, roomID, objects.Get)
 		} else {
-			err = StudentAlreadyLiveErr
+			err = appErrors.StudentAlreadyLiveErr
 		}
 	} else if err == sql.ErrNoRows {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return err
 }
@@ -114,10 +115,10 @@ func (sc *StudentController) EvicStudent(studentID int) error {
 		if student.GetRoomID() != objects.NotLiving {
 			err = sc.Repo.TransferStudent(studentID, student.GetRoomID(), objects.Ret)
 		} else {
-			err = StudentNotLivingErr
+			err = appErrors.StudentNotLivingErr
 		}
 	} else if err == sql.ErrNoRows {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return err
 }
@@ -129,7 +130,7 @@ func (sc *StudentController) ChangeStudentGroup(studentID int, newGroup string) 
 			newGroup, student.GetStudentNumber())
 		err = sc.Repo.ChangeStudent(studentID, studentDTO)
 	} else if err == sql.ErrNoRows {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return err
 }
@@ -140,7 +141,7 @@ func (sc *StudentController) GetStudentThings(studentID int) ([]objects.Thing, e
 	if err == nil {
 		studentThings, err = sc.Repo.GetStudentThings(studentID)
 	} else {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return studentThings, err
 }
@@ -150,7 +151,7 @@ func (sc *StudentController) TransferThing(studentID, thingID int) error {
 	if err == nil {
 		err = sc.Repo.TransferThing(studentID, thingID, objects.Get)
 	} else if err == sql.ErrNoRows {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return err
 }
@@ -160,7 +161,7 @@ func (sc *StudentController) ReturnThing(studentID, thingID int) error {
 	if err == nil {
 		err = sc.Repo.TransferThing(studentID, thingID, objects.Ret)
 	} else if err == sql.ErrNoRows {
-		err = StudentNotFoundErr
+		err = appErrors.StudentNotFoundErr
 	}
 	return err
 }
