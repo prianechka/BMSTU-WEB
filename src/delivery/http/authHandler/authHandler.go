@@ -19,6 +19,14 @@ type AuthHandler struct {
 	AppManager  appManager.AppManager
 }
 
+func CreateNewAuthHandler(logger *logrus.Entry, am authManager.AuthManager, ap appManager.AppManager) *AuthHandler {
+	return &AuthHandler{
+		logger:      logger,
+		AuthManager: am,
+		AppManager:  ap,
+	}
+}
+
 func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string

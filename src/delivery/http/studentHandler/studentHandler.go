@@ -17,6 +17,20 @@ type StudentHandler struct {
 	manager studentManager.StudentManager
 }
 
+func CreateNewStudentHandler(logger *logrus.Entry, manager studentManager.StudentManager) *StudentHandler {
+	return &StudentHandler{
+		logger:  logger,
+		manager: manager,
+	}
+}
+
+// GetAllStudents
+// @Summary Get all students in dormitory
+// @Description View full information about students have lived in dormitory.
+// @Produce json
+// @Success 200 {object} objects.Student
+// @Failure 500 {object} models.ShortResponseMessage "internal server error"
+// @Router /api/v1/students [GET]
 func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string

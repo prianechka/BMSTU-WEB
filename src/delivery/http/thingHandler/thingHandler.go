@@ -18,6 +18,13 @@ type ThingHandler struct {
 	manager thingManager.ThingManager
 }
 
+func CreateNewThingHandler(logger *logrus.Entry, man thingManager.ThingManager) *ThingHandler {
+	return &ThingHandler{
+		logger:  logger,
+		manager: man,
+	}
+}
+
 func (th *ThingHandler) ViewStudentThings(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string

@@ -15,6 +15,15 @@ type ThingManager struct {
 	studentController studentController.StudentController
 }
 
+func CreateNewThingManager(rc roomController.RoomController, sc studentController.StudentController,
+	tc thingController.ThingController) *ThingManager {
+	return &ThingManager{
+		roomController:    rc,
+		studentController: sc,
+		thingController:   tc,
+	}
+}
+
 func (tm *ThingManager) GetFullThingInfo() ([]models.ThingFullInfo, error) {
 	thingsFullInfo := make([]models.ThingFullInfo, 0)
 	allThings, err := tm.thingController.GetThings()

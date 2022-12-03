@@ -11,6 +11,12 @@ type AuthManager struct {
 	userController userController.UserController
 }
 
+func CreateNewAuthManager(uc userController.UserController) *AuthManager {
+	return &AuthManager{
+		userController: uc,
+	}
+}
+
 func (am *AuthManager) TryToAuth(login, password string) (result objects.Levels, err error) {
 	isUserExist := am.userController.UserExist(login)
 	if isUserExist {

@@ -1,0 +1,43 @@
+definitions:
+  models.ShortResponseMessage:
+    properties:
+      comment:
+        type: string
+    type: object
+  objects.Student:
+    properties:
+      accID:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      roomID:
+        type: integer
+      studentGroup:
+        type: string
+      studentNumber:
+        type: string
+      surname:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /api/v1/students:
+    get:
+      description: View full information about students have lived in dormitory.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/objects.Student'
+        "500":
+          description: internal server error
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      summary: Get all students in dormitory
+swagger: "2.0"

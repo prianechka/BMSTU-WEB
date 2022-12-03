@@ -17,6 +17,16 @@ type StudentManager struct {
 	thingController   thingController.ThingController
 }
 
+func CreateNewStudentManager(rc roomController.RoomController, sc studentController.StudentController,
+	uc userController.UserController, tc thingController.ThingController) *StudentManager {
+	return &StudentManager{
+		roomController:    rc,
+		studentController: sc,
+		userController:    uc,
+		thingController:   tc,
+	}
+}
+
 func (sm *StudentManager) AddNewStudent(name, surname, studentGroup, studentNumber, login, password string) (err error) {
 	if name == objects.EmptyString || surname == objects.EmptyString || studentGroup == objects.EmptyString ||
 		studentNumber == objects.EmptyString {
