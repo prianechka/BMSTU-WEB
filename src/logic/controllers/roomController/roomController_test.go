@@ -7,6 +7,7 @@ import (
 	"src/db/roomRepo"
 	"src/tests"
 	"src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 )
 
@@ -74,7 +75,7 @@ func (*TestRoomController) TestRoomController_DeleteRoomNegative(t *testgroup.T)
 	// Act
 	execErr := controller.DeleteRoom(ID)
 
-	tests.AssertErrors(t, execErr, RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -110,7 +111,7 @@ func (*TestRoomController) TestRoomController_GetRoomNegative(t *testgroup.T) {
 	// Act
 	_, execErr := controller.GetRoom(ID)
 
-	tests.AssertErrors(t, execErr, RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -173,6 +174,6 @@ func (*TestRoomController) TestRoomController_GetRoomThingsNegative(t *testgroup
 	// Act
 	_, execErr := controller.GetRoomThings(ID)
 
-	tests.AssertErrors(t, execErr, RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }

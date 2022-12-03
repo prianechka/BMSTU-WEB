@@ -15,6 +15,7 @@ import (
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 	"time"
 )
@@ -120,7 +121,7 @@ func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeLoginOccuped(
 	execErr := manager.AddNewStudent(Name, Surname, StudentGroup, StudentNumber, Login, Password)
 
 	// Assert
-	tests.AssertErrors(t, execErr, userController.LoginOccupedErr)
+	tests.AssertErrors(t, execErr, appErrors.LoginOccupedErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -157,7 +158,7 @@ func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeBadLoginParam
 	execErr := manager.AddNewStudent(Name, Surname, StudentGroup, StudentNumber, Login, Password)
 
 	// Assert
-	tests.AssertErrors(t, execErr, userController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadUserParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -194,7 +195,7 @@ func (*TestStudentManager) TestStudentManager_AddNewStudentNegativeBadName(t *te
 	execErr := manager.AddNewStudent(Name, Surname, StudentGroup, StudentNumber, Login, Password)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -273,7 +274,7 @@ func (*TestStudentManager) TestStudentManager_ChangeStudentGroupNegativeBadParam
 	execErr := manager.ChangeStudentGroup(StudentNumber, StudentGroup)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -311,7 +312,7 @@ func (*TestStudentManager) TestStudentManager_ChangeStudentGroupNegativeStudentN
 	execErr := manager.ChangeStudentGroup(StudentNumber, StudentGroup)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -400,7 +401,7 @@ func (*TestStudentManager) TestStudentManager_SettleStudentNegativeStudentNotFou
 	execErr := manager.SettleStudent(StudentNumber, RoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -448,7 +449,7 @@ func (*TestStudentManager) TestStudentManager_SettleStudentNegativeStudentIsLivi
 	execErr := manager.SettleStudent(StudentNumber, RoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentAlreadyLiveErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentAlreadyLiveErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -487,7 +488,7 @@ func (*TestStudentManager) TestStudentManager_SettleStudentNegativeRoomNotFound(
 	execErr := manager.SettleStudent(StudentNumber, RoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, roomController.RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -520,7 +521,7 @@ func (*TestStudentManager) TestStudentManager_SettleStudentBadRoomIDParam(t *tes
 	execErr := manager.SettleStudent(StudentNumber, RoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, roomController.RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -553,7 +554,7 @@ func (*TestStudentManager) TestStudentManager_SettleStudentBadStudNumberErr(t *t
 	execErr := manager.SettleStudent(StudentNumber, RoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -634,7 +635,7 @@ func (*TestStudentManager) TestStudentManager_EvicStudentNegativeStudentNotFound
 	execErr := manager.EvicStudent(StudentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -676,7 +677,7 @@ func (*TestStudentManager) TestStudentManager_EvicStudentNegativeStudentNotLivin
 	execErr := manager.EvicStudent(StudentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotLivingErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotLivingErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -708,7 +709,7 @@ func (*TestStudentManager) TestStudentManager_EvicStudentBadParam(t *testgroup.T
 	execErr := manager.EvicStudent(StudentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -784,7 +785,7 @@ func (*TestStudentManager) TestStudentManager_GetStudentByAccIDNegative(t *testg
 	_, execErr := manager.GetStudentByAccID(AccID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -904,7 +905,7 @@ func (*TestStudentManager) TestStudentManager_ViewStudentNegative(t *testgroup.T
 	_, execErr := manager.ViewStudent(StudentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1002,7 +1003,7 @@ func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeStudentNot
 	execErr := manager.GiveStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1046,7 +1047,7 @@ func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeThingNotFo
 	execErr := manager.GiveStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1094,7 +1095,7 @@ func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeThingHasOw
 	execErr := manager.GiveStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingHasOwnerErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingHasOwnerErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1127,7 +1128,7 @@ func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeBadStudent
 	execErr := manager.GiveStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1160,7 +1161,7 @@ func (*TestStudentManager) TestStudentManager_GiveStudentThingNegativeBadMarkNum
 	execErr := manager.GiveStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1258,7 +1259,7 @@ func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeStudentN
 	execErr := manager.ReturnStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1302,7 +1303,7 @@ func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeThingNot
 	execErr := manager.ReturnStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1351,7 +1352,7 @@ func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeThingHas
 	execErr := manager.ReturnStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, StudentIsNotOwnerErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentIsNotOwnerErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1384,7 +1385,7 @@ func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeBadMarkN
 	execErr := manager.ReturnStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -1417,6 +1418,6 @@ func (*TestStudentManager) TestStudentManager_ReturnStudentThingNegativeBadStude
 	execErr := manager.ReturnStudentThing(StudentNumber, MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }

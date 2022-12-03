@@ -8,6 +8,7 @@ import (
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 	"time"
 )
@@ -65,7 +66,7 @@ func (*TestAuthManager) TestAuthManager_GetUserIDNegative(t *testgroup.T) {
 	_, execErr := manager.GetUserID(mother.DefaultLogin)
 
 	// Assert
-	tests.AssertErrors(t, execErr, userController.UserNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.UserNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -122,7 +123,7 @@ func (*TestAuthManager) TestAuthManager_TryToAuthNegativeUserNotFound(t *testgro
 	_, execErr := manager.TryToAuth(mother.DefaultLogin, mother.DefaultPassword)
 
 	// Assert
-	tests.AssertErrors(t, execErr, userController.UserNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.UserNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -154,6 +155,6 @@ func (*TestAuthManager) TestAuthManager_TryToAuthNegativeBadPassword(t *testgrou
 	_, execErr := manager.TryToAuth(mother.DefaultLogin, mother.DefaultPassword+"1")
 
 	// Assert
-	tests.AssertErrors(t, execErr, PasswordNotEqualErr)
+	tests.AssertErrors(t, execErr, appErrors.PasswordNotEqualErr)
 	tests.AssertMocks(t, mock)
 }

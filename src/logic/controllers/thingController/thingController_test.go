@@ -8,6 +8,7 @@ import (
 	"src/objects"
 	"src/tests"
 	mot "src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 	"time"
 )
@@ -73,7 +74,7 @@ func (*TestThingController) TestThingController_AddThingNegative(t *testgroup.T)
 	execErr := controller.AddThing(MarkNumber, ThingType)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingAlreadyExistErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingAlreadyExistErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -122,7 +123,7 @@ func (*TestThingController) TestThingController_DeleteThingNegative(t *testgroup
 	execErr := controller.DeleteThing(ID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -193,7 +194,7 @@ func (*TestThingController) TestThingController_GetThingNegative(t *testgroup.T)
 	_, execErr := controller.GetThing(ID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -240,7 +241,7 @@ func (*TestThingController) TestThingController_GetThingIDByMarkNumberNegative(t
 	_, execErr := controller.GetThingIDByMarkNumber(MarkNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -289,7 +290,7 @@ func (*TestThingController) TestThingController_GetThingRoomNegative(t *testgrou
 	_, execErr := controller.GetThingRoom(thingID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -338,7 +339,7 @@ func (*TestThingController) TestThingController_GetCurrentOwnerNegative(t *testg
 	_, execErr := controller.GetCurrentOwner(thingID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -415,7 +416,7 @@ func (*TestThingController) TestThingController_TransferThingNegativeThingNotFou
 	execErr := controller.TransferThing(thingID, srcRoomID, dstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -442,7 +443,7 @@ func (*TestThingController) TestThingController_TransferThingNegativeBadSrcID(t 
 	execErr := controller.TransferThing(thingID, srcRoomID, dstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, BadSrcRoomErr)
+	tests.AssertErrors(t, execErr, appErrors.BadSrcRoomErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -469,7 +470,7 @@ func (*TestThingController) TestThingController_TransferThingNegativeBadDstID(t 
 	execErr := controller.TransferThing(thingID, srcRoomID, dstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, BadDstRoomErr)
+	tests.AssertErrors(t, execErr, appErrors.BadDstRoomErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -496,6 +497,6 @@ func (*TestThingController) TestThingController_TransferThingNegativeEqualSrcDst
 	execErr := controller.TransferThing(thingID, srcRoomID, dstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, BadDstRoomErr)
+	tests.AssertErrors(t, execErr, appErrors.BadDstRoomErr)
 	tests.AssertMocks(t, mock)
 }

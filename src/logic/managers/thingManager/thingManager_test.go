@@ -13,6 +13,7 @@ import (
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 	"time"
 )
@@ -101,7 +102,7 @@ func (*TestThingManager) TestThingManager_AddNewThingNegativeThingExist(t *testg
 	execErr := manager.AddNewThing(MarkNumber, ThingType)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingAlreadyExistErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingAlreadyExistErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -133,7 +134,7 @@ func (*TestThingManager) TestThingManager_AddNewThingNegativeBadParams(t *testgr
 	execErr := manager.AddNewThing(MarkNumber, ThingType)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -298,7 +299,7 @@ func (*TestThingManager) TestThingManager_GetStudentThingsNegativeStudentNotFoun
 	_, execErr := manager.GetStudentThings(studentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.StudentNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.StudentNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -327,7 +328,7 @@ func (*TestThingManager) TestThingManager_GetStudentThingsNegativeBadStudNumber(
 	_, execErr := manager.GetStudentThings(studentNumber)
 
 	// Assert
-	tests.AssertErrors(t, execErr, studentController.BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadStudentParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -413,7 +414,7 @@ func (*TestThingManager) TestThingManager_TransferThingNegativeThingNotFound(t *
 	execErr := manager.TransferThing(MarkNumber, DstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -448,7 +449,7 @@ func (*TestThingManager) TestThingManager_TransferThingNegativeRoomNotFound(t *t
 	execErr := manager.TransferThing(MarkNumber, DstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, roomController.RoomNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.RoomNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -479,7 +480,7 @@ func (*TestThingManager) TestThingManager_TransferThingBadMarkNumber(t *testgrou
 	execErr := manager.TransferThing(MarkNumber, DstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.ThingNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.ThingNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -510,6 +511,6 @@ func (*TestThingManager) TestThingManager_TransferThingBadRoom(t *testgroup.T) {
 	execErr := manager.TransferThing(MarkNumber, DstRoomID)
 
 	// Assert
-	tests.AssertErrors(t, execErr, thingController.BadDstRoomErr)
+	tests.AssertErrors(t, execErr, appErrors.BadDstRoomErr)
 	tests.AssertMocks(t, mock)
 }

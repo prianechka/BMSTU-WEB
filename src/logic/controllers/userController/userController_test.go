@@ -8,6 +8,7 @@ import (
 	"src/objects"
 	"src/tests"
 	"src/tests/mother"
+	appErrors "src/utils/error"
 	"testing"
 	"time"
 )
@@ -61,7 +62,7 @@ func (*TestUserController) TestUserController_AddUserNegativeAlreadyExist(t *tes
 	execErr := controller.AddUser(mother.DefaultLogin, mother.DefaultPassword, objects.StudentRole)
 
 	// Assert
-	tests.AssertErrors(t, execErr, LoginOccupedErr)
+	tests.AssertErrors(t, execErr, appErrors.LoginOccupedErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -79,7 +80,7 @@ func (*TestUserController) TestUserController_AddUserNegativeBadParams(t *testgr
 	execErr := controller.AddUser(objects.EmptyString, mother.DefaultPassword, objects.StudentRole)
 
 	// Assert
-	tests.AssertErrors(t, execErr, BadParamsErr)
+	tests.AssertErrors(t, execErr, appErrors.BadUserParamsErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -164,7 +165,7 @@ func (*TestUserController) TestUserController_GetUserNegative(t *testgroup.T) {
 	_, execErr := controller.GetUser(id)
 
 	// Assert
-	tests.AssertErrors(t, execErr, UserNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.UserNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
 
@@ -206,6 +207,6 @@ func (*TestUserController) TestUserController_GetUserIDNegative(t *testgroup.T) 
 	_, execErr := controller.GetUserID(mother.DefaultLogin)
 
 	// Assert
-	tests.AssertErrors(t, execErr, UserNotFoundErr)
+	tests.AssertErrors(t, execErr, appErrors.UserNotFoundErr)
 	tests.AssertMocks(t, mock)
 }
