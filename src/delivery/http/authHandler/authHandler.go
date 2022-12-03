@@ -6,11 +6,11 @@ import (
 	"io"
 	"net/http"
 	"src/delivery/http/models"
-	"src/logic/controllers/userController"
 	"src/logic/managers/appManager"
 	"src/logic/managers/authManager"
 	"src/objects"
 	"src/utils"
+	appErrors "src/utils/error"
 )
 
 type AuthHandler struct {
@@ -45,10 +45,10 @@ func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 		} else {
 			h.AppManager.SetNewState(authParams.Login, newRole)
 		}
-	case userController.UserNotFoundErr:
+	case appErrors.UserNotFoundErr:
 		statusCode = http.StatusForbidden
 		handleMessage = objects.LoginErrorString
-	case authManager.PasswordNotEqualErr:
+	case appErrors.PasswordNotEqualErr:
 		statusCode = http.StatusForbidden
 		handleMessage = objects.PasswordErrorString
 	default:
