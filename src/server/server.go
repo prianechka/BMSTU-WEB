@@ -24,6 +24,7 @@ import (
 	"src/logic/managers/roomManager"
 	"src/logic/managers/studentManager"
 	"src/logic/managers/thingManager"
+	"src/middleware"
 	utils "src/utils/connection"
 )
 
@@ -85,8 +86,10 @@ func (s *Server) Start() error {
 	router.HandleFunc("/things/free/", ThingHandler.ViewFreeThings).Methods("GET")
 	router.HandleFunc("/things/{mark-number}/", ThingHandler.TransferThingBetweenRooms).Methods("PATCH")
 	router.HandleFunc("/auth", AuthHandler.Authorize).Methods("POST")
-
 	router.HandleFunc("/rooms/", RoomHandler.GetAllRooms).Methods("GET")
 
-	return http.ListenAndServe(s.config.PortToStart, router)
+	accessRouter := middleware.CheckAccess(router)
+	upgradedRouter := middleware.Panic(accessRouter)
+
+	return http.ListenAndServe(s.config.PortToStart, upgradedRouter)
 }

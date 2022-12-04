@@ -11,6 +11,7 @@ import (
 	"src/objects"
 	"src/utils"
 	appErrors "src/utils/error"
+	"src/utils/jwtUtils"
 )
 
 type AuthHandler struct {
@@ -27,6 +28,16 @@ func CreateNewAuthHandler(logger *logrus.Entry, am authManager.AuthManager, ap a
 	}
 }
 
+// Authorize
+// @Summary Try to authorize in system
+// @Description Try to authorize in system. JWT-Token send with success
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Success 200 {object} models.ShortResponseMessage "Операция прошла успешно!"
+// @Failure 403 {object} models.ShortResponseMessage "Пароль введен неверно!"
+// @Failure 404 {object} models.ShortResponseMessage "Пользователь не не найден"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/auth/ [GET]
 func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -48,13 +59,12 @@ func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 	newRole, err := h.AuthManager.TryToAuth(authParams.Login, authParams.Password)
 	switch err {
 	case nil:
-		if newRole == objects.NonAuth {
-			h.AppManager.FoldState()
-		} else {
-			h.AppManager.SetNewState(authParams.Login, newRole)
-		}
+		statusCode = http.StatusOK
+		handleMessage = objects.AddOK
+		jwtToken := jwtUtils.CreateJWTToken(authParams.Login, newRole)
+		w.Header().Set("access-token", jwtToken)
 	case appErrors.UserNotFoundErr:
-		statusCode = http.StatusForbidden
+		statusCode = http.StatusNotFound
 		handleMessage = objects.LoginErrorString
 	case appErrors.PasswordNotEqualErr:
 		statusCode = http.StatusForbidden
