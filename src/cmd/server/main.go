@@ -10,6 +10,10 @@ import (
 
 var configPath = "configs/config.toml"
 
+// @title           BMSTU-WEB API
+// @version         1.0
+// @description     Server for bmstu dormitory app.
+// @host      localhost:8082
 func main() {
 	config := configs.CreateConfigForServer()
 	_, err := toml.DecodeFile(configPath, &config)

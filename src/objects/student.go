@@ -17,6 +17,13 @@ type StudentDTO struct {
 	studentNumber string
 }
 
+type StudentResponseDTO struct {
+	Name          string `json:"name"`
+	Surname       string `json:"surname"`
+	StudentGroup  string `json:"studentGroup"`
+	StudentNumber string `json:"studentNumber"`
+}
+
 func NewStudentWithParams(id, accID int, name, surname, studentGroup, studentNumber string, roomID int) Student {
 	return Student{
 		id:            id,
@@ -100,4 +107,17 @@ func (s *StudentDTO) GetStudentGroup() string {
 
 func (s *StudentDTO) GetStudentNumber() string {
 	return s.studentNumber
+}
+
+func CreateStudentResponse(students []Student) []StudentResponseDTO {
+	newArray := make([]StudentResponseDTO, Empty)
+	for _, tmpStudent := range students {
+		newArray = append(newArray, StudentResponseDTO{
+			Name:          tmpStudent.GetName(),
+			Surname:       tmpStudent.GetSurname(),
+			StudentGroup:  tmpStudent.GetStudentGroup(),
+			StudentNumber: tmpStudent.GetStudentNumber(),
+		})
+	}
+	return newArray
 }

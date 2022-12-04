@@ -34,9 +34,6 @@ func CreateServer(config *configs.ServerConfig, logger *logrus.Entry) *Server {
 	return &Server{config: config, logger: logger}
 }
 
-// Start
-// @title BMSTU-WEB
-// @description Task for WEB labs.
 func (s *Server) Start() error {
 	r := mux.NewRouter()
 	router := r.PathPrefix("/api/v1/").Subrouter()
@@ -68,9 +65,21 @@ func (s *Server) Start() error {
 
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
-	router.HandleFunc("/students", StudentHandler.GetAllStudents).Methods("GET")
-	router.HandleFunc("/students", ThingHandler.ViewAllThings).Methods("POST")
-	router.HandleFunc("/students/{id}", AuthHandler.Authorize).Methods("PATCH")
+	router.HandleFunc("/students/", StudentHandler.GetAllStudents).Methods("GET")
+	router.HandleFunc("/students/", StudentHandler.AddNewStudent).Methods("POST")
+	router.HandleFunc("/students/{stud-number}/", StudentHandler.ChangeStudentGroup).Methods("PUT")
+	router.HandleFunc("/students/{stud-number}/rooms/", StudentHandler.SettleStudent).Methods("POST")
+	router.HandleFunc("/students/{stud-number}/rooms/", StudentHandler.EvicStudent).Methods("DELETE")
+
+	router.HandleFunc("/students/{stud-number}/things/", ThingHandler.ViewStudentThings).Methods("GET")
+	router.HandleFunc("/students/{stud-number}/things/{mark-number}/", StudentHandler.GiveStudentThing).Methods("POST")
+	router.HandleFunc("/students/{stud-number}/things/{mark-number}/", StudentHandler.ReturnThingFromStudent).Methods("DELETE")
+
+	router.HandleFunc("/things/", ThingHandler.ViewAllThings).Methods("GET")
+	router.HandleFunc("/things/", ThingHandler.AddNewThing).Methods("POST")
+	router.HandleFunc("/things/free/", ThingHandler.ViewFreeThings).Methods("GET")
+	router.HandleFunc("/things/{mark-number}/", ThingHandler.TransferThingBetweenRooms).Methods("PATCH")
+	router.HandleFunc("/auth", AuthHandler.Authorize).Methods("POST")
 
 	return http.ListenAndServe(s.config.PortToStart, router)
 }

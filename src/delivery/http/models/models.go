@@ -1,7 +1,13 @@
 package models
 
+import "src/objects"
+
 type ShortResponseMessage struct {
 	Comment string `json:"comment"`
+}
+
+type StudentResponseMessage struct {
+	Students []objects.Student `json:"students"`
 }
 
 type AuthRequestMessage struct {
@@ -10,8 +16,12 @@ type AuthRequestMessage struct {
 }
 
 type AddNewThingRequestMessage struct {
-	MarkNumber string `json:"markNumber"`
+	MarkNumber int    `json:"markNumber"`
 	ThingType  string `json:"thingType"`
+}
+
+type TransferThingRequestMessage struct {
+	NewRoomID int `json:"room-id"`
 }
 
 type AddNewStudentRequestMessage struct {

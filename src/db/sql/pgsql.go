@@ -28,22 +28,22 @@ type PostgreSQLGetUser struct{}
 type PostgreSQLAddUser struct{}
 
 func (pg PostgreSQLChangeStudent) GetString() string {
-	return "UPDATE PPO.Student SET StudentName = '?', StudentSurname = '?', " +
-		"', StudentGroup = '?', StudentNumber = '?' WHERE StudentID = ?;"
+	return "UPDATE PPO.Student SET StudentName = $1, StudentSurname = $2, " +
+		"StudentGroup = $3, StudentNumber = $4 WHERE StudentID = $5;"
 }
 
 func (pg PostgreSQLGetStudent) GetString() string {
 	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
 		"S.studentgroup, S.studentnumber, PPO.FindStudentRoom(S.studentid) " +
-		"FROM PPO.Student as S WHERE S.studentid = ?;"
+		"FROM PPO.Student as S WHERE S.studentid = $1;"
 }
 func (pg PostgreSQLGetStudentID) GetString() string {
-	return "SELECT S.studentid FROM PPO.Student as S WHERE StudentNumber = '?';"
+	return "SELECT S.studentid FROM PPO.Student as S WHERE StudentNumber = $1;"
 }
 
 func (pg PostgreSQLGetStudentsThings) GetString() string {
 	return "SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), " +
-		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = ?;"
+		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = $1;"
 }
 func (pg PostgreSQLGetAllStudents) GetString() string {
 	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
@@ -54,19 +54,19 @@ func (pg PostgreSQLGetAllStudents) GetString() string {
 
 func (pg PostgreSQLAddStudent) GetString() string {
 	return "INSERT INTO PPO.Student(studentname, studentsurname, studentgroup, " +
-		"studentnumber, settledate, webaccid) VALUES ('?', '?', '?', '?', current_date, ?);"
+		"studentnumber, settledate, webaccid) VALUES ($1, $2, $3, $4, current_date, $5);"
 }
 func (pg PostgreSQLTransferStudent) GetString() string {
 	return "INSERT INTO PPO.StudentRoomHistory (studentid, roomid, direction, transferdate) " +
-		"VALUES (?, ?, ?, current_date);"
+		"VALUES ($1, $2, $3, current_date);"
 }
 func (pg PostgreSQLTransferThing) GetString() string {
 	return "INSERT INTO PPO.StudentThingHistory (studentid, thingid, direction, transferdate)" +
-		"VALUES (?, ?, ?, current_date);"
+		"VALUES ($1, $2, $3, current_date);"
 }
 
 func (pg PostgreSQLAddRoom) GetString() string {
-	return "INSERT INTO PPO.Rooms(roomtype, roomnumber) VALUES ('?', ?)"
+	return "INSERT INTO PPO.Rooms(roomtype, roomnumber) VALUES ('$1', $2)"
 }
 
 func (pg PostgreSQLGetRooms) GetString() string {
@@ -74,25 +74,25 @@ func (pg PostgreSQLGetRooms) GetString() string {
 }
 
 func (pg PostgreSQLGetRoom) GetString() string {
-	return "SELECT roomid, roomtype, roomnumber FROM PPO.rooms WHERE RoomID = ?;"
+	return "SELECT roomid, roomtype, roomnumber FROM PPO.rooms WHERE RoomID = $1;"
 }
 
 func (pg PostgreSQLGetRoomThings) GetString() string {
 	return "SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), " +
-		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindRoom(T.ThingID) = ?"
+		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindRoom(T.ThingID) = $1"
 }
 func (pg PostgreSQLDeleteRoom) GetString() string {
-	return "DELETE FROM PPO.rooms WHERE RoomID = ?;"
+	return "DELETE FROM PPO.rooms WHERE RoomID = $1;"
 }
 
 func (pg PostgreSQLTransferThingRoom) GetString() string {
 	return "INSERT INTO PPO.ThingRoomHistory (srcroomid, dstroomid, thingid, transferdate) VALUES " +
-		"(?, ?, ?, current_date);"
+		"($1, $2, $3, current_date);"
 }
 
 func (pg PostgreSQLAddThing) GetString() string {
 	return "INSERT INTO PPO.Thing(marknumber, creationdate, thingtype) VALUES  " +
-		"(?, current_date, ?);"
+		"($1, current_date, $2);"
 }
 
 func (pg PostgreSQLGetThings) GetString() string {
@@ -103,27 +103,27 @@ func (pg PostgreSQLGetThings) GetString() string {
 func (pg PostgreSQLGetThing) GetString() string {
 	return "SELECT T.thingid, T.marknumber, T.thingtype, " +
 		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T " +
-		"WHERE T.thingid = ?"
+		"WHERE T.thingid = $1"
 }
 
 func (pg PostgreSQLGetThingID) GetString() string {
 	return "SELECT T.thingid " +
-		"FROM PPO.Thing as T WHERE T.marknumber = ?;"
+		"FROM PPO.Thing as T WHERE T.marknumber = $1;"
 }
 
 func (pg PostgreSQLDeleteThing) GetString() string {
-	return "DELETE FROM PPO.Thing WHERE ThingID = ?;"
+	return "DELETE FROM PPO.Thing WHERE ThingID = $1;"
 }
 
 func (pg PostgreSQLGetUserId) GetString() string {
-	return "SELECT id FROM PPO.Users WHERE UserLogin = '?';"
+	return "SELECT id FROM PPO.Users WHERE UserLogin = $1;"
 }
 
 func (pg PostgreSQLGetUser) GetString() string {
-	return "SELECT id, userlogin, userpassword, userrole FROM PPO.Users WHERE ID = ?;"
+	return "SELECT id, userlogin, userpassword, userrole FROM PPO.Users WHERE ID = $1;"
 }
 
 func (pg PostgreSQLAddUser) GetString() string {
 	return "INSERT INTO PPO.Users(userlogin, userpassword, userrole) VALUES " +
-		"('?', '?', ?);"
+		"($1, $2, $3);"
 }

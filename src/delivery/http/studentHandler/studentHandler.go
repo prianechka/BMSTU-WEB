@@ -2,6 +2,7 @@ package studentHandler
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -28,36 +29,46 @@ func CreateNewStudentHandler(logger *logrus.Entry, manager studentManager.Studen
 // @Summary Get all students in dormitory
 // @Description View full information about students have lived in dormitory.
 // @Produce json
-// @Success 200 {object} objects.Student
-// @Failure 500 {object} models.ShortResponseMessage "internal server error"
-// @Router /api/v1/students [GET]
+// @Success 200 {object} objects.StudentResponseDTO
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/ [GET]
 func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
 	var err error
 
-	defer sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
-
 	allStudents, err := sh.manager.ViewAllStudents()
+	resultStudents := objects.CreateStudentResponse(allStudents)
 	switch err {
 	case nil:
-		bytes, _ := json.Marshal(&allStudents)
+		statusCode = http.StatusOK
+		handleMessage = objects.AddOK
+		bytes, _ := json.Marshal(&resultStudents)
 		_, _ = w.Write(bytes)
 	default:
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
 	}
+	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+		r.Method, r.URL.Path, statusCode, handleMessage, err)
 }
 
+// ChangeStudentGroup
+// @Summary Change student group for student
+// @Description Change in database group information about student.
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Param  new-group  body models.ChangeStudentGroupRequestMessage true "New student group"
+// @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/ [PUT]
 func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
 	var err error
-
-	defer sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
 
 	var params models.ChangeStudentGroupRequestMessage
 
@@ -67,6 +78,8 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
+		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
@@ -75,10 +88,12 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
+		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
-	studentNumber := r.URL.Query().Get("studnumber")
+	studentNumber, _ := mux.Vars(r)["stud-number"]
 
 	err = sh.manager.ChangeStudentGroup(studentNumber, params.NewGroup)
 
@@ -98,8 +113,22 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
+	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+		r.Method, r.URL.Path, statusCode, handleMessage, err)
 }
 
+// SettleStudent
+// @Summary Settle student in room
+// @Description Settle student in certain room.
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Param  room-id     body int true "New student room ID"
+// @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Комната не найдена"
+// @Failure 422 {object} models.ShortResponseMessage "Студент уже живёт в другой комнате!"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/rooms/ [POST]
 func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -127,7 +156,7 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	studentNumber := r.URL.Query().Get("studnumber")
+	studentNumber := r.URL.Query().Get("stud-number")
 
 	err = sh.manager.SettleStudent(studentNumber, params.RoomID)
 
@@ -155,6 +184,17 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 	utils.SendShortResponse(w, statusCode, handleMessage)
 }
 
+// EvicStudent
+// @Summary Evic student from current room
+// @Description Settle student in certain room.
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден"
+// @Failure 422 {object} models.ShortResponseMessage "Студент уже нигде не живёт!"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/rooms/ [DELETE]
 func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -163,7 +203,7 @@ func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 	defer sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
 		r.Method, r.URL.Path, statusCode, handleMessage, err)
 
-	studentNumber := r.URL.Query().Get("studnumber")
+	studentNumber := r.URL.Query().Get("stud-number")
 
 	err = sh.manager.EvicStudent(studentNumber)
 
@@ -177,9 +217,6 @@ func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
-	case appErrors.RoomNotFoundErr:
-		statusCode = http.StatusBadRequest
-		handleMessage = objects.RoomNotFoundErrorString
 	case appErrors.StudentNotLivingErr:
 		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.EvicStudentErrorString
@@ -190,6 +227,18 @@ func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 	utils.SendShortResponse(w, statusCode, handleMessage)
 }
 
+// GiveStudentThing
+// @Summary Give thing to student
+// @Description Give thing to student without changing its location.
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Param  mark-number path int true "Mark number of thing"
+// @Success 200 {object} models.ShortResponseMessage "Вещь передана!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Вещь не найдена!"
+// @Failure 422 {object} models.ShortResponseMessage "Вещь уже у другого студента!"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/things/{thing-id}/ [POST]
 func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -215,7 +264,7 @@ func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Reques
 	switch err {
 	case nil:
 		statusCode = http.StatusOK
-		handleMessage = objects.StudentChangeOKString
+		handleMessage = objects.GiveThingOK
 	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
@@ -226,7 +275,7 @@ func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Reques
 		statusCode = http.StatusNotFound
 		handleMessage = objects.ThingNotFound
 	case appErrors.ThingHasOwnerErr:
-		statusCode = http.StatusBadRequest
+		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.GiveThingErrorString
 	default:
 		statusCode = http.StatusInternalServerError
@@ -235,6 +284,17 @@ func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Reques
 	utils.SendShortResponse(w, statusCode, handleMessage)
 }
 
+// ReturnThingFromStudent
+// @Summary Return thing from student.
+// @Description Return thing from student without changing thing location.
+// @Param  stud-number path string true "Student Number"
+// @Param  mark-number path int true "Mark number of thing"
+// @Success 200 {object} models.ShortResponseMessage "Вещь передана!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Вещь не найдена!"
+// @Failure 422 {object} models.ShortResponseMessage "Вещь и так была не у студента!"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/things/{thing-id}/ [DELETE]
 func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -253,7 +313,7 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 		return
 	}
 
-	studentNumber := r.URL.Query().Get("studnumber")
+	studentNumber := r.URL.Query().Get("stud-number")
 
 	err = sh.manager.ReturnStudentThing(studentNumber, markNumber)
 
@@ -271,7 +331,7 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 		statusCode = http.StatusNotFound
 		handleMessage = objects.ThingNotFound
 	case appErrors.StudentIsNotOwnerErr:
-		statusCode = http.StatusBadRequest
+		statusCode = http.StatusUnprocessableEntity
 		handleMessage = objects.ReturnThingErrorString
 	default:
 		statusCode = http.StatusInternalServerError
@@ -280,6 +340,19 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 	utils.SendShortResponse(w, statusCode, handleMessage)
 }
 
+// AddNewStudent
+// @Summary Add new student to base
+// @Description Add new student in user and student base.
+// @Param  user-params body models.AddNewStudentRequestMessage true "student base information"
+// @Success 200 {object} models.ShortResponseMessage "Операция успешно проведена!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 422 {object} models.ShortResponseMessage "Студент с таким же студенческим билетом уже существует!"
+// @Failure 422 {object} models.ShortResponseMessage "Пользователь с таким логином уже существует!"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Produce json
+// @Success 200 {object} objects.Student
+// @Failure 500 {object} models.ShortResponseMessage "internal server error"
+// @Router /api/v1/students/ [POST]
 func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -313,7 +386,7 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 	switch err {
 	case nil:
 		statusCode = http.StatusOK
-		handleMessage = objects.StudentChangeOKString
+		handleMessage = objects.AddOK
 	case appErrors.BadStudentParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
