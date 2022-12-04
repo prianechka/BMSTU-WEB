@@ -363,7 +363,7 @@ func (*TestThingManager) TestThingManager_TransferThingPositive(t *testgroup.T) 
 	lastThingsRows := thingObjectMother.CreateRows(allThings)
 	mock.ExpectQuery("SELECT").WillReturnRows(lastThingsRows).WillReturnError(nil)
 
-	mock.ExpectExec("INSERT").WithArgs(ThingID, SrcRoomID, DstRoomID).
+	mock.ExpectExec("INSERT").WithArgs(SrcRoomID, DstRoomID, ThingID).
 		WillReturnError(nil).WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
 	studentRepository := studentRepo.PgStudentRepo{Conn: db}

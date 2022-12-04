@@ -382,7 +382,7 @@ func (*TestThingController) TestThingController_TransferThingPositive(t *testgro
 	rows := objectMother.CreateRows(realThings)
 
 	mock.ExpectQuery("SELECT").WithArgs(thingID).WillReturnError(nil).WillReturnRows(rows)
-	mock.ExpectExec("INSERT").WithArgs(thingID, srcRoomID, dstRoomID).
+	mock.ExpectExec("INSERT").WithArgs(srcRoomID, dstRoomID, thingID).
 		WillReturnError(nil).WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
 	repo := thingRepo.PgThingRepo{Conn: db}
