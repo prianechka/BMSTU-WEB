@@ -2,6 +2,7 @@ package thingRepo
 
 import (
 	"database/sql"
+	"log"
 	"src/db/sql"
 	"src/objects"
 )
@@ -75,7 +76,8 @@ func (pg *PgThingRepo) GetThing(id int) (objects.Thing, error) {
 
 func (pg *PgThingRepo) TransferThingRoom(id, srcRoomID, dstRoomID int) error {
 	sqlString := pgsql.PostgreSQLTransferThingRoom{}.GetString()
-	_, err := pg.Conn.Exec(sqlString, id, srcRoomID, dstRoomID)
+	log.Println(id, srcRoomID, dstRoomID)
+	_, err := pg.Conn.Exec(sqlString, srcRoomID, dstRoomID, id)
 	return err
 }
 

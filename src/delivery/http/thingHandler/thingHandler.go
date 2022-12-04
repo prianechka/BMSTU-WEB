@@ -2,6 +2,7 @@ package thingHandler
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"src/objects"
 	"src/utils"
 	appErrors "src/utils/error"
+	"strconv"
 )
 
 type ThingHandler struct {
@@ -38,12 +40,13 @@ func (th *ThingHandler) ViewStudentThings(w http.ResponseWriter, r *http.Request
 	var statusCode int
 	var handleMessage string
 
-	studentNumber := r.URL.Query().Get("stud-number")
+	studentNumber, _ := mux.Vars(r)["stud-number"]
 
 	allThings, err := th.manager.GetStudentThings(studentNumber)
+	resultThings := models.CreateThingFullInfoResponse(allThings)
 	switch err {
 	case nil:
-		bytes, _ := json.Marshal(&allThings)
+		bytes, _ := json.Marshal(&resultThings)
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(bytes)
 	case appErrors.StudentNotFoundErr:
@@ -80,9 +83,10 @@ func (th *ThingHandler) ViewFreeThings(w http.ResponseWriter, r *http.Request) {
 	var handleMessage string
 
 	allFreeThings, err := th.manager.GetFreeThings()
+	resultThings := models.CreateThingFullInfoResponse(allFreeThings)
 	switch err {
 	case nil:
-		bytes, _ := json.Marshal(&allFreeThings)
+		bytes, _ := json.Marshal(&resultThings)
 		_, _ = w.Write(bytes)
 	default:
 		statusCode = http.StatusInternalServerError
@@ -106,9 +110,10 @@ func (th *ThingHandler) ViewAllThings(w http.ResponseWriter, r *http.Request) {
 	var handleMessage string
 
 	allThings, err := th.manager.GetFullThingInfo()
+	resultThings := models.CreateThingFullInfoResponse(allThings)
 	switch err {
 	case nil:
-		bytes, _ := json.Marshal(&allThings)
+		bytes, _ := json.Marshal(&resultThings)
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(bytes)
 	default:
@@ -137,9 +142,6 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 	var handleMessage string
 	var err error
 
-	defer th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
-
 	var params models.TransferThingRequestMessage
 
 	body, readBodyErr := io.ReadAll(r.Body)
@@ -148,6 +150,8 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
+		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
@@ -156,16 +160,21 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
+		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
-	markNumber, getMarkNumberErr := utils.GetIntParamByKey(r, "mark-number")
+	markNumberString, _ := mux.Vars(r)["mark-number"]
 
-	if getMarkNumberErr != nil {
-		err = getMarkNumberErr
+	markNumber, atoiErr := strconv.Atoi(markNumberString)
+	if atoiErr != nil {
+		err = atoiErr
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.MustBeIntErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
+		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
@@ -192,6 +201,8 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		handleMessage = objects.InternalServerErrorString
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
+	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+		r.Method, r.URL.Path, statusCode, handleMessage, err)
 }
 
 // AddNewThing
@@ -209,9 +220,6 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 	var handleMessage string
 	var err error
 
-	defer th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
-
 	var params models.AddNewThingRequestMessage
 
 	body, readBodyErr := io.ReadAll(r.Body)
@@ -220,6 +228,8 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
+		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
@@ -228,6 +238,8 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
+		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+			r.Method, r.URL.Path, statusCode, handleMessage, err)
 		return
 	}
 
@@ -251,4 +263,6 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
+	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
+		r.Method, r.URL.Path, statusCode, handleMessage, err)
 }

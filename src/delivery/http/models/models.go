@@ -1,6 +1,9 @@
 package models
 
-import "src/objects"
+import (
+	"src/logic/managers/models"
+	"src/objects"
+)
 
 type ShortResponseMessage struct {
 	Comment string `json:"comment"`
@@ -43,4 +46,20 @@ type SettleInRoomRequestMessage struct {
 
 type ResponseWithJWTMessage struct {
 	Token string `json:"token"`
+}
+
+type ThingFullInfoResponse struct {
+	Thing objects.ThingResponseDTO `json:"thing"`
+	Room  objects.RoomResponseDTO  `json:"room"`
+}
+
+func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoResponse {
+	result := make([]ThingFullInfoResponse, objects.Empty)
+	for _, thing := range things {
+		result = append(result, ThingFullInfoResponse{
+			Thing: objects.CreateThingResponse(thing.Thing),
+			Room:  objects.CreateRoomResponseDTO(thing.Room),
+		})
+	}
+	return result
 }

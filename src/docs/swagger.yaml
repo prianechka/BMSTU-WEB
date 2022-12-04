@@ -26,6 +26,11 @@ definitions:
       newGroup:
         type: string
     type: object
+  models.SettleInRoomRequestMessage:
+    properties:
+      roomID:
+        type: integer
+    type: object
   models.ShortResponseMessage:
     properties:
       comment:
@@ -95,6 +100,13 @@ definitions:
       thingType:
         type: string
     type: object
+  objects.ThingResponseDTO:
+    properties:
+      mark-number:
+        type: integer
+      thing-type:
+        type: string
+    type: object
 host: localhost:8082
 info:
   contact: {}
@@ -103,6 +115,21 @@ info:
   title: BMSTU-WEB API
   version: "1.0"
 paths:
+  /api/v1/rooms/:
+    get:
+      description: View full information about rooms in dormitory.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/objects.ThingResponseDTO'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      summary: Get all rooms in dormitory
   /api/v1/students/:
     get:
       description: View full information about students have lived in dormitory.
@@ -228,7 +255,7 @@ paths:
         name: room-id
         required: true
         schema:
-          type: integer
+          $ref: '#/definitions/models.SettleInRoomRequestMessage'
       produces:
       - application/json
       responses:
@@ -282,7 +309,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
       summary: Get student things
-  /api/v1/students/{stud-number}/things/{thing-id}/:
+  /api/v1/students/{stud-number}/things/{mark-number}/:
     delete:
       description: Return thing from student without changing thing location.
       parameters:

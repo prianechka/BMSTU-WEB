@@ -12,6 +12,7 @@ import (
 	"src/db/thingRepo"
 	"src/db/userRepo"
 	"src/delivery/http/authHandler"
+	"src/delivery/http/roomHandler"
 	"src/delivery/http/studentHandler"
 	"src/delivery/http/thingHandler"
 	"src/logic/controllers/roomController"
@@ -20,6 +21,7 @@ import (
 	"src/logic/controllers/userController"
 	"src/logic/managers/appManager"
 	"src/logic/managers/authManager"
+	"src/logic/managers/roomManager"
 	"src/logic/managers/studentManager"
 	"src/logic/managers/thingManager"
 	utils "src/utils/connection"
@@ -54,6 +56,7 @@ func (s *Server) Start() error {
 	ThingController := thingController.ThingController{Repo: &thingRepository}
 	UserController := userController.UserController{Repo: &userRepository}
 
+	RoomManager := roomManager.CreateNewRoomManager(RoomController)
 	StudentManager := studentManager.CreateNewStudentManager(RoomController, StudentController, UserController, ThingController)
 	ThingManager := thingManager.CreateNewThingManager(RoomController, StudentController, ThingController)
 	AuthManager := authManager.CreateNewAuthManager(UserController)
@@ -62,6 +65,7 @@ func (s *Server) Start() error {
 	StudentHandler := studentHandler.CreateNewStudentHandler(s.logger, *StudentManager)
 	AuthHandler := authHandler.CreateNewAuthHandler(s.logger, *AuthManager, AppManager)
 	ThingHandler := thingHandler.CreateNewThingHandler(s.logger, *ThingManager)
+	RoomHandler := roomHandler.CreateNewRoomHandler(s.logger, *RoomManager)
 
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
@@ -80,6 +84,8 @@ func (s *Server) Start() error {
 	router.HandleFunc("/things/free/", ThingHandler.ViewFreeThings).Methods("GET")
 	router.HandleFunc("/things/{mark-number}/", ThingHandler.TransferThingBetweenRooms).Methods("PATCH")
 	router.HandleFunc("/auth", AuthHandler.Authorize).Methods("POST")
+
+	router.HandleFunc("/rooms/", RoomHandler.GetAllRooms).Methods("GET")
 
 	return http.ListenAndServe(s.config.PortToStart, router)
 }

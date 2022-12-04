@@ -13,6 +13,11 @@ type ThingDTO struct {
 	thingType  string
 }
 
+type ThingResponseDTO struct {
+	Marknumber int    `json:"mark-number"`
+	ThingType  string `json:"thing-type"`
+}
+
 func NewThingWithParams(id, markNumber int, thingType string, ownerID, roomID int) Thing {
 	return Thing{
 		id:         id,
@@ -68,4 +73,11 @@ func (t *ThingDTO) GetMarkNumber() int {
 
 func (t *ThingDTO) GetThingType() string {
 	return t.thingType
+}
+
+func CreateThingResponse(things Thing) ThingResponseDTO {
+	return ThingResponseDTO{
+		Marknumber: things.GetMarkNumber(),
+		ThingType:  things.GetThingType(),
+	}
 }

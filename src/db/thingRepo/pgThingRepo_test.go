@@ -91,7 +91,7 @@ func (*TestPgThingRepo) TestPgThingRepo_TransferThingRoom(t *testgroup.T) {
 	)
 	objectMother := mot.ThingRepoObjectMother{}
 	db, mock := objectMother.CreateRepo()
-	mock.ExpectExec("INSERT INTO").WithArgs(id, srcIDRoom, dstIDRoom).
+	mock.ExpectExec("INSERT INTO").WithArgs(srcIDRoom, dstIDRoom, id).
 		WillReturnError(nil).WillReturnResult(sqlmock.NewResult(InsertID, RowsAffected))
 
 	repo := PgThingRepo{Conn: db}

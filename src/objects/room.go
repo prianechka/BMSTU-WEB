@@ -6,6 +6,12 @@ type Room struct {
 	roomNumber int
 }
 
+type RoomResponseDTO struct {
+	RoomID     int    `json:"room-id"`
+	RoomType   string `json:"room-type"`
+	RoomNumber int    `json:"room-number"`
+}
+
 func NewRoomWithParams(id int, roomType string, roomNumber int) Room {
 	return Room{id, roomType, roomNumber}
 }
@@ -44,4 +50,24 @@ func (rd *RoomDTO) GetRoomType() string {
 
 func (rd *RoomDTO) GetRoomNumber() int {
 	return rd.roomNumber
+}
+
+func CreateRoomResponseDTO(arr Room) RoomResponseDTO {
+	return RoomResponseDTO{
+		RoomID:     arr.GetID(),
+		RoomType:   arr.GetRoomType(),
+		RoomNumber: arr.GetRoomNumber(),
+	}
+}
+
+func CreateRoomResponseArr(arr []Room) []RoomResponseDTO {
+	result := make([]RoomResponseDTO, Empty)
+	for _, room := range arr {
+		result = append(result, RoomResponseDTO{
+			RoomID:     room.GetID(),
+			RoomType:   room.GetRoomType(),
+			RoomNumber: room.GetRoomNumber(),
+		})
+	}
+	return result
 }

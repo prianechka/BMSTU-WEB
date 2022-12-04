@@ -9,6 +9,29 @@
     },
     "host": "localhost:8082",
     "paths": {
+        "/api/v1/rooms/": {
+            "get": {
+                "description": "View full information about rooms in dormitory.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all rooms in dormitory",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/objects.ThingResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/students/": {
             "get": {
                 "description": "View full information about students have lived in dormitory.",
@@ -150,7 +173,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/models.SettleInRoomRequestMessage"
                         }
                     }
                 ],
@@ -280,7 +303,7 @@
                 }
             }
         },
-        "/api/v1/students/{stud-number}/things/{thing-id}/": {
+        "/api/v1/students/{stud-number}/things/{mark-number}/": {
             "post": {
                 "description": "Give thing to student without changing its location.",
                 "produces": [
@@ -582,6 +605,14 @@
                 }
             }
         },
+        "models.SettleInRoomRequestMessage": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.ShortResponseMessage": {
             "type": "object",
             "properties": {
@@ -684,6 +715,17 @@
                     "type": "integer"
                 },
                 "thingType": {
+                    "type": "string"
+                }
+            }
+        },
+        "objects.ThingResponseDTO": {
+            "type": "object",
+            "properties": {
+                "mark-number": {
+                    "type": "integer"
+                },
+                "thing-type": {
                     "type": "string"
                 }
             }
