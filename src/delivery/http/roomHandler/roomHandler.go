@@ -7,6 +7,7 @@ import (
 	"src/logic/managers/roomManager"
 	"src/objects"
 	"src/utils"
+	"src/utils/logger"
 )
 
 type RoomHandler struct {
@@ -46,6 +47,5 @@ func (rh *RoomHandler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
 	}
-	rh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(rh.logger, r, statusCode, handleMessage, err)
 }

@@ -121,3 +121,12 @@ func CreateStudentResponse(students []Student) []StudentResponseDTO {
 	}
 	return newArray
 }
+
+func CreateStudentResponseSingle(student Student) StudentResponseDTO {
+	return StudentResponseDTO{
+		Name:          student.GetName(),
+		Surname:       student.GetSurname(),
+		StudentGroup:  student.GetStudentGroup(),
+		StudentNumber: student.GetStudentNumber(),
+	}
+}

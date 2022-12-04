@@ -72,6 +72,7 @@ func (s *Server) Start() error {
 	router.HandleFunc("/students/", StudentHandler.GetAllStudents).Methods("GET")
 	router.HandleFunc("/students/", StudentHandler.AddNewStudent).Methods("POST")
 	router.HandleFunc("/students/{stud-number}/", StudentHandler.ChangeStudentGroup).Methods("PUT")
+	router.HandleFunc("/students/{stud-number}/", StudentHandler.ViewStudentInfo).Methods("GET")
 	router.HandleFunc("/students/{stud-number}/rooms/", StudentHandler.SettleStudent).Methods("POST")
 	router.HandleFunc("/students/{stud-number}/rooms/", StudentHandler.EvicStudent).Methods("DELETE")
 

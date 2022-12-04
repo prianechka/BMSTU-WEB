@@ -53,6 +53,11 @@ type ThingFullInfoResponse struct {
 	Room  objects.RoomResponseDTO  `json:"room"`
 }
 
+type StudentFullInfoResponse struct {
+	Student objects.StudentResponseDTO `json:"student"`
+	Room    objects.RoomResponseDTO    `json:"room"`
+}
+
 func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoResponse {
 	result := make([]ThingFullInfoResponse, objects.Empty)
 	for _, thing := range things {
@@ -62,4 +67,11 @@ func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoR
 		})
 	}
 	return result
+}
+
+func CreateStudentFullInfoResponse(student models.StudentFullInfo) StudentFullInfoResponse {
+	return StudentFullInfoResponse{
+		Student: objects.CreateStudentResponseSingle(student.Student),
+		Room:    objects.CreateRoomResponseDTO(student.Room),
+	}
 }

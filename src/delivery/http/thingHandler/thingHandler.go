@@ -11,6 +11,7 @@ import (
 	"src/objects"
 	"src/utils"
 	appErrors "src/utils/error"
+	"src/utils/logger"
 	"strconv"
 )
 
@@ -67,8 +68,7 @@ func (th *ThingHandler) ViewStudentThings(w http.ResponseWriter, r *http.Request
 		utils.SendShortResponse(w, statusCode, handleMessage)
 	}
 
-	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
 
 // ViewFreeThings
@@ -93,9 +93,7 @@ func (th *ThingHandler) ViewFreeThings(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
 	}
-
-	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
 
 // ViewAllThings
@@ -121,8 +119,7 @@ func (th *ThingHandler) ViewAllThings(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
 	}
-	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
 
 // TransferThingBetweenRooms
@@ -150,8 +147,7 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
-		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -160,8 +156,7 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -173,8 +168,7 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.MustBeIntErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -201,8 +195,7 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 		handleMessage = objects.InternalServerErrorString
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
 
 // AddNewThing
@@ -228,8 +221,7 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
-		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -238,8 +230,7 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -263,6 +254,5 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	th.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }

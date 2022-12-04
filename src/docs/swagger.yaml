@@ -175,6 +175,34 @@ paths:
             $ref: '#/definitions/models.ShortResponseMessage'
       summary: Add new student to base
   /api/v1/students/{stud-number}/:
+    get:
+      description: View full information about student.
+      parameters:
+      - description: Student Number
+        in: path
+        name: stud-number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные о студенте успешно обновлены!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Студент не найден
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      summary: View information about student
     put:
       description: Change in database group information about student.
       parameters:

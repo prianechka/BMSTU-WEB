@@ -11,6 +11,7 @@ import (
 	"src/objects"
 	"src/utils"
 	appErrors "src/utils/error"
+	"src/utils/logger"
 	"strconv"
 )
 
@@ -39,11 +40,11 @@ func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request)
 	var err error
 
 	allStudents, err := sh.manager.ViewAllStudents()
-	resultStudents := objects.CreateStudentResponse(allStudents)
 	switch err {
 	case nil:
 		statusCode = http.StatusOK
 		handleMessage = objects.AddOK
+		resultStudents := objects.CreateStudentResponse(allStudents)
 		bytes, _ := json.Marshal(&resultStudents)
 		_, _ = w.Write(bytes)
 	default:
@@ -51,8 +52,7 @@ func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request)
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
 	}
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
 
 // ChangeStudentGroup
@@ -79,8 +79,7 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -89,8 +88,7 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -114,8 +112,7 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
 
 // SettleStudent
@@ -135,9 +132,6 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 	var handleMessage string
 	var err error
 
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
-
 	var params models.SettleInRoomRequestMessage
 
 	body, readBodyErr := io.ReadAll(r.Body)
@@ -146,8 +140,7 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -156,8 +149,7 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -187,8 +179,7 @@ func (sh *StudentHandler) SettleStudent(w http.ResponseWriter, r *http.Request) 
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
 
 // EvicStudent
@@ -229,8 +220,7 @@ func (sh *StudentHandler) EvicStudent(w http.ResponseWriter, r *http.Request) {
 		handleMessage = objects.InternalServerErrorString
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
 
 // GiveStudentThing
@@ -259,8 +249,7 @@ func (sh *StudentHandler) GiveStudentThing(w http.ResponseWriter, r *http.Reques
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.MustBeIntErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -316,8 +305,7 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.MustBeIntErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -344,8 +332,7 @@ func (sh *StudentHandler) ReturnThingFromStudent(w http.ResponseWriter, r *http.
 		handleMessage = objects.InternalServerErrorString
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
 
 // AddNewStudent
@@ -374,8 +361,7 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 		handleMessage = objects.InternalServerErrorString
 		err = readBodyErr
 		utils.SendResponseWithInternalErr(w)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -384,8 +370,7 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.WrongParamsErrorString
 		utils.SendShortResponse(w, statusCode, handleMessage)
-		sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-			r.Method, r.URL.Path, statusCode, handleMessage, err)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
 
@@ -414,6 +399,47 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 	}
 
 	utils.SendShortResponse(w, statusCode, handleMessage)
-	sh.logger.Infof("Request: method - %s,  url - %s, Result: status_code = %d, text = %s, err = %v",
-		r.Method, r.URL.Path, statusCode, handleMessage, err)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
+}
+
+// ViewStudentInfo
+// @Summary View information about student
+// @Description View full information about student.
+// @Produce json
+// @Param  stud-number path string true "Student Number"
+// @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Router /api/v1/students/{stud-number}/ [GET]
+func (sh *StudentHandler) ViewStudentInfo(w http.ResponseWriter, r *http.Request) {
+	var statusCode int
+	var handleMessage string
+	var err error
+
+	studentNumber, _ := mux.Vars(r)["stud-number"]
+
+	studentInfo, err := sh.manager.ViewStudent(studentNumber)
+
+	switch err {
+	case nil:
+		statusCode = http.StatusOK
+		handleMessage = objects.AddOK
+		resultStudents := models.CreateStudentFullInfoResponse(studentInfo)
+		bytes, _ := json.Marshal(&resultStudents)
+		_, _ = w.Write(bytes)
+		return
+	case appErrors.BadStudentParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.EmptyParamsErrorString
+	case appErrors.StudentNotFoundErr:
+		statusCode = http.StatusNotFound
+		handleMessage = objects.StudentNotFoundErrorString
+	default:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+	}
+
+	utils.SendShortResponse(w, statusCode, handleMessage)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
