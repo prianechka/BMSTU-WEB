@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"io"
-	"log"
 	"net/http"
 	"src/delivery/http/models"
 	models2 "src/logic/managers/models"
@@ -61,7 +60,6 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 		allThings, err = th.manager.GetFreeThings(page, size)
 	case OnStudent:
 		studentNumber := r.URL.Query().Get("stud-number")
-		log.Println(studentNumber)
 		allThings, err = th.manager.GetStudentThings(studentNumber, page, size)
 	default:
 		err = appErrors.WrongRequestParamsErr
@@ -72,6 +70,7 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 		resultThings := models.CreateThingFullInfoResponse(allThings)
 		bytes, _ := json.Marshal(&resultThings)
 		_, _ = w.Write(bytes)
+		return
 	case appErrors.BadThingParamsErr:
 		statusCode = http.StatusBadRequest
 		handleMessage = objects.EmptyParamsErrorString
@@ -91,7 +90,6 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
-		return
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
 	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)

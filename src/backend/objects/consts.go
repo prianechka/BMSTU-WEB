@@ -33,7 +33,7 @@ const (
 	ReturnThingErrorString         = "Вещь и так была не у студента!"
 	ThingNotFound                  = "Вещь не найдена!"
 	GiveThingErrorString           = "Вещь уже у другого студента!"
-	SettleStudentErrorString       = "Студент уже живёт в другой комнате!"
+	SettleStudentErrorString       = "Студент уже живёт в комнате!"
 	EvicStudentErrorString         = "Студент уже нигде не живёт!"
 	UserNotFoundErrorString        = "Пользователь не найден!"
 	UserAddErrorString             = "Пользователя не удалось добавить!"

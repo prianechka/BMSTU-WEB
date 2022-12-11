@@ -24,10 +24,17 @@ func (pg *PgStudentRepo) GetAllStudents(page, size int) ([]objects.Student, erro
 		studentID, accID, roomID                                 int
 		studentName, studentSurname, studentGroup, studentNumber string
 		err                                                      error
+		execErr                                                  error
+		rows                                                     *sql.Rows
 	)
-	sqlString := pgsql.PostgreSQLGetAllStudents{}.GetString()
-	rows, execError := pg.Conn.Query(sqlString, size, page*size)
-	if execError == nil {
+	if size == objects.Null {
+		sqlString := pgsql.PostgreSQLGetAllStudents{}.GetEmptyString()
+		rows, execErr = pg.Conn.Query(sqlString)
+	} else {
+		sqlString := pgsql.PostgreSQLGetAllStudents{}.GetWithParamsString()
+		rows, execErr = pg.Conn.Query(sqlString, size, page*size)
+	}
+	if execErr == nil {
 		for rows.Next() {
 			scanErr := rows.Scan(&studentID, &accID, &studentName, &studentSurname, &studentGroup, &studentNumber, &roomID)
 			if scanErr == nil {
@@ -39,7 +46,7 @@ func (pg *PgStudentRepo) GetAllStudents(page, size int) ([]objects.Student, erro
 			}
 		}
 	} else {
-		err = execError
+		err = execErr
 	}
 	return resultStudents, err
 }
@@ -102,13 +109,11 @@ func (pg *PgStudentRepo) GetStudentThings(id int, page, size int) ([]objects.Thi
 		thingID, markNumber, ownerID, roomID int
 		thingType                            string
 		err                                  error
-		sizeParam                            string
+		sizeParam                            = "ALL"
 	)
 	sqlString := pgsql.PostgreSQLGetStudentsThings{}.GetString()
 	if size != objects.Null {
 		sizeParam = strconv.Itoa(size)
-	} else {
-		sizeParam = "ALL"
 	}
 	rows, execError := pg.Conn.Query(sqlString, id, sizeParam, page*size)
 	if execError == nil {

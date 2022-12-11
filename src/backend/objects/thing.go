@@ -16,6 +16,7 @@ type ThingDTO struct {
 type ThingResponseDTO struct {
 	Marknumber int    `json:"mark-number"`
 	ThingType  string `json:"thing-type"`
+	RoomID     int    `json:"room-id"`
 }
 
 func NewThingWithParams(id, markNumber int, thingType string, ownerID, roomID int) Thing {
@@ -79,5 +80,6 @@ func CreateThingResponse(things Thing) ThingResponseDTO {
 	return ThingResponseDTO{
 		Marknumber: things.GetMarkNumber(),
 		ThingType:  things.GetThingType(),
+		RoomID:     things.GetRoomID(),
 	}
 }

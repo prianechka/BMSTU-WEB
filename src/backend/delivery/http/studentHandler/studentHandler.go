@@ -215,7 +215,7 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 // @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Вещь не найдена!"
 // @Failure 422 {object} models.ShortResponseMessage "Вещь уже у другого студента!" | "Вещь и так не у студента."
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
-// @Router /api/v1/student-things-act [POST]
+// @Router /api/v1/student-things-acts [POST]
 func (sh *StudentHandler) TransferThingFromToStudents(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string

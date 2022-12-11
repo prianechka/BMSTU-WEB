@@ -65,13 +65,7 @@ func (sm *StudentManager) ViewStudent(studentNumber string) (models.StudentFullI
 	if err == nil {
 		student, getStudentErr := sm.studentController.GetStudent(studID)
 		if getStudentErr == nil {
-			room, getRoomErr := sm.roomController.GetRoom(student.GetRoomID())
-			if getRoomErr == nil {
-				studentInfo.Student = student
-				studentInfo.Room = room
-			} else {
-				err = getRoomErr
-			}
+			studentInfo.Student = student
 		} else {
 			err = getStudentErr
 		}

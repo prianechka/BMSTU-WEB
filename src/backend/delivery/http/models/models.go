@@ -57,12 +57,10 @@ type ResponseWithJWTMessage struct {
 
 type ThingFullInfoResponse struct {
 	Thing objects.ThingResponseDTO `json:"thing"`
-	Room  objects.RoomResponseDTO  `json:"room"`
 }
 
 type StudentFullInfoResponse struct {
 	Student objects.StudentResponseDTO `json:"student"`
-	Room    objects.RoomResponseDTO    `json:"room"`
 }
 
 func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoResponse {
@@ -70,7 +68,6 @@ func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoR
 	for _, thing := range things {
 		result = append(result, ThingFullInfoResponse{
 			Thing: objects.CreateThingResponse(thing.Thing),
-			Room:  objects.CreateRoomResponseDTO(thing.Room),
 		})
 	}
 	return result
@@ -79,6 +76,5 @@ func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoR
 func CreateStudentFullInfoResponse(student models.StudentFullInfo) StudentFullInfoResponse {
 	return StudentFullInfoResponse{
 		Student: objects.CreateStudentResponseSingle(student.Student),
-		Room:    objects.CreateRoomResponseDTO(student.Room),
 	}
 }

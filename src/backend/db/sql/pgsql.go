@@ -43,13 +43,20 @@ func (pg PostgreSQLGetStudentID) GetString() string {
 
 func (pg PostgreSQLGetStudentsThings) GetString() string {
 	return "SELECT T.thingid, T.marknumber, T.thingtype, PPO.FindStudent(T.thingId), " +
-		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = $1 LIMIT $2 OFFSET $3;"
+		"PPO.FindRoom(T.thingid) FROM PPO.Thing as T WHERE PPO.FindStudent(T.ThingID) = $1 ORDER BY T.thingid LIMIT $2 OFFSET $3;"
 }
-func (pg PostgreSQLGetAllStudents) GetString() string {
+func (pg PostgreSQLGetAllStudents) GetWithParamsString() string {
 	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
 		"S.studentgroup, S.studentnumber, " +
 		"PPO.FindStudentRoom(S.studentid) " +
-		"FROM PPO.Student as S LIMIT $1 OFFSET $2;"
+		"FROM PPO.Student as S ORDER BY S.studentid LIMIT $1 OFFSET $2;"
+}
+
+func (pg PostgreSQLGetAllStudents) GetEmptyString() string {
+	return "SELECT S.studentid, S.webaccid, S.studentname, S.studentsurname, " +
+		"S.studentgroup, S.studentnumber, " +
+		"PPO.FindStudentRoom(S.studentid) " +
+		"FROM PPO.Student as S;"
 }
 
 func (pg PostgreSQLAddStudent) GetString() string {
@@ -97,7 +104,7 @@ func (pg PostgreSQLAddThing) GetString() string {
 
 func (pg PostgreSQLGetThings) GetString() string {
 	return fmt.Sprintf("SELECT T.thingid, T.marknumber, T.thingtype, " +
-		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T LIMIT $1 OFFSET $2;")
+		"PPO.FindStudent(T.thingId), PPO.FindRoom(T.thingid) FROM PPO.Thing as T ORDER BY T.thingid LIMIT $1 OFFSET $2;")
 }
 
 func (pg PostgreSQLGetThing) GetString() string {

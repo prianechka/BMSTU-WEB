@@ -9,18 +9,42 @@
     },
     "host": "localhost:8082",
     "paths": {
-        "/api/v1/rooms/": {
+        "/api/v1/login": {
             "get": {
-                "description": "View full information about rooms in dormitory.",
+                "description": "Try to authorize in system. JWT-Token send with success",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get all rooms in dormitory",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Try to authorize in system",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Student Number",
+                        "name": "stud-number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/objects.ThingResponseDTO"
+                            "$ref": "#/definitions/models.ResponseWithJWTMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "Пароль введен неверно!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
                     "500": {
@@ -32,18 +56,229 @@
                 }
             }
         },
-        "/api/v1/students/": {
+        "/api/v1/rooms": {
             "get": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "View full information about rooms in dormitory.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rooms"
+                ],
+                "summary": "Get all rooms in dormitory",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page param for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Size param for pagination",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/objects.ThingResponseDTO"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/student-live-acts": {
+            "post": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "Settle student in certain room.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "students"
+                ],
+                "summary": "Settle student in room",
+                "parameters": [
+                    {
+                        "description": "Параметры запроса. Если roomID == 0, то студент выселяется.",
+                        "name": "requestParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.StudentLiveActsRequestMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные о студенте успешно обновлены!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "400": {
+                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Студент не найден\" | \"Комната не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "422": {
+                        "description": "Студент уже живёт в другой комнате!\" | \"Студент уже нигде не живёт!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/student-things-acts": {
+            "post": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "Give thing to student without changing its location.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "students"
+                ],
+                "summary": "Give thing to student",
+                "parameters": [
+                    {
+                        "description": "Параметры запроса. У поля status 2 значения: give(выдать) и return (забрать)",
+                        "name": "TransferParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.StudentThingsActsRequestMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Вещь передана!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "400": {
+                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Студент не найден\" | \"Вещь не найдена!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "422": {
+                        "description": "Вещь уже у другого студента!\" | \"Вещь и так не у студента.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/students": {
+            "get": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "View full information about students have lived in dormitory.",
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "students"
+                ],
                 "summary": "Get all students in dormitory",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page param for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Size param for pagination",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/objects.StudentResponseDTO"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
                     "500": {
@@ -55,9 +290,17 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "Add new student in user and student base.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "students"
                 ],
                 "summary": "Add new student to base",
                 "parameters": [
@@ -73,13 +316,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Операция успешно проведена!",
                         "schema": {
-                            "$ref": "#/definitions/objects.Student"
+                            "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
                     "400": {
                         "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -91,7 +340,7 @@
                         }
                     },
                     "500": {
-                        "description": "internal server error",
+                        "description": "Проблемы на стороне сервера.",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -99,11 +348,19 @@
                 }
             }
         },
-        "/api/v1/students/{stud-number}/": {
+        "/api/v1/students/{stud-number}": {
             "get": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "View full information about student.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "students"
                 ],
                 "summary": "View information about student",
                 "parameters": [
@@ -128,6 +385,12 @@
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
                     "404": {
                         "description": "Студент не найден",
                         "schema": {
@@ -143,9 +406,17 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "Change in database group information about student.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "students"
                 ],
                 "summary": "Change student group for student",
                 "parameters": [
@@ -179,103 +450,8 @@
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
-                    "404": {
-                        "description": "Студент не найден",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/students/{stud-number}/rooms/": {
-            "post": {
-                "description": "Settle student in certain room.",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Settle student in room",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student Number",
-                        "name": "stud-number",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "New student room ID",
-                        "name": "room-id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.SettleInRoomRequestMessage"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные о студенте успешно обновлены!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "400": {
-                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "404": {
-                        "description": "Студент не найден\" | \"Комната не найдена",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "422": {
-                        "description": "Студент уже живёт в другой комнате!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Settle student in certain room.",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Evic student from current room",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student Number",
-                        "name": "stud-number",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные о студенте успешно обновлены!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "400": {
-                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -286,12 +462,6 @@
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
-                    "422": {
-                        "description": "Студент уже нигде не живёт!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
                     "500": {
                         "description": "Проблемы на стороне сервера.",
                         "schema": {
@@ -301,20 +471,45 @@
                 }
             }
         },
-        "/api/v1/students/{stud-number}/things/": {
+        "/api/v1/things": {
             "get": {
-                "description": "View full information about all current things of student.",
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "Get full information about different things.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get student things",
+                "tags": [
+                    "things"
+                ],
+                "summary": "Get things in dormitory with params",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Page param for pagination",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Size param for pagination",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
-                        "description": "Student Number",
+                        "description": "Status defines mode: all things, free things or student things. Possible values: all, free, student",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Student number for searching in Student mode",
                         "name": "stud-number",
-                        "in": "path",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -325,151 +520,25 @@
                         }
                     },
                     "400": {
-                        "description": "Параметр не должен быть пустым.",
+                        "description": "Параметр не должен быть пустой\" | \"Параметры указаны неверно",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
                     "404": {
-                        "description": "Студент не найден!",
+                        "description": "Студент не найден",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
                     "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/students/{stud-number}/things/{mark-number}/": {
-            "post": {
-                "description": "Give thing to student without changing its location.",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Give thing to student",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student Number",
-                        "name": "stud-number",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Mark number of thing",
-                        "name": "mark-number",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Вещь передана!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "400": {
-                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "404": {
-                        "description": "Студент не найден\" | \"Вещь не найдена!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "422": {
-                        "description": "Вещь уже у другого студента!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Return thing from student without changing thing location.",
-                "summary": "Return thing from student.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student Number",
-                        "name": "stud-number",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Mark number of thing",
-                        "name": "mark-number",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Вещь передана!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "400": {
-                        "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "404": {
-                        "description": "Студент не найден\" | \"Вещь не найдена!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "422": {
-                        "description": "Вещь и так была не у студента!",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/things/": {
-            "get": {
-                "description": "View full information about all things dormitory.",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get all things in dormitory",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ThingFullInfo"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
+                        "description": "Проблемы на стороне сервера",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -477,9 +546,17 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "Add new thing with params in base.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "things"
                 ],
                 "summary": "Add new thing",
                 "parameters": [
@@ -506,6 +583,12 @@
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
                     },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
                     "422": {
                         "description": "Вещь с таким же уникальным номером уже есть в базе",
                         "schema": {
@@ -521,34 +604,19 @@
                 }
             }
         },
-        "/api/v1/things/free/": {
-            "get": {
-                "description": "View full information about free things (things without owner) .",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get all free things in dormitory",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ThingFullInfo"
-                        }
-                    },
-                    "500": {
-                        "description": "Проблемы на стороне сервера.",
-                        "schema": {
-                            "$ref": "#/definitions/models.ShortResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/things/{mark-number}/": {
+        "/api/v1/things/{mark-number}": {
             "patch": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
                 "description": "Transfer thing to another room.",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "things"
                 ],
                 "summary": "Transfer thing to another room.",
                 "parameters": [
@@ -578,6 +646,12 @@
                     },
                     "400": {
                         "description": "Параметр не должен быть пустой\" | \"Параметр должен быть числом!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -647,11 +721,11 @@
                 }
             }
         },
-        "models.SettleInRoomRequestMessage": {
+        "models.ResponseWithJWTMessage": {
             "type": "object",
             "properties": {
-                "roomID": {
-                    "type": "integer"
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -663,13 +737,34 @@
                 }
             }
         },
+        "models.StudentLiveActsRequestMessage": {
+            "type": "object",
+            "properties": {
+                "roomID": {
+                    "type": "integer"
+                },
+                "student-number": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.StudentThingsActsRequestMessage": {
+            "type": "object",
+            "properties": {
+                "mark-number": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "student-number": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ThingFullInfo": {
             "type": "object",
             "properties": {
-                "room": {
-                    "type": "object",
-                    "$ref": "#/definitions/objects.Room"
-                },
                 "thing": {
                     "type": "object",
                     "$ref": "#/definitions/objects.Thing"
@@ -684,51 +779,14 @@
                 }
             }
         },
-        "objects.Room": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "roomNumber": {
-                    "type": "integer"
-                },
-                "roomType": {
-                    "type": "string"
-                }
-            }
-        },
-        "objects.Student": {
-            "type": "object",
-            "properties": {
-                "accID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "roomID": {
-                    "type": "integer"
-                },
-                "studentGroup": {
-                    "type": "string"
-                },
-                "studentNumber": {
-                    "type": "string"
-                },
-                "surname": {
-                    "type": "string"
-                }
-            }
-        },
         "objects.StudentResponseDTO": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "roomID": {
+                    "type": "integer"
                 },
                 "studentGroup": {
                     "type": "string"
@@ -765,6 +823,9 @@
             "type": "object",
             "properties": {
                 "mark-number": {
+                    "type": "integer"
+                },
+                "room-id": {
                     "type": "integer"
                 },
                 "thing-type": {

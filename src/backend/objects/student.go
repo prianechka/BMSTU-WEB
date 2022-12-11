@@ -22,6 +22,7 @@ type StudentResponseDTO struct {
 	Surname       string `json:"surname"`
 	StudentGroup  string `json:"studentGroup"`
 	StudentNumber string `json:"studentNumber"`
+	RoomID        int    `json:"roomID"`
 }
 
 func NewStudentWithParams(id, accID int, name, surname, studentGroup, studentNumber string, roomID int) Student {
@@ -117,6 +118,7 @@ func CreateStudentResponse(students []Student) []StudentResponseDTO {
 			Surname:       tmpStudent.GetSurname(),
 			StudentGroup:  tmpStudent.GetStudentGroup(),
 			StudentNumber: tmpStudent.GetStudentNumber(),
+			RoomID:        tmpStudent.GetRoomID(),
 		})
 	}
 	return newArray
@@ -128,5 +130,6 @@ func CreateStudentResponseSingle(student Student) StudentResponseDTO {
 		Surname:       student.GetSurname(),
 		StudentGroup:  student.GetStudentGroup(),
 		StudentNumber: student.GetStudentNumber(),
+		RoomID:        student.GetRoomID(),
 	}
 }

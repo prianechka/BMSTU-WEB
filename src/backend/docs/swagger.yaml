@@ -26,21 +26,34 @@ definitions:
       newGroup:
         type: string
     type: object
-  models.SettleInRoomRequestMessage:
+  models.ResponseWithJWTMessage:
     properties:
-      roomID:
-        type: integer
+      token:
+        type: string
     type: object
   models.ShortResponseMessage:
     properties:
       comment:
         type: string
     type: object
+  models.StudentLiveActsRequestMessage:
+    properties:
+      roomID:
+        type: integer
+      student-number:
+        type: string
+    type: object
+  models.StudentThingsActsRequestMessage:
+    properties:
+      mark-number:
+        type: integer
+      status:
+        type: string
+      student-number:
+        type: string
+    type: object
   models.ThingFullInfo:
     properties:
-      room:
-        $ref: '#/definitions/objects.Room'
-        type: object
       thing:
         $ref: '#/definitions/objects.Thing'
         type: object
@@ -50,36 +63,12 @@ definitions:
       room-id:
         type: integer
     type: object
-  objects.Room:
-    properties:
-      id:
-        type: integer
-      roomNumber:
-        type: integer
-      roomType:
-        type: string
-    type: object
-  objects.Student:
-    properties:
-      accID:
-        type: integer
-      id:
-        type: integer
-      name:
-        type: string
-      roomID:
-        type: integer
-      studentGroup:
-        type: string
-      studentNumber:
-        type: string
-      surname:
-        type: string
-    type: object
   objects.StudentResponseDTO:
     properties:
       name:
         type: string
+      roomID:
+        type: integer
       studentGroup:
         type: string
       studentNumber:
@@ -104,6 +93,8 @@ definitions:
     properties:
       mark-number:
         type: integer
+      room-id:
+        type: integer
       thing-type:
         type: string
     type: object
@@ -115,9 +106,49 @@ info:
   title: BMSTU-WEB API
   version: "1.0"
 paths:
-  /api/v1/rooms/:
+  /api/v1/login:
+    get:
+      description: Try to authorize in system. JWT-Token send with success
+      parameters:
+      - description: Student Number
+        in: path
+        name: stud-number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseWithJWTMessage'
+        "403":
+          description: Пароль введен неверно!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Пользователь не найден
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      summary: Try to authorize in system
+      tags:
+      - auth
+  /api/v1/rooms:
     get:
       description: View full information about rooms in dormitory.
+      parameters:
+      - description: Page param for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Size param for pagination
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -125,14 +156,117 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/objects.ThingResponseDTO'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "500":
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Get all rooms in dormitory
-  /api/v1/students/:
+      tags:
+      - rooms
+  /api/v1/student-live-acts:
+    post:
+      description: Settle student in certain room.
+      parameters:
+      - description: Параметры запроса. Если roomID == 0, то студент выселяется.
+        in: body
+        name: requestParams
+        required: true
+        schema:
+          $ref: '#/definitions/models.StudentLiveActsRequestMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные о студенте успешно обновлены!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Студент не найден" | "Комната не найдена
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "422":
+          description: Студент уже живёт в другой комнате!" | "Студент уже нигде не
+            живёт!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: Settle student in room
+      tags:
+      - students
+  /api/v1/student-things-acts:
+    post:
+      description: Give thing to student without changing its location.
+      parameters:
+      - description: 'Параметры запроса. У поля status 2 значения: give(выдать) и
+          return (забрать)'
+        in: body
+        name: TransferParams
+        required: true
+        schema:
+          $ref: '#/definitions/models.StudentThingsActsRequestMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Вещь передана!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Студент не найден" | "Вещь не найдена!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "422":
+          description: Вещь уже у другого студента!" | "Вещь и так не у студента.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: Give thing to student
+      tags:
+      - students
+  /api/v1/students:
     get:
       description: View full information about students have lived in dormitory.
+      parameters:
+      - description: Page param for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Size param for pagination
+        in: query
+        name: size
+        type: integer
       produces:
       - application/json
       responses:
@@ -140,11 +274,19 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/objects.StudentResponseDTO'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "500":
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Get all students in dormitory
+      tags:
+      - students
     post:
       description: Add new student in user and student base.
       parameters:
@@ -158,11 +300,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Операция успешно проведена!
           schema:
-            $ref: '#/definitions/objects.Student'
+            $ref: '#/definitions/models.ShortResponseMessage'
         "400":
           description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "422":
@@ -170,11 +316,15 @@ paths:
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "500":
-          description: internal server error
+          description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Add new student to base
-  /api/v1/students/{stud-number}/:
+      tags:
+      - students
+  /api/v1/students/{stud-number}:
     get:
       description: View full information about student.
       parameters:
@@ -194,6 +344,10 @@ paths:
           description: Параметр не должен быть пустой" | "Параметр должен быть числом!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "404":
           description: Студент не найден
           schema:
@@ -202,7 +356,11 @@ paths:
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: View information about student
+      tags:
+      - students
     put:
       description: Change in database group information about student.
       parameters:
@@ -228,6 +386,10 @@ paths:
           description: Параметр не должен быть пустой" | "Параметр должен быть числом!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "404":
           description: Студент не найден
           schema:
@@ -236,195 +398,60 @@ paths:
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Change student group for student
-  /api/v1/students/{stud-number}/rooms/:
-    delete:
-      description: Settle student in certain room.
+      tags:
+      - students
+  /api/v1/things:
+    get:
+      description: Get full information about different things.
       parameters:
-      - description: Student Number
-        in: path
+      - description: Page param for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Size param for pagination
+        in: query
+        name: size
+        type: integer
+      - description: 'Status defines mode: all things, free things or student things.
+          Possible values: all, free, student'
+        in: query
+        name: status
+        type: string
+      - description: Student number for searching in Student mode
+        in: query
         name: stud-number
-        required: true
         type: string
       produces:
       - application/json
       responses:
         "200":
-          description: Данные о студенте успешно обновлены!
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ThingFullInfo'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметры указаны неверно
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
-        "400":
-          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+        "403":
+          description: У вас нет достаточно прав!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "404":
           description: Студент не найден
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
-        "422":
-          description: Студент уже нигде не живёт!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
         "500":
-          description: Проблемы на стороне сервера.
+          description: Проблемы на стороне сервера
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Evic student from current room
-    post:
-      description: Settle student in certain room.
-      parameters:
-      - description: Student Number
-        in: path
-        name: stud-number
-        required: true
-        type: string
-      - description: New student room ID
-        in: body
-        name: room-id
-        required: true
-        schema:
-          $ref: '#/definitions/models.SettleInRoomRequestMessage'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Данные о студенте успешно обновлены!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "400":
-          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "404":
-          description: Студент не найден" | "Комната не найдена
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "422":
-          description: Студент уже живёт в другой комнате!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Settle student in room
-  /api/v1/students/{stud-number}/things/:
-    get:
-      description: View full information about all current things of student.
-      parameters:
-      - description: Student Number
-        in: path
-        name: stud-number
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ThingFullInfo'
-        "400":
-          description: Параметр не должен быть пустым.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "404":
-          description: Студент не найден!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Get student things
-  /api/v1/students/{stud-number}/things/{mark-number}/:
-    delete:
-      description: Return thing from student without changing thing location.
-      parameters:
-      - description: Student Number
-        in: path
-        name: stud-number
-        required: true
-        type: string
-      - description: Mark number of thing
-        in: path
-        name: mark-number
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Вещь передана!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "400":
-          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "404":
-          description: Студент не найден" | "Вещь не найдена!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "422":
-          description: Вещь и так была не у студента!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Return thing from student.
-    post:
-      description: Give thing to student without changing its location.
-      parameters:
-      - description: Student Number
-        in: path
-        name: stud-number
-        required: true
-        type: string
-      - description: Mark number of thing
-        in: path
-        name: mark-number
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Вещь передана!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "400":
-          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "404":
-          description: Студент не найден" | "Вещь не найдена!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "422":
-          description: Вещь уже у другого студента!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Give thing to student
-  /api/v1/things/:
-    get:
-      description: View full information about all things dormitory.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ThingFullInfo'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Get all things in dormitory
+      security:
+      - JWT-Token: []
+      summary: Get things in dormitory with params
+      tags:
+      - things
     post:
       description: Add new thing with params in base.
       parameters:
@@ -445,6 +472,10 @@ paths:
           description: Параметр не должен быть пустой" | "Параметр должен быть числом!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "422":
           description: Вещь с таким же уникальным номером уже есть в базе
           schema:
@@ -453,8 +484,12 @@ paths:
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Add new thing
-  /api/v1/things/{mark-number}/:
+      tags:
+      - things
+  /api/v1/things/{mark-number}:
     patch:
       description: Transfer thing to another room.
       parameters:
@@ -480,6 +515,10 @@ paths:
           description: Параметр не должен быть пустой" | "Параметр должен быть числом!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
         "404":
           description: Вещь не найдена" | "Комната не найдена
           schema:
@@ -492,21 +531,9 @@ paths:
           description: Проблемы на стороне сервера.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
       summary: Transfer thing to another room.
-  /api/v1/things/free/:
-    get:
-      description: View full information about free things (things without owner)
-        .
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ThingFullInfo'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      summary: Get all free things in dormitory
+      tags:
+      - things
 swagger: "2.0"

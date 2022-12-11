@@ -25,38 +25,25 @@ func CreateNewThingManager(rc roomController.RoomController, sc studentControlle
 }
 
 func (tm *ThingManager) GetFullThingInfo(page, size int) ([]models.ThingFullInfo, error) {
-	thingsFullInfo := make([]models.ThingFullInfo, 0)
+	thingsFullInfo := make([]models.ThingFullInfo, objects.Empty)
 	allThings, err := tm.thingController.GetThings(page, size)
 	if err == nil {
 		for _, tmpThing := range allThings {
-			roomID := tmpThing.GetRoomID()
-			tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
-			if getRoomErr == nil {
-				newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
-				thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
-			} else {
-				err = getRoomErr
-				break
-			}
+			newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing}
+			thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
 		}
 	}
 	return thingsFullInfo, err
 }
 
 func (tm *ThingManager) GetFreeThings(page, size int) ([]models.ThingFullInfo, error) {
-	thingsFullInfo := make([]models.ThingFullInfo, 0)
+	thingsFullInfo := make([]models.ThingFullInfo, objects.Empty)
 	allThings, err := tm.thingController.GetFreeThings(page, size)
 	if err == nil {
 		for _, tmpThing := range allThings {
-			roomID := tmpThing.GetRoomID()
-			tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
-			if getRoomErr == nil {
-				newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
-				thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
-			} else {
-				err = getRoomErr
-				break
-			}
+			newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing}
+			thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
+
 		}
 	}
 	return thingsFullInfo, err
@@ -67,21 +54,14 @@ func (tm *ThingManager) GetStudentThings(studentNumber string, page, size int) (
 		return nil, appErrors.BadStudentParamsErr
 	}
 
-	thingsFullInfo := make([]models.ThingFullInfo, 0)
+	thingsFullInfo := make([]models.ThingFullInfo, objects.Empty)
 	studentID, err := tm.studentController.GetStudentIDByNumber(studentNumber)
 	if err == nil {
 		allThings, getStudentThingsErr := tm.studentController.GetStudentThings(studentID, page, size)
 		if getStudentThingsErr == nil {
 			for _, tmpThing := range allThings {
-				roomID := tmpThing.GetRoomID()
-				tmpRoom, getRoomErr := tm.roomController.GetRoom(roomID)
-				if getRoomErr == nil {
-					newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing, Room: tmpRoom}
-					thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
-				} else {
-					err = getRoomErr
-					break
-				}
+				newRoomFullInfo := models.ThingFullInfo{Thing: tmpThing}
+				thingsFullInfo = append(thingsFullInfo, newRoomFullInfo)
 			}
 		} else {
 			err = getStudentThingsErr

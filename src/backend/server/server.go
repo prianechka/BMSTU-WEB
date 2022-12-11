@@ -74,9 +74,8 @@ func (s *Server) Start() error {
 	router.HandleFunc("/students", StudentHandler.AddNewStudent).Methods("POST")
 	router.HandleFunc("/students/{stud-number}", StudentHandler.ChangeStudentGroup).Methods("PUT")
 	router.HandleFunc("/students/{stud-number}", StudentHandler.ViewStudentInfo).Methods("GET")
-	router.HandleFunc("/students-live-acts", StudentHandler.TransferStudent).Methods("POST")
-
-	router.HandleFunc("/students-things-acts", StudentHandler.TransferThingFromToStudents).Methods("POST")
+	router.HandleFunc("/student-live-acts", StudentHandler.TransferStudent).Methods("POST")
+	router.HandleFunc("/student-things-acts", StudentHandler.TransferThingFromToStudents).Methods("POST")
 
 	router.HandleFunc("/things", ThingHandler.GetThings).Methods("GET")
 	router.HandleFunc("/things", ThingHandler.AddNewThing).Methods("POST")
