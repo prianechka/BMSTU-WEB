@@ -63,6 +63,11 @@ definitions:
         $ref: '#/definitions/objects.Thing'
         type: object
     type: object
+  models.ThingOwnerHistoryResponseMessage:
+    properties:
+      owner-student-number:
+        type: string
+    type: object
   models.TransferThingRequestMessage:
     properties:
       room-id:
@@ -338,6 +343,53 @@ paths:
       security:
       - JWT-Token: []
       summary: Action with things by students
+      tags:
+      - students
+  /api/v1/student-things-acts/{mark-number}:
+    get:
+      description: View history of thing owners
+      parameters:
+      - description: Маркировочный номер
+        in: path
+        name: mark-number
+        required: true
+        type: integer
+      - description: 'Параметр того, как выводить историю: текущего владельца(current)
+          или общую историю (all)'
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ThingOwnerHistoryResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Вещь не найдена
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "501":
+          description: Пока функционал на стадии реализации
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: View history of thing owners
       tags:
       - students
   /api/v1/students:

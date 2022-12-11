@@ -286,3 +286,66 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 	utils.SendShortResponse(w, statusCode, handleMessage)
 	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
+
+// ViewThingHistory
+// @Summary View history of thing owners
+// @Description View history of thing owners
+// @Tags students
+// @Security JWT-Token
+// @Produce json
+// @Param  mark-number path int true "Маркировочный номер"
+// @Param  status query string true "Параметр того, как выводить историю: текущего владельца(current) или общую историю (all)"
+// @Success 200 {object} models.ThingOwnerHistoryResponseMessage
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
+// @Failure 404 {object} models.ShortResponseMessage "Вещь не найдена"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Failure 501 {object} models.ShortResponseMessage "Пока функционал на стадии реализации"
+// @Router /api/v1/student-things-acts/{mark-number} [GET]
+func (th *ThingHandler) ViewThingHistory(w http.ResponseWriter, r *http.Request) {
+	var statusCode int
+	var handleMessage string
+	var err error
+	var studentNumber string
+
+	status := r.URL.Query().Get("status")
+	switch status {
+	case All:
+		err = appErrors.NotImplementedErr
+	case Current:
+		markNumber, getMarkNumberErr := utils.GetMarkNumberFromPath(r)
+		if getMarkNumberErr == nil {
+			studentNumber, err = th.manager.GetOwner(markNumber)
+		} else {
+			err = appErrors.WrongRequestParamsErr
+		}
+	default:
+		err = appErrors.WrongRequestParamsErr
+	}
+
+	switch err {
+	case nil:
+		result := models.ThingOwnerHistoryResponseMessage{OwnerStudentNumber: studentNumber}
+		bytes, _ := json.Marshal(&result)
+		_, _ = w.Write(bytes)
+		return
+	case appErrors.NotImplementedErr:
+		statusCode = http.StatusNotImplemented
+		handleMessage = objects.NotImplementedErrorString
+	case appErrors.WrongRequestParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.WrongParamsErrorString
+	case appErrors.ThingNotFoundErr:
+		statusCode = http.StatusNotFound
+		handleMessage = objects.StudentNotFoundErrorString
+	case appErrors.RoomNotFoundErr:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+	default:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+		utils.SendResponseWithInternalErr(w)
+	}
+	utils.SendShortResponse(w, statusCode, handleMessage)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
+}

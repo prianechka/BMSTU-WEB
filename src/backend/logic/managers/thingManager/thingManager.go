@@ -116,3 +116,26 @@ func (tm *ThingManager) TransferThing(markNumber int, roomID int) error {
 	}
 	return err
 }
+
+func (tm *ThingManager) GetOwner(markNumber int) (string, error) {
+	var result = objects.EmptyString
+	if markNumber <= objects.None {
+		return result, appErrors.BadThingParamsErr
+	}
+
+	thingID, err := tm.thingController.GetThingIDByMarkNumber(markNumber)
+	if err == nil {
+		ownerID, getOwnerErr := tm.thingController.GetCurrentOwner(thingID)
+		if getOwnerErr == nil {
+			student, getStudentErr := tm.studentController.GetStudent(ownerID)
+			if getStudentErr == nil {
+				result = student.GetStudentNumber()
+			} else {
+				err = getStudentErr
+			}
+		} else {
+			err = getOwnerErr
+		}
+	}
+	return result, err
+}

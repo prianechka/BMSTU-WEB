@@ -17,6 +17,10 @@ type StudentHistoryResponseMessage struct {
 	RoomID int `json:"room-id"`
 }
 
+type ThingOwnerHistoryResponseMessage struct {
+	OwnerStudentNumber string `json:"owner-student-number"`
+}
+
 type AuthRequestMessage struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
