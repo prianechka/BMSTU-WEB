@@ -171,7 +171,7 @@ paths:
       - rooms
   /api/v1/student-live-acts:
     post:
-      description: Settle student in certain room.
+      description: Settle/evic student in certain room.
       parameters:
       - description: Параметры запроса. Если roomID == 0, то студент выселяется.
         in: body
@@ -209,7 +209,7 @@ paths:
             $ref: '#/definitions/models.ShortResponseMessage'
       security:
       - JWT-Token: []
-      summary: Settle student in room
+      summary: Settle/evic student in dormitory
       tags:
       - students
   /api/v1/student-things-acts:
@@ -252,7 +252,7 @@ paths:
             $ref: '#/definitions/models.ShortResponseMessage'
       security:
       - JWT-Token: []
-      summary: Give thing to student
+      summary: Action with things by students
       tags:
       - students
   /api/v1/students:

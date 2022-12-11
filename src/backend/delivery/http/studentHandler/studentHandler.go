@@ -125,8 +125,8 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 }
 
 // TransferStudent
-// @Summary Settle student in room
-// @Description Settle student in certain room.
+// @Summary Settle/evic student in dormitory
+// @Description Settle/evic student in certain room.
 // @Produce json
 // @Tags students
 // @Security JWT-Token
@@ -203,7 +203,7 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 }
 
 // TransferThingFromToStudents
-// @Summary Give thing to student
+// @Summary Action with things by students
 // @Description Give thing to student without changing its location.
 // @Produce json
 // @Tags students

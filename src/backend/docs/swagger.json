@@ -114,14 +114,14 @@
                         "JWT-Token": []
                     }
                 ],
-                "description": "Settle student in certain room.",
+                "description": "Settle/evic student in certain room.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "students"
                 ],
-                "summary": "Settle student in room",
+                "summary": "Settle/evic student in dormitory",
                 "parameters": [
                     {
                         "description": "Параметры запроса. Если roomID == 0, то студент выселяется.",
@@ -187,7 +187,7 @@
                 "tags": [
                     "students"
                 ],
-                "summary": "Give thing to student",
+                "summary": "Action with things by students",
                 "parameters": [
                     {
                         "description": "Параметры запроса. У поля status 2 значения: give(выдать) и return (забрать)",
