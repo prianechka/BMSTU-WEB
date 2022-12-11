@@ -37,6 +37,7 @@ func CreateNewThingHandler(logger *logrus.Entry, man thingManager.ThingManager) 
 // @Param stud-number query string false "Student number for searching in Student mode"
 // @Tags things
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Success 200 {object} models.ThingFullInfo
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметры указаны неверно"
@@ -100,6 +101,7 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 // @Description Get full information about thing by mark-number.
 // @Tags things
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param  mark-number path string true "Mark number for thing"
 // @Success 200 {object} models.ThingFullInfo
@@ -152,6 +154,7 @@ func (th *ThingHandler) GetThing(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Tags things
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Param  mark-number path int true "Thing mark number"
 // @Param  room-id body  models.TransferThingRequestMessage true "Dst room in which thing will be transferred."
 // @Success 200 {object} models.ShortResponseMessage "Вещь успешно перемещена!"
@@ -231,6 +234,7 @@ func (th *ThingHandler) TransferThingBetweenRooms(w http.ResponseWriter, r *http
 // @Produce json
 // @Tags things
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Param params body models.AddNewThingRequestMessage true "body for buy service"
 // @Success 200 {object} models.ShortResponseMessage "Операция успешно проведена!"
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
@@ -292,6 +296,7 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 // @Description View history of thing owners
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param  mark-number path int true "Маркировочный номер"
 // @Param  status query string true "Параметр того, как выводить историю: текущего владельца(current) или общую историю (all)"

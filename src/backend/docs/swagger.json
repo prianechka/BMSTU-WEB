@@ -176,6 +176,13 @@
                 "summary": "Settle/evic student in dormitory",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Параметры запроса. Если roomID == 0, то студент выселяется.",
                         "name": "requestParams",
                         "in": "body",
@@ -241,6 +248,13 @@
                 ],
                 "summary": "View history of student living",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Студенческий билет",
@@ -313,6 +327,13 @@
                 "summary": "Action with things by students",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Параметры запроса. У поля status 2 значения: give(выдать) и return (забрать)",
                         "name": "TransferParams",
                         "in": "body",
@@ -378,6 +399,13 @@
                 ],
                 "summary": "View history of thing owners",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Маркировочный номер",
@@ -450,6 +478,13 @@
                 "summary": "Get all students in dormitory",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Page param for pagination",
                         "name": "page",
@@ -506,6 +541,13 @@
                         "schema": {
                             "$ref": "#/definitions/models.AddNewStudentRequestMessage"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -558,6 +600,13 @@
                 ],
                 "summary": "View information about student",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Student Number",
@@ -614,6 +663,13 @@
                 ],
                 "summary": "Change student group for student",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Student Number",
@@ -704,6 +760,13 @@
                         "description": "Student number for searching in Student mode",
                         "name": "stud-number",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -754,6 +817,13 @@
                 ],
                 "summary": "Add new thing",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "body for buy service",
                         "name": "params",
@@ -816,6 +886,13 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Mark number for thing",
                         "name": "mark-number",
                         "in": "path",
@@ -870,6 +947,13 @@
                 ],
                 "summary": "Transfer thing to another room.",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Thing mark number",

@@ -216,6 +216,11 @@ paths:
     post:
       description: Settle/evic student in certain room.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Параметры запроса. Если roomID == 0, то студент выселяется.
         in: body
         name: requestParams
@@ -259,6 +264,11 @@ paths:
     get:
       description: View history of student living.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Студенческий билет
         in: path
         name: stud-number
@@ -306,6 +316,11 @@ paths:
     post:
       description: Give thing to student without changing its location.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: 'Параметры запроса. У поля status 2 значения: give(выдать) и
           return (забрать)'
         in: body
@@ -349,6 +364,11 @@ paths:
     get:
       description: View history of thing owners
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Маркировочный номер
         in: path
         name: mark-number
@@ -396,6 +416,11 @@ paths:
     get:
       description: View full information about students have lived in dormitory.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Page param for pagination
         in: query
         name: page
@@ -433,6 +458,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.AddNewStudentRequestMessage'
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -465,6 +495,11 @@ paths:
     get:
       description: View full information about student.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Student Number
         in: path
         name: stud-number
@@ -501,6 +536,11 @@ paths:
     put:
       description: Change in database group information about student.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Student Number
         in: path
         name: stud-number
@@ -561,6 +601,11 @@ paths:
         in: query
         name: stud-number
         type: string
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -592,6 +637,11 @@ paths:
     post:
       description: Add new thing with params in base.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: body for buy service
         in: body
         name: params
@@ -630,6 +680,11 @@ paths:
     get:
       description: Get full information about thing by mark-number.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Mark number for thing
         in: path
         name: mark-number
@@ -666,6 +721,11 @@ paths:
     patch:
       description: Transfer thing to another room.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Thing mark number
         in: path
         name: mark-number

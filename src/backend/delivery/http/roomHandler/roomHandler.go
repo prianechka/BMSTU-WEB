@@ -30,6 +30,7 @@ func CreateNewRoomHandler(logger *logrus.Entry, manager roomManager.RoomManager)
 // @Description View full information about rooms in dormitory.
 // @Tags rooms
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param page query int false "Page param for pagination"
 // @Param size query int false "Size param for pagination"
@@ -65,6 +66,7 @@ func (rh *RoomHandler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 // @Description View information about room in dormitory.
 // @Tags rooms
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param  room-id path int true "Room id"
 // @Success 200 {object} objects.RoomResponseDTO

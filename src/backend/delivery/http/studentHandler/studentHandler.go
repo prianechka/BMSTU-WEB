@@ -31,6 +31,7 @@ func CreateNewStudentHandler(logger *logrus.Entry, manager studentManager.Studen
 // @Description View full information about students have lived in dormitory.
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param page query int false "Page param for pagination"
 // @Param size query int false "Size param for pagination"
@@ -67,6 +68,7 @@ func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Param  stud-number path string true "Student Number"
 // @Param  new-group  body models.ChangeStudentGroupRequestMessage true "New student group"
 // @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
@@ -130,6 +132,7 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Param  requestParams body models.StudentLiveActsRequestMessage true "Параметры запроса. Если roomID == 0, то студент выселяется."
 // @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
@@ -208,6 +211,7 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 // @Produce json
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Param TransferParams body models.StudentThingsActsRequestMessage true "Параметры запроса. У поля status 2 значения: give(выдать) и return (забрать)"
 // @Success 200 {object} models.ShortResponseMessage "Вещь передана!"
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
@@ -293,6 +297,7 @@ func (sh *StudentHandler) TransferThingFromToStudents(w http.ResponseWriter, r *
 // @Failure 422 {object} models.ShortResponseMessage "Пользователь с таким логином уже существует!"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Router /api/v1/students [POST]
 func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) {
@@ -354,6 +359,7 @@ func (sh *StudentHandler) AddNewStudent(w http.ResponseWriter, r *http.Request) 
 // @Description View full information about student.
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param  stud-number path string true "Student Number"
 // @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
@@ -399,6 +405,7 @@ func (sh *StudentHandler) ViewStudentInfo(w http.ResponseWriter, r *http.Request
 // @Description View history of student living.
 // @Tags students
 // @Security JWT-Token
+// @param access-token header string true "JWT Token"
 // @Produce json
 // @Param  stud-number path string true "Студенческий билет"
 // @Param  status query string true "Параметр того, как выводить историю: текущую комнату(current) или общую историю перемещений (all)"

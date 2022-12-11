@@ -37,6 +37,8 @@ func CreateServer(config *configs.ServerConfig, logger *logrus.Entry) *Server {
 	return &Server{config: config, logger: logger}
 }
 
+// Start
+// @securityDefinitions.apikey JWT-Token
 func (s *Server) Start() error {
 	r := mux.NewRouter()
 	router := r.PathPrefix("/api/v1/").Subrouter()
