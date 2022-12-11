@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
-	"src/configs"
+	"src/configs/backend"
 	"src/db/roomRepo"
 	"src/db/studentRepo"
 	"src/db/thingRepo"
