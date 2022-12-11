@@ -73,6 +73,10 @@ func CreateThingFullInfoResponse(things []models.ThingFullInfo) []ThingFullInfoR
 	return result
 }
 
+func CreateThingInfoResponse(thing models.ThingFullInfo) ThingFullInfoResponse {
+	return ThingFullInfoResponse{Thing: objects.CreateThingResponse(thing.Thing)}
+}
+
 func CreateStudentFullInfoResponse(student models.StudentFullInfo) StudentFullInfoResponse {
 	return StudentFullInfoResponse{
 		Student: objects.CreateStudentResponseSingle(student.Student),

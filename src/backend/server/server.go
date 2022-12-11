@@ -78,10 +78,12 @@ func (s *Server) Start() error {
 	router.HandleFunc("/student-things-acts", StudentHandler.TransferThingFromToStudents).Methods("POST")
 
 	router.HandleFunc("/things", ThingHandler.GetThings).Methods("GET")
+	router.HandleFunc("/things/{mark-number}", ThingHandler.GetThing).Methods("GET")
 	router.HandleFunc("/things", ThingHandler.AddNewThing).Methods("POST")
 	router.HandleFunc("/things/{mark-number}", ThingHandler.TransferThingBetweenRooms).Methods("PATCH")
 	router.HandleFunc("/login", AuthHandler.Authorize).Methods("POST")
 	router.HandleFunc("/rooms", RoomHandler.GetAllRooms).Methods("GET")
+	router.HandleFunc("/rooms/{room-id}", RoomHandler.GetRoom).Methods("GET")
 
 	accessRouter := middleware.CheckAccess(router)
 	upgradedRouter := middleware.Panic(accessRouter)

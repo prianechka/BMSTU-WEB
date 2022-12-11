@@ -95,6 +95,57 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
 }
 
+// GetThing
+// @Summary Get thing info
+// @Description Get full information about thing by mark-number.
+// @Tags things
+// @Security JWT-Token
+// @Produce json
+// @Param  mark-number path string true "Mark number for thing"
+// @Success 200 {object} models.ThingFullInfo
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметры указаны неверно"
+// @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
+// @Failure 404 {object} models.ShortResponseMessage "Вещь не найдена"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера"
+// @Router /api/v1/things/{mark-number} [GET]
+func (th *ThingHandler) GetThing(w http.ResponseWriter, r *http.Request) {
+	var statusCode int
+	var handleMessage string
+
+	markNumberString, _ := mux.Vars(r)["mark-number"]
+
+	markNumber, atoiErr := strconv.Atoi(markNumberString)
+	if atoiErr != nil {
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.MustBeIntErrorString
+		utils.SendShortResponse(w, statusCode, handleMessage)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, atoiErr)
+		return
+	}
+
+	thingInfo, err := th.manager.GetThingInfo(markNumber)
+
+	switch err {
+	case nil:
+		resultThings := models.CreateThingInfoResponse(thingInfo)
+		bytes, _ := json.Marshal(&resultThings)
+		_, _ = w.Write(bytes)
+		return
+	case appErrors.BadThingParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.EmptyParamsErrorString
+	case appErrors.ThingNotFoundErr:
+		statusCode = http.StatusNotFound
+		handleMessage = objects.ThingNotFound
+	default:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+		utils.SendResponseWithInternalErr(w)
+	}
+	utils.SendShortResponse(w, statusCode, handleMessage)
+	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
+}
+
 // TransferThingBetweenRooms
 // @Summary Transfer thing to another room.
 // @Description Transfer thing to another room.

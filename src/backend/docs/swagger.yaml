@@ -63,6 +63,15 @@ definitions:
       room-id:
         type: integer
     type: object
+  objects.RoomResponseDTO:
+    properties:
+      room-id:
+        type: integer
+      room-number:
+        type: integer
+      room-type:
+        type: string
+    type: object
   objects.StudentResponseDTO:
     properties:
       name:
@@ -87,15 +96,6 @@ definitions:
       roomID:
         type: integer
       thingType:
-        type: string
-    type: object
-  objects.ThingResponseDTO:
-    properties:
-      mark-number:
-        type: integer
-      room-id:
-        type: integer
-      thing-type:
         type: string
     type: object
 host: localhost:8082
@@ -155,7 +155,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/objects.ThingResponseDTO'
+            $ref: '#/definitions/objects.RoomResponseDTO'
         "403":
           description: У вас нет достаточно прав!
           schema:
@@ -167,6 +167,39 @@ paths:
       security:
       - JWT-Token: []
       summary: Get all rooms in dormitory
+      tags:
+      - rooms
+  /api/v1/rooms/{room-id}:
+    get:
+      description: View information about room in dormitory.
+      parameters:
+      - description: Room id
+        in: path
+        name: room-id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/objects.RoomResponseDTO'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Комната не найдена!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: Get room information
       tags:
       - rooms
   /api/v1/student-live-acts:
@@ -490,6 +523,42 @@ paths:
       tags:
       - things
   /api/v1/things/{mark-number}:
+    get:
+      description: Get full information about thing by mark-number.
+      parameters:
+      - description: Mark number for thing
+        in: path
+        name: mark-number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ThingFullInfo'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметры указаны неверно
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Вещь не найдена
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: Get thing info
+      tags:
+      - things
     patch:
       description: Transfer thing to another room.
       parameters:

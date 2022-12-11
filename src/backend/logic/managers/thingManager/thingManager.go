@@ -36,6 +36,19 @@ func (tm *ThingManager) GetFullThingInfo(page, size int) ([]models.ThingFullInfo
 	return thingsFullInfo, err
 }
 
+func (tm *ThingManager) GetThingInfo(markNumber int) (result models.ThingFullInfo, err error) {
+	thingID, err := tm.thingController.GetThingIDByMarkNumber(markNumber)
+	if err == nil {
+		thing, getThingErr := tm.thingController.GetThing(thingID)
+		if getThingErr == nil {
+			result.Thing = thing
+		} else {
+			err = getThingErr
+		}
+	}
+	return result, err
+}
+
 func (tm *ThingManager) GetFreeThings(page, size int) ([]models.ThingFullInfo, error) {
 	thingsFullInfo := make([]models.ThingFullInfo, objects.Empty)
 	allThings, err := tm.thingController.GetFreeThings(page, size)

@@ -89,11 +89,63 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/objects.ThingResponseDTO"
+                            "$ref": "#/definitions/objects.RoomResponseDTO"
                         }
                     },
                     "403": {
                         "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера.",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/rooms/{room-id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "View information about room in dormitory.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rooms"
+                ],
+                "summary": "Get room information",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Room id",
+                        "name": "room-id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/objects.RoomResponseDTO"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Комната не найдена!",
                         "schema": {
                             "$ref": "#/definitions/models.ShortResponseMessage"
                         }
@@ -605,6 +657,62 @@
             }
         },
         "/api/v1/things/{mark-number}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT-Token": []
+                    }
+                ],
+                "description": "Get full information about thing by mark-number.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "things"
+                ],
+                "summary": "Get thing info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Mark number for thing",
+                        "name": "mark-number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ThingFullInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Параметр не должен быть пустой\" | \"Параметры указаны неверно",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "403": {
+                        "description": "У вас нет достаточно прав!",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "404": {
+                        "description": "Вещь не найдена",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Проблемы на стороне сервера",
+                        "schema": {
+                            "$ref": "#/definitions/models.ShortResponseMessage"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -779,6 +887,20 @@
                 }
             }
         },
+        "objects.RoomResponseDTO": {
+            "type": "object",
+            "properties": {
+                "room-id": {
+                    "type": "integer"
+                },
+                "room-number": {
+                    "type": "integer"
+                },
+                "room-type": {
+                    "type": "string"
+                }
+            }
+        },
         "objects.StudentResponseDTO": {
             "type": "object",
             "properties": {
@@ -815,20 +937,6 @@
                     "type": "integer"
                 },
                 "thingType": {
-                    "type": "string"
-                }
-            }
-        },
-        "objects.ThingResponseDTO": {
-            "type": "object",
-            "properties": {
-                "mark-number": {
-                    "type": "integer"
-                },
-                "room-id": {
-                    "type": "integer"
-                },
-                "thing-type": {
                     "type": "string"
                 }
             }

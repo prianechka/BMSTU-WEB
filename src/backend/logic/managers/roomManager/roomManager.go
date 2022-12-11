@@ -17,3 +17,7 @@ func CreateNewRoomManager(rc roomController.RoomController) *RoomManager {
 func (rm *RoomManager) GetAllRooms(page, size int) ([]objects.Room, error) {
 	return rm.roomController.GetRooms(page, size)
 }
+
+func (rm *RoomManager) GetRoom(id int) (objects.Room, error) {
+	return rm.roomController.GetRoom(id)
+}

@@ -60,6 +60,14 @@ func CreateRoomResponseDTO(arr Room) RoomResponseDTO {
 	}
 }
 
+func CreateRoomResponse(room Room) RoomResponseDTO {
+	return RoomResponseDTO{
+		RoomID:     room.GetID(),
+		RoomType:   room.GetRoomType(),
+		RoomNumber: room.GetRoomNumber(),
+	}
+}
+
 func CreateRoomResponseArr(arr []Room) []RoomResponseDTO {
 	result := make([]RoomResponseDTO, Empty)
 	for _, room := range arr {
