@@ -14,7 +14,7 @@ var configPath = os.Getenv("CONFIG_FILE")
 // @title           BMSTU-WEB API
 // @version         1.0
 // @description     Server for bmstu dormitory app.
-// @host      localhost:8082
+// @host      localhost:9090
 func main() {
 	config := configs.CreateConfigForServer()
 	_, err := toml.DecodeFile(configPath, &config)

@@ -7,7 +7,7 @@
         "license": {},
         "version": "1.0"
     },
-    "host": "localhost:8082",
+    "host": "localhost:9090",
     "paths": {
         "/api/v1/login": {
             "get": {

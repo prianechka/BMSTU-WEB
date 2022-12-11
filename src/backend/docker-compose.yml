@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  app:
+  app1: &app1
     image: app
     links:
       - "postgres:postgres"
@@ -9,8 +9,23 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - CONFIG_FILE=./configs/backend/config.toml
-
+      - CONFIG_FILE=./configs/backend/config_1.toml
+  app2:
+    <<: *app1
+    ports:
+      - "8083:8082"
+    environment:
+      - CONFIG_FILE=./configs/backend/config_2.toml
+  app3:
+    <<: *app1
+    ports:
+      -  "8084:8082"
+    environment:
+      - CONFIG_FILE=./configs/backend/config_3.toml
+  mirror:
+    <<: *app1
+    ports:
+      - "8086:8082"
   postgres:
     restart: always
     image: "postgres:alpine"
@@ -28,10 +43,16 @@ services:
     ports:
       - "9090:9090"
     links:
-      - "app:app"
+      - "app1:app1"
+      - "app2:app2"
+      - "app3:app3"
+      - "mirror:app_mirror"
     volumes:
       - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./static:/usr/share/nginx/static
     depends_on:
-      - app
+      - app1
+      - app2
+      - app3
+      - mirror
 

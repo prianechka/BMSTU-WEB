@@ -108,7 +108,7 @@ definitions:
       thingType:
         type: string
     type: object
-host: localhost:8082
+host: localhost:9090
 info:
   contact: {}
   description: Server for bmstu dormitory app.

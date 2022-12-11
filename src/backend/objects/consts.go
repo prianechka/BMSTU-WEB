@@ -35,6 +35,7 @@ const (
 	GiveThingErrorString           = "Вещь уже у другого студента!"
 	SettleStudentErrorString       = "Студент уже живёт в комнате!"
 	NotImplementedErrorString      = "Пока функционал на стадии реализации."
+	ForbiddenErrorString           = "У вас недостаточно прав для выполнения этого запроса!"
 	EvicStudentErrorString         = "Студент уже нигде не живёт!"
 	UserNotFoundErrorString        = "Пользователь не найден!"
 	UserAddErrorString             = "Пользователя не удалось добавить!"
