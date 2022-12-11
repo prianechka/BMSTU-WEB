@@ -12,6 +12,8 @@ CREATE TABLE users
 INSERT INTO users(userlogin, userpassword, userrole) VALUES ('commend', '1234', 3);
 INSERT INTO users(userlogin, userpassword, userrole) VALUES ('supp', 'supp', 2);
 INSERT INTO users(userlogin, userpassword, userrole) VALUES ('priany', '123456', 1);
+INSERT INTO users(userlogin, userpassword, userrole) VALUES ('artem', '123456', 1);
+INSERT INTO users(userlogin, userpassword, userrole) VALUES ('sofa', '123456', 1);
 
 CREATE TABLE rooms
 (
@@ -36,6 +38,15 @@ CREATE TABLE student
     FOREIGN KEY (webaccid) references users(id)
 );
 
+INSERT INTO student(studentname, studentsurname, studentgroup, studentnumber, settledate, webaccid)
+VALUES ('Александр', 'Прянишников', 'ИУ7-75Б', '19У609', current_date, 3);
+
+INSERT INTO student(studentname, studentsurname, studentgroup, studentnumber, settledate, webaccid)
+VALUES ('Артем', 'Богаченко', 'ИУ7-55Б', '18У712', current_date, 4);
+
+INSERT INTO student(studentname, studentsurname, studentgroup, studentnumber, settledate, webaccid)
+VALUES ('София', 'Шелия', 'ИУ7-65Б', '19У709', current_date, 5);
+
 CREATE TABLE thing
 (
     thingid SERIAL PRIMARY KEY,
@@ -43,6 +54,13 @@ CREATE TABLE thing
     creationdate DATE,
     thingtype TEXT
 );
+
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (1, current_date, 'Шкаф');
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (2, current_date, 'Стул');
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (3, current_date, 'Стол');
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (4, current_date, 'Мультиварка');
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (5, current_date, 'Чайник');
+INSERT INTO thing(marknumber, creationdate, thingtype) VALUES (6, current_date, 'Стол');
 
 CREATE TABLE studentroomhistory
 (
@@ -55,6 +73,12 @@ CREATE TABLE studentroomhistory
     FOREIGN KEY (roomid) references rooms(roomid)
 );
 
+INSERT INTO studentroomhistory(studentid, roomid, direction, transferdate) VALUES (1, 2, 1, current_date);
+INSERT INTO studentroomhistory(studentid, roomid, direction, transferdate) VALUES (1, 2, 0, current_date);
+INSERT INTO studentroomhistory(studentid, roomid, direction, transferdate) VALUES (1, 2, 1, current_date);
+INSERT INTO studentroomhistory(studentid, roomid, direction, transferdate) VALUES (2, 2, 1, current_date);
+INSERT INTO studentroomhistory(studentid, roomid, direction, transferdate) VALUES (3, 3, 1, current_date);
+
 CREATE TABLE studentthinghistory
 (
     id SERIAL PRIMARY KEY,
@@ -65,6 +89,13 @@ CREATE TABLE studentthinghistory
     FOREIGN KEY (studentid) references student(studentid),
     FOREIGN KEY (thingid) references thing(thingid)
 );
+
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (1, 1, 1, current_date);
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (1, 1, 0, current_date);
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (1, 1, 1, current_date);
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (2, 3, 1, current_date);
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (1, 5, 1, current_date);
+INSERT INTO studentthinghistory(studentid, thingid, direction, transferdate) VALUES (3, 6, 1, current_date);
 
 CREATE TABLE thingroomhistory
 (
@@ -77,6 +108,11 @@ CREATE TABLE thingroomhistory
     FOREIGN KEY (srcroomid) references rooms(roomid),
     FOREIGN KEY (dstroomid) references rooms(roomid)
 );
+
+INSERT INTO thingroomhistory(srcroomid, dstroomid, thingid, transferdate) VALUES (1, 2, 1, current_date);
+INSERT INTO thingroomhistory(srcroomid, dstroomid, thingid, transferdate) VALUES (1, 2, 3, current_date);
+INSERT INTO thingroomhistory(srcroomid, dstroomid, thingid, transferdate) VALUES (2, 3, 3, current_date);
+INSERT INTO thingroomhistory(srcroomid, dstroomid, thingid, transferdate) VALUES (1, 3, 6, current_date);
 
 create function findroom(idthing integer) returns integer
     language plpgsql
