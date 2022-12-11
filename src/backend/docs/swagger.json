@@ -73,6 +73,13 @@
                 "summary": "Get all rooms in dormitory",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Page param for pagination",
                         "name": "page",
@@ -123,6 +130,13 @@
                 ],
                 "summary": "Get room information",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT Token",
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Room id",

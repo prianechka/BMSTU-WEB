@@ -3,12 +3,13 @@ package main
 import (
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
-	"src/configs"
+	"os"
+	"src/configs/backend"
 	_ "src/docs"
 	"src/server"
 )
 
-var configPath = "/home/prianechka/Education/BMSTU/Web/BMSTU-WEB/src/backend/configs/config.toml"
+var configPath = os.Getenv("CONFIG_FILE")
 
 // @title           BMSTU-WEB API
 // @version         1.0

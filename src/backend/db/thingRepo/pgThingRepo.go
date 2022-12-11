@@ -5,7 +5,6 @@ import (
 	"log"
 	"src/db/sql"
 	"src/objects"
-	"strconv"
 )
 
 type PgThingRepo struct {
@@ -24,17 +23,17 @@ func (pg *PgThingRepo) GetThings(page, size int) ([]objects.Thing, error) {
 		thingID, markNumber, ownerID, roomID int
 		thingType                            string
 		err                                  error
-		sizeParam                            string
+		execErr                              error
+		rows                                 *sql.Rows
 	)
-	sqlString := pgsql.PostgreSQLGetThings{}.GetString()
-	if size != objects.Null {
-		sizeParam = strconv.Itoa(size)
+	if size == objects.Null {
+		sqlString := pgsql.PostgreSQLGetThings{}.GetEmptyString()
+		rows, execErr = pg.Conn.Query(sqlString)
 	} else {
-		sizeParam = "ALL"
+		sqlString := pgsql.PostgreSQLGetThings{}.GetString()
+		rows, execErr = pg.Conn.Query(sqlString, size, page*size)
 	}
-
-	rows, execError := pg.Conn.Query(sqlString, sizeParam, page*size)
-	if execError == nil {
+	if execErr == nil {
 		for rows.Next() {
 			readRowErr := rows.Scan(&thingID, &markNumber, &thingType, &ownerID, &roomID)
 			if err == nil {
@@ -46,7 +45,7 @@ func (pg *PgThingRepo) GetThings(page, size int) ([]objects.Thing, error) {
 			}
 		}
 	} else {
-		err = execError
+		err = execErr
 	}
 	return resultThings, err
 }

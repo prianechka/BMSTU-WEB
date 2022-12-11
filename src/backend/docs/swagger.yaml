@@ -151,6 +151,11 @@ paths:
     get:
       description: View full information about rooms in dormitory.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Page param for pagination
         in: query
         name: page
@@ -183,6 +188,11 @@ paths:
     get:
       description: View information about room in dormitory.
       parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
       - description: Room id
         in: path
         name: room-id
