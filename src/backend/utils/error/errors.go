@@ -23,4 +23,5 @@ var (
 	ThingHasOwnerErr        = errors.New("thing has owner")
 	StudentIsNotOwnerErr    = errors.New("thing has owner")
 	WrongRequestParamsErr   = errors.New("bad request")
+	NotImplementedErr       = errors.New("not implemented")
 )

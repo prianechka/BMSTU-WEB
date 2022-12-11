@@ -34,6 +34,7 @@ const (
 	ThingNotFound                  = "Вещь не найдена!"
 	GiveThingErrorString           = "Вещь уже у другого студента!"
 	SettleStudentErrorString       = "Студент уже живёт в комнате!"
+	NotImplementedErrorString      = "Пока функционал на стадии реализации."
 	EvicStudentErrorString         = "Студент уже нигде не живёт!"
 	UserNotFoundErrorString        = "Пользователь не найден!"
 	UserAddErrorString             = "Пользователя не удалось добавить!"

@@ -13,6 +13,10 @@ type StudentResponseMessage struct {
 	Students []objects.Student `json:"students"`
 }
 
+type StudentHistoryResponseMessage struct {
+	RoomID int `json:"room-id"`
+}
+
 type AuthRequestMessage struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`

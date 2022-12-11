@@ -393,3 +393,62 @@ func (sh *StudentHandler) ViewStudentInfo(w http.ResponseWriter, r *http.Request
 	utils.SendShortResponse(w, statusCode, handleMessage)
 	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 }
+
+// ViewStudentLivingHistory
+// @Summary View history of student living
+// @Description View history of student living.
+// @Tags students
+// @Security JWT-Token
+// @Produce json
+// @Param  stud-number path string true "Студенческий билет"
+// @Param  status query string true "Параметр того, как выводить историю: текущую комнату(current) или общую историю перемещений (all)"
+// @Success 200 {object} models.StudentHistoryResponseMessage
+// @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
+// @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
+// @Failure 404 {object} models.ShortResponseMessage "Студент не найден"
+// @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
+// @Failure 501 {object} models.ShortResponseMessage "Пока функционал на стадии реализации"
+// @Router /api/v1/student-live-acts/{stud-number} [GET]
+func (sh *StudentHandler) ViewStudentLivingHistory(w http.ResponseWriter, r *http.Request) {
+	var statusCode int
+	var handleMessage string
+	var err error
+	var ID int
+
+	status := r.URL.Query().Get("status")
+	switch status {
+	case All:
+		err = appErrors.NotImplementedErr
+	case Current:
+		studentNumber, _ := mux.Vars(r)["stud-number"]
+		ID, err = sh.manager.GetCurrentRoom(studentNumber)
+	default:
+		err = appErrors.WrongRequestParamsErr
+	}
+
+	switch err {
+	case nil:
+		result := models.StudentHistoryResponseMessage{RoomID: ID}
+		bytes, _ := json.Marshal(&result)
+		_, _ = w.Write(bytes)
+		return
+	case appErrors.NotImplementedErr:
+		statusCode = http.StatusNotImplemented
+		handleMessage = objects.NotImplementedErrorString
+	case appErrors.WrongRequestParamsErr:
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.WrongParamsErrorString
+	case appErrors.StudentNotFoundErr:
+		statusCode = http.StatusNotFound
+		handleMessage = objects.StudentNotFoundErrorString
+	case appErrors.RoomNotFoundErr:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+	default:
+		statusCode = http.StatusInternalServerError
+		handleMessage = objects.InternalServerErrorString
+		utils.SendResponseWithInternalErr(w)
+	}
+	utils.SendShortResponse(w, statusCode, handleMessage)
+	logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
+}

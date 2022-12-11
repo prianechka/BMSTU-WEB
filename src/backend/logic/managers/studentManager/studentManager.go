@@ -198,3 +198,21 @@ func (sm *StudentManager) GetStudentByAccID(accID int) (string, error) {
 	}
 	return resultStudentNumber, err
 }
+
+func (sm *StudentManager) GetCurrentRoom(studentNumber string) (int, error) {
+	var result = objects.None
+	if studentNumber == objects.EmptyString {
+		return result, appErrors.BadStudentParamsErr
+	}
+
+	studentID, err := sm.studentController.GetStudentIDByNumber(studentNumber)
+	if err == nil {
+		student, getStudentErr := sm.studentController.GetStudent(studentID)
+		if getStudentErr == nil {
+			result = student.GetRoomID()
+		} else {
+			err = getStudentErr
+		}
+	}
+	return result, err
+}

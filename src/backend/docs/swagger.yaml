@@ -36,6 +36,11 @@ definitions:
       comment:
         type: string
     type: object
+  models.StudentHistoryResponseMessage:
+    properties:
+      room-id:
+        type: integer
+    type: object
   models.StudentLiveActsRequestMessage:
     properties:
       roomID:
@@ -243,6 +248,53 @@ paths:
       security:
       - JWT-Token: []
       summary: Settle/evic student in dormitory
+      tags:
+      - students
+  /api/v1/student-live-acts/{stud-number}:
+    get:
+      description: View history of student living.
+      parameters:
+      - description: Студенческий билет
+        in: path
+        name: stud-number
+        required: true
+        type: string
+      - description: 'Параметр того, как выводить историю: текущую комнату(current)
+          или общую историю перемещений (all)'
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StudentHistoryResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Студент не найден
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "501":
+          description: Пока функционал на стадии реализации
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: View history of student living
       tags:
       - students
   /api/v1/student-things-acts:
