@@ -31,6 +31,7 @@ const (
 	AddOK                          = "Операция успешно проведена!"
 	StudentNotFoundErrorString     = "Студент не найден!"
 	ReturnThingErrorString         = "Вещь и так была не у студента!"
+	ThingHasNotOwnerString         = "Вещь свободна!"
 	ThingNotFound                  = "Вещь не найдена!"
 	GiveThingErrorString           = "Вещь уже у другого студента!"
 	SettleStudentErrorString       = "Студент уже живёт в комнате!"
@@ -62,6 +63,7 @@ const (
 	MustBeIntErrorString           = "Параметр обязательно должен быть числом!"
 	EmptyParamsErrorString         = "Параметр не должен быть пустой"
 	WrongParamsErrorString         = "Параметры указаны неверно!"
+	AuthURI                        = "/api/v1/login"
 )
 
 type TransferDirection int

@@ -49,13 +49,11 @@ type ChangeStudentGroupRequestMessage struct {
 }
 
 type StudentLiveActsRequestMessage struct {
-	StudentNumber string `json:"student-number"`
-	RoomID        int    `json:"roomID"`
+	RoomID int `json:"roomID"`
 }
 
 type StudentThingsActsRequestMessage struct {
-	StudentNumber string `json:"student-number"`
-	MarkNumber    int    `json:"mark-number"`
+	StudentNumber string `json:"stud-number"`
 	Status        string `json:"status"`
 }
 

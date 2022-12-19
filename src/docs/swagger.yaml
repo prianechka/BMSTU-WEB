@@ -21,13 +21,6 @@ definitions:
       thingType:
         type: string
     type: object
-  models.AuthRequestMessage:
-    properties:
-      login:
-        type: string
-      password:
-        type: string
-    type: object
   models.ChangeStudentGroupRequestMessage:
     properties:
       newGroup:
@@ -52,12 +45,16 @@ definitions:
     properties:
       roomID:
         type: integer
+      student-number:
+        type: string
     type: object
   models.StudentThingsActsRequestMessage:
     properties:
+      mark-number:
+        type: integer
       status:
         type: string
-      stud-number:
+      student-number:
         type: string
     type: object
   models.ThingFullInfo:
@@ -111,7 +108,7 @@ definitions:
       thingType:
         type: string
     type: object
-host: localhost:9090
+host: localhost:8082
 info:
   contact: {}
   description: Server for bmstu dormitory app.
@@ -120,15 +117,14 @@ info:
   version: "1.0"
 paths:
   /api/v1/login:
-    post:
+    get:
       description: Try to authorize in system. JWT-Token send with success
       parameters:
-      - description: Request params
-        in: body
-        name: requestParams
+      - description: Student Number
+        in: path
+        name: stud-number
         required: true
-        schema:
-          $ref: '#/definitions/models.AuthRequestMessage'
+        type: string
       produces:
       - application/json
       responses:
@@ -226,6 +222,54 @@ paths:
       summary: Get room information
       tags:
       - rooms
+  /api/v1/student-live-acts:
+    post:
+      description: Settle/evic student in certain room.
+      parameters:
+      - description: JWT Token
+        in: header
+        name: access-token
+        required: true
+        type: string
+      - description: Параметры запроса. Если roomID == 0, то студент выселяется.
+        in: body
+        name: requestParams
+        required: true
+        schema:
+          $ref: '#/definitions/models.StudentLiveActsRequestMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные о студенте успешно обновлены!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "400":
+          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "403":
+          description: У вас нет достаточно прав!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "404":
+          description: Студент не найден" | "Комната не найдена
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "422":
+          description: Студент уже живёт в другой комнате!" | "Студент уже нигде не
+            живёт!
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+        "500":
+          description: Проблемы на стороне сервера.
+          schema:
+            $ref: '#/definitions/models.ShortResponseMessage'
+      security:
+      - JWT-Token: []
+      summary: Settle/evic student in dormitory
+      tags:
+      - students
   /api/v1/student-live-acts/{stud-number}:
     get:
       description: View history of student living.
@@ -277,31 +321,28 @@ paths:
       - JWT-Token: []
       summary: View history of student living
       tags:
-      - students-living-acts
+      - students
+  /api/v1/student-things-acts:
     post:
-      description: Settle/evic student in certain room.
+      description: Give thing to student without changing its location.
       parameters:
       - description: JWT Token
         in: header
         name: access-token
         required: true
         type: string
-      - description: Student Number
-        in: path
-        name: stud-number
-        required: true
-        type: string
-      - description: Параметры запроса. Если roomID == 0, то студент выселяется.
+      - description: 'Параметры запроса. У поля status 2 значения: give(выдать) и
+          return (забрать)'
         in: body
-        name: requestParams
+        name: TransferParams
         required: true
         schema:
-          $ref: '#/definitions/models.StudentLiveActsRequestMessage'
+          $ref: '#/definitions/models.StudentThingsActsRequestMessage'
       produces:
       - application/json
       responses:
         "200":
-          description: Данные о студенте успешно обновлены!
+          description: Вещь передана!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "400":
@@ -313,12 +354,11 @@ paths:
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "404":
-          description: Студент не найден" | "Комната не найдена
+          description: Студент не найден" | "Вещь не найдена!
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "422":
-          description: Студент уже живёт в другой комнате!" | "Студент уже нигде не
-            живёт!
+          description: Вещь уже у другого студента!" | "Вещь и так не у студента.
           schema:
             $ref: '#/definitions/models.ShortResponseMessage'
         "500":
@@ -327,9 +367,9 @@ paths:
             $ref: '#/definitions/models.ShortResponseMessage'
       security:
       - JWT-Token: []
-      summary: Settle/evic student in dormitory
+      summary: Action with things by students
       tags:
-      - students-living-acts
+      - students
   /api/v1/student-things-acts/{mark-number}:
     get:
       description: View history of thing owners
@@ -381,54 +421,7 @@ paths:
       - JWT-Token: []
       summary: View history of thing owners
       tags:
-      - student-thing-transfer
-    post:
-      description: Give thing to student without changing its location.
-      parameters:
-      - description: JWT Token
-        in: header
-        name: access-token
-        required: true
-        type: string
-      - description: 'Параметры запроса. У поля status 2 значения: give(выдать) и
-          return (забрать)'
-        in: body
-        name: TransferParams
-        required: true
-        schema:
-          $ref: '#/definitions/models.StudentThingsActsRequestMessage'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Вещь передана!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "400":
-          description: Параметр не должен быть пустой" | "Параметр должен быть числом!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "403":
-          description: У вас нет достаточно прав!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "404":
-          description: Студент не найден" | "Вещь не найдена!
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "422":
-          description: Вещь уже у другого студента!" | "Вещь и так не у студента.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-        "500":
-          description: Проблемы на стороне сервера.
-          schema:
-            $ref: '#/definitions/models.ShortResponseMessage'
-      security:
-      - JWT-Token: []
-      summary: Action with things by students
-      tags:
-      - student-thing-transfer
+      - students
   /api/v1/students:
     get:
       description: View full information about students have lived in dormitory.

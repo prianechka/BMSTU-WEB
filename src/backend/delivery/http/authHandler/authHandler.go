@@ -33,12 +33,12 @@ func CreateNewAuthHandler(logger *logrus.Entry, am authManager.AuthManager, ap a
 // @Description Try to authorize in system. JWT-Token send with success
 // @Produce json
 // @Tags auth
-// @Param  stud-number path string true "Student Number"
+// @Param  requestParams body models.AuthRequestMessage true "Request params"
 // @Success 200 {object} models.ResponseWithJWTMessage
 // @Failure 403 {object} models.ShortResponseMessage "Пароль введен неверно!"
 // @Failure 404 {object} models.ShortResponseMessage "Пользователь не найден"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
-// @Router /api/v1/login [GET]
+// @Router /api/v1/login [POST]
 func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -65,6 +65,7 @@ func (h *AuthHandler) Authorize(w http.ResponseWriter, r *http.Request) {
 		jwtToken := jwtUtils.CreateJWTToken(authParams.Login, newRole)
 		bytes, _ := json.Marshal(&jwtToken)
 		_, _ = w.Write(bytes)
+		return
 	case appErrors.UserNotFoundErr:
 		statusCode = http.StatusNotFound
 		handleMessage = objects.LoginErrorString

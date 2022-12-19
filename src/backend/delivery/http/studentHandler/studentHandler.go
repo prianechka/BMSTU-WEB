@@ -35,7 +35,7 @@ func CreateNewStudentHandler(logger *logrus.Entry, manager studentManager.Studen
 // @Produce json
 // @Param page query int false "Page param for pagination"
 // @Param size query int false "Size param for pagination"
-// @Success 200 {object} objects.StudentResponseDTO
+// @Success 200 {array} objects.StudentResponseDTO
 // @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
 // @Router /api/v1/students [GET]
@@ -45,6 +45,14 @@ func (sh *StudentHandler) GetAllStudents(w http.ResponseWriter, r *http.Request)
 	var err error
 
 	page, size := utils.GetPageAndSizeFromQuery(r)
+	if checkErr := utils.CheckPageAndSize(page, size); checkErr != nil {
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.WrongParamsErrorString
+		err = checkErr
+		utils.SendShortResponse(w, statusCode, handleMessage)
+		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
+		return
+	}
 
 	allStudents, err := sh.manager.ViewAllStudents(page, size)
 	switch err {
@@ -130,9 +138,10 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 // @Summary Settle/evic student in dormitory
 // @Description Settle/evic student in certain room.
 // @Produce json
-// @Tags students
+// @Tags students-living-acts
 // @Security JWT-Token
 // @param access-token header string true "JWT Token"
+// @Param  stud-number path string true "Student Number"
 // @Param  requestParams body models.StudentLiveActsRequestMessage true "Параметры запроса. Если roomID == 0, то студент выселяется."
 // @Success 200 {object} models.ShortResponseMessage "Данные о студенте успешно обновлены!"
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметр должен быть числом!"
@@ -140,7 +149,7 @@ func (sh *StudentHandler) ChangeStudentGroup(w http.ResponseWriter, r *http.Requ
 // @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Комната не найдена"
 // @Failure 422 {object} models.ShortResponseMessage "Студент уже живёт в другой комнате!" | "Студент уже нигде не живёт!"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
-// @Router /api/v1/student-live-acts [POST]
+// @Router /api/v1/student-live-acts/{stud-number} [POST]
 func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -167,11 +176,13 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	studentNumber, _ := mux.Vars(r)["stud-number"]
+
 	switch params.RoomID {
 	case objects.Null:
-		err = sh.manager.EvicStudent(params.StudentNumber)
+		err = sh.manager.EvicStudent(studentNumber)
 	default:
-		err = sh.manager.SettleStudent(params.StudentNumber, params.RoomID)
+		err = sh.manager.SettleStudent(studentNumber, params.RoomID)
 	}
 
 	switch err {
@@ -209,7 +220,7 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 // @Summary Action with things by students
 // @Description Give thing to student without changing its location.
 // @Produce json
-// @Tags students
+// @Tags student-thing-transfer
 // @Security JWT-Token
 // @param access-token header string true "JWT Token"
 // @Param TransferParams body models.StudentThingsActsRequestMessage true "Параметры запроса. У поля status 2 значения: give(выдать) и return (забрать)"
@@ -219,7 +230,7 @@ func (sh *StudentHandler) TransferStudent(w http.ResponseWriter, r *http.Request
 // @Failure 404 {object} models.ShortResponseMessage "Студент не найден" | "Вещь не найдена!"
 // @Failure 422 {object} models.ShortResponseMessage "Вещь уже у другого студента!" | "Вещь и так не у студента."
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
-// @Router /api/v1/student-things-acts [POST]
+// @Router /api/v1/student-things-acts/{mark-number} [POST]
 func (sh *StudentHandler) TransferThingFromToStudents(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -245,11 +256,22 @@ func (sh *StudentHandler) TransferThingFromToStudents(w http.ResponseWriter, r *
 		logger.WriteInfoInLog(sh.logger, r, statusCode, handleMessage, err)
 		return
 	}
+
 	switch params.Status {
 	case Give:
-		err = sh.manager.GiveStudentThing(params.StudentNumber, params.MarkNumber)
+		markNumber, getMarkNumberErr := utils.GetMarkNumberFromPath(r)
+		if getMarkNumberErr == nil {
+			err = sh.manager.GiveStudentThing(params.StudentNumber, markNumber)
+		} else {
+			err = appErrors.WrongRequestParamsErr
+		}
 	case Return:
-		err = sh.manager.ReturnStudentThing(params.StudentNumber, params.MarkNumber)
+		markNumber, getMarkNumberErr := utils.GetMarkNumberFromPath(r)
+		if getMarkNumberErr == nil {
+			err = sh.manager.ReturnStudentThing(params.StudentNumber, markNumber)
+		} else {
+			err = appErrors.WrongRequestParamsErr
+		}
 	default:
 		err = appErrors.WrongRequestParamsErr
 	}
@@ -403,7 +425,7 @@ func (sh *StudentHandler) ViewStudentInfo(w http.ResponseWriter, r *http.Request
 // ViewStudentLivingHistory
 // @Summary View history of student living
 // @Description View history of student living.
-// @Tags students
+// @Tags students-living-acts
 // @Security JWT-Token
 // @param access-token header string true "JWT Token"
 // @Produce json

@@ -130,11 +130,11 @@ func (tm *ThingManager) GetOwner(markNumber int) (string, error) {
 			student, getStudentErr := tm.studentController.GetStudent(ownerID)
 			if getStudentErr == nil {
 				result = student.GetStudentNumber()
+			} else if getStudentErr == appErrors.StudentNotFoundErr {
+				err = appErrors.ThingHasNotOwnerErr
 			} else {
 				err = getStudentErr
 			}
-		} else {
-			err = getOwnerErr
 		}
 	}
 	return result, err

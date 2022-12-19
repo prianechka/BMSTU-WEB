@@ -1,0 +1,7 @@
+start_port = ":8082"
+[server]
+host = "postgres1"
+port = "5432"
+database = "ppo"
+user = "bob"
+password = "admin"

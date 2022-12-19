@@ -41,3 +41,11 @@ func GetMarkNumberFromPath(r *http.Request) (markNumber int, err error) {
 	}
 	return markNumber, err
 }
+
+func CheckPageAndSize(page, size int) error {
+	if page < objects.Null || size < objects.Null {
+		return appErrors.WrongRequestParamsErr
+	} else {
+		return nil
+	}
+}

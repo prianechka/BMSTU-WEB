@@ -1,0 +1,35 @@
+Server Software:        dormitory
+Server Hostname:        localhost
+Server Port:            9090
+
+Document Path:          /
+Document Length:        235031 bytes
+
+Concurrency Level:      100
+Time taken for tests:   2.667 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      2353360000 bytes
+HTML transferred:       2350310000 bytes
+Requests per second:    3750.18 [#/sec] (mean)
+Time per request:       26.665 [ms] (mean)
+Time per request:       0.267 [ms] (mean, across all concurrent requests)
+Transfer rate:          861867.76 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       6
+Processing:     3   26   1.8     27      34
+Waiting:        1   26   1.7     26      31
+Total:          9   26   1.4     27      34
+
+Percentage of the requests served within a certain time (ms)
+  50%     27
+  66%     27
+  75%     27
+  80%     27
+  90%     28
+  95%     28
+  98%     29
+  99%     29
+ 100%     34 (longest request)

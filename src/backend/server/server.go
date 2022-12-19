@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
+	"os"
 	"src/configs/backend"
 	"src/db/roomRepo"
 	"src/db/studentRepo"
@@ -15,6 +16,7 @@ import (
 	"src/delivery/http/roomHandler"
 	"src/delivery/http/studentHandler"
 	"src/delivery/http/thingHandler"
+	"src/docs"
 	"src/logic/controllers/roomController"
 	"src/logic/controllers/studentController"
 	"src/logic/controllers/thingController"
@@ -28,6 +30,8 @@ import (
 	utils "src/utils/connection"
 )
 
+var serverType = os.Getenv("SERVER_TYPE")
+
 type Server struct {
 	config *configs.ServerConfig
 	logger *logrus.Entry
@@ -40,6 +44,10 @@ func CreateServer(config *configs.ServerConfig, logger *logrus.Entry) *Server {
 // Start
 // @securityDefinitions.apikey JWT-Token
 func (s *Server) Start() error {
+	if serverType == "mirror" {
+		docs.SwaggerInfo.BasePath = "/mirror1"
+	}
+
 	r := mux.NewRouter()
 	router := r.PathPrefix("/api/v1/").Subrouter()
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
@@ -76,9 +84,9 @@ func (s *Server) Start() error {
 	router.HandleFunc("/students", StudentHandler.AddNewStudent).Methods("POST")
 	router.HandleFunc("/students/{stud-number}", StudentHandler.ChangeStudentGroup).Methods("PUT")
 	router.HandleFunc("/students/{stud-number}", StudentHandler.ViewStudentInfo).Methods("GET")
-	router.HandleFunc("/student-live-acts", StudentHandler.TransferStudent).Methods("POST")
+	router.HandleFunc("/student-live-acts/{stud-number}", StudentHandler.TransferStudent).Methods("POST")
 	router.HandleFunc("/student-live-acts/{stud-number}", StudentHandler.ViewStudentLivingHistory).Methods("GET")
-	router.HandleFunc("/student-things-acts", StudentHandler.TransferThingFromToStudents).Methods("POST")
+	router.HandleFunc("/student-things-acts/{mark-number}", StudentHandler.TransferThingFromToStudents).Methods("POST")
 	router.HandleFunc("/student-things-acts/{mark-number}", ThingHandler.ViewThingHistory).Methods("GET")
 
 	router.HandleFunc("/things", ThingHandler.GetThings).Methods("GET")

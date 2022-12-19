@@ -34,7 +34,8 @@ func GetRoleFromJWT(inToken string) (result objects.Levels) {
 	if err == nil && token.Valid {
 		payload, ok := token.Claims.(jwt.MapClaims)
 		if ok {
-			result = payload["role"].(objects.Levels)
+			floatRole := payload["role"].(float64)
+			result = objects.Levels(floatRole)
 		}
 	}
 	return result

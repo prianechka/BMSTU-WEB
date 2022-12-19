@@ -39,12 +39,13 @@ func CreateNewThingHandler(logger *logrus.Entry, man thingManager.ThingManager) 
 // @Security JWT-Token
 // @param access-token header string true "JWT Token"
 // @Produce json
-// @Success 200 {object} models.ThingFullInfo
+// @Success 200 {array} models.ThingFullInfo
 // @Failure 400 {object} models.ShortResponseMessage "Параметр не должен быть пустой" | "Параметры указаны неверно"
 // @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
 // @Failure 404 {object} models.ShortResponseMessage "Студент не найден"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера"
 // @Router /api/v1/things [GET]
+// @Router /mirror1/api/v1/things [GET]
 func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 	var statusCode int
 	var handleMessage string
@@ -52,6 +53,14 @@ func (th *ThingHandler) GetThings(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	page, size := utils.GetPageAndSizeFromQuery(r)
+	if checkErr := utils.CheckPageAndSize(page, size); checkErr != nil {
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.WrongParamsErrorString
+		err = checkErr
+		utils.SendShortResponse(w, statusCode, handleMessage)
+		logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)
+		return
+	}
 
 	status := r.URL.Query().Get("status")
 	switch status {
@@ -294,7 +303,7 @@ func (th *ThingHandler) AddNewThing(w http.ResponseWriter, r *http.Request) {
 // ViewThingHistory
 // @Summary View history of thing owners
 // @Description View history of thing owners
-// @Tags students
+// @Tags student-thing-transfer
 // @Security JWT-Token
 // @param access-token header string true "JWT Token"
 // @Produce json
@@ -342,7 +351,10 @@ func (th *ThingHandler) ViewThingHistory(w http.ResponseWriter, r *http.Request)
 		handleMessage = objects.WrongParamsErrorString
 	case appErrors.ThingNotFoundErr:
 		statusCode = http.StatusNotFound
-		handleMessage = objects.StudentNotFoundErrorString
+		handleMessage = objects.ThingNotFound
+	case appErrors.ThingHasNotOwnerErr:
+		statusCode = http.StatusOK
+		handleMessage = objects.ThingHasNotOwnerString
 	case appErrors.RoomNotFoundErr:
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
@@ -350,6 +362,7 @@ func (th *ThingHandler) ViewThingHistory(w http.ResponseWriter, r *http.Request)
 		statusCode = http.StatusInternalServerError
 		handleMessage = objects.InternalServerErrorString
 		utils.SendResponseWithInternalErr(w)
+		return
 	}
 	utils.SendShortResponse(w, statusCode, handleMessage)
 	logger.WriteInfoInLog(th.logger, r, statusCode, handleMessage, err)

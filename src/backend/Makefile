@@ -12,6 +12,5 @@ make-mocks:
 generate-api:
 	go install github.com/swaggo/swag/cmd/swag@v1.6.5
 	swag init -g ./cmd/server/main.go -o docs
-	
 clean:
 	rm -rf *.out *.exe *.html *.csv

@@ -34,7 +34,7 @@ func CreateNewRoomHandler(logger *logrus.Entry, manager roomManager.RoomManager)
 // @Produce json
 // @Param page query int false "Page param for pagination"
 // @Param size query int false "Size param for pagination"
-// @Success 200 {object} objects.RoomResponseDTO
+// @Success 200 {array} objects.RoomResponseDTO
 // @Failure 403 {object} models.ShortResponseMessage "У вас нет достаточно прав!"
 // @Failure 500 {object} models.ShortResponseMessage "Проблемы на стороне сервера."
 // @Router /api/v1/rooms [GET]
@@ -44,6 +44,14 @@ func (rh *RoomHandler) GetAllRooms(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	page, size := utils.GetPageAndSizeFromQuery(r)
+	if checkErr := utils.CheckPageAndSize(page, size); checkErr != nil {
+		statusCode = http.StatusBadRequest
+		handleMessage = objects.WrongParamsErrorString
+		err = checkErr
+		utils.SendShortResponse(w, statusCode, handleMessage)
+		logger.WriteInfoInLog(rh.logger, r, statusCode, handleMessage, err)
+		return
+	}
 
 	allRooms, err := rh.manager.GetAllRooms(page, size)
 	resultRooms := objects.CreateRoomResponseArr(allRooms)
